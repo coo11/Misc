@@ -1,6 +1,7 @@
-## 删除git中无用的大文件
+## 删除 Git 仓库大文件
 
 - 原文链接：<https://www.cnblogs.com/amiezhang/p/11337095.html>
+- 其它参考：[为Git仓库瘦身](http://archive.is/5kTkp) | 出处：<http://www.huamo.online> | *Archived*
 
 有时候我们不小心提交了一些大文件上去，后来删除了，但是已经于事无补了，整个 git 的提及已经蹭蹭上去了。
 
