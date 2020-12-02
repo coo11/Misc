@@ -64,7 +64,6 @@
 [WinSCP](https://winscp.net/) | 开源图形化 SFTP 客户端 | [SourceForge](https://sourceforge.net/projects/winscp/files/WinSCP/)
 [Fiddler](https://www.telerik.com/fiddler) | 易上手的抓包工具 | [腾讯](https://pc.qq.com/detail/10/detail_3330.html)
 [Cyberduck](https://cyberduck.io/) | FTP 和 SFTP，WebDAV 和云存储客户端
-[Aria2c](https://aria2.github.io/) | 命令行界面的下载管理器 | [Github](https://github.com/aria2/aria2/releases/latest)
 [Shadowsocks](https://github.com/shadowsocks/shadowsocks-windows) | 代理工具 | [Github](https://github.com/shadowsocks/shadowsocks-windows/releases/latest)
 [PortScan](https://www.the-sz.com/products/portscan/) | 端口扫描 路由跟踪 速度测试 | [官方(直链)](https://www.the-sz.com/common/get.php?product=portscan)
 [Clash](https://github.com/Dreamacro/clash) | 使用 Golang 编写的代理工具 | [Github](https://github.com/Dreamacro/clash/releases)
@@ -157,6 +156,16 @@
 [Windows Terminal](https://www.microsoft.com/zh-cn/store/apps/9n0dx20hk701) | 新命令行程序
 [哔哩哔哩UWP](https://www.microsoft.com/zh-cn/store/apps/9n7c87236453) | 哔哩哔哩第三方客户端
 [Cover](https://www.microsoft.com/zh-cn/store/apps/9wzdncrfj9w7) | 简洁的漫画阅读器
+
+## CLI
+
+| 名称 | 描述 | 下载
+| :- | :- | :-: |
+[aria2](https://aria2.github.io/) | 下载工具 | [Github](https://github.com/aria2/aria2/releases/latest)
+[curl](https://curl.se/) | 综合传输工具 | [官方](https://curl.se/download.html)
+[libarchive](https://www.libarchive.org/) | 压缩工具 | [Github](https://github.com/libarchive/libarchive/releases/latest)
+[Precompiled WebP utilities](https://developers.google.com/speed/webp) | WebP 官方工具集 | [官方](https://developers.google.com/speed/webp/download)
+[Android SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) | ADB、Fastboot 等工具集 | [官方(直链)](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
 
 ## 其他
 
