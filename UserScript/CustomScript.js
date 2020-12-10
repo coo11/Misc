@@ -41,6 +41,14 @@
 // ----RewriteURLStart----
 // SankakuComplex
 // @match         *://chan.sankakucomplex.com/*
+// SouthPlus
+// @match         *://*.soul-plus.net/*
+// @match         *://*.south-plus.net/*
+// @match         *://*.south-plus.org/*
+// @match         *://*.north-plus.net/*
+// @match         *://*.level-plus.net/*
+// @match         *://*.white-plus.net/*
+// @match         *://*.summer-plus.net/*
 // ----RewriteURLEnd------
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -313,6 +321,15 @@
     return redirect(
       src.replace(/(:\/\/[^/]*\/)(.*?)(?=post\/show\/)/, "$1cn/")
     );
+  }
+
+  // SouthPlus
+  else if (
+    /(summer|white|north|south|soul|level)-plus\.net$/i.test(domain) ||
+    domain.endsWith("south-plus.org")
+  ) {
+    window.location.hostname = "bbs.imoutolove.me";
+    return;
   }
 
   // SauceNAO
