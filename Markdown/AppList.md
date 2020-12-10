@@ -164,6 +164,7 @@
 [aria2](https://aria2.github.io/) | 下载工具 | [Github](https://github.com/aria2/aria2/releases/latest)
 [curl](https://curl.se/) | 综合传输工具 | [官方](https://curl.se/download.html)
 [libarchive](https://www.libarchive.org/) | 压缩工具 | [Github](https://github.com/libarchive/libarchive/releases/latest)
+[dig](https://www.isc.org/bind/) | 域名信息搜索工具 | [官方](https://www.isc.org/download/#BIND)
 [Precompiled WebP utilities](https://developers.google.com/speed/webp) | WebP 官方工具集 | [官方](https://developers.google.com/speed/webp/download)
 [Android SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) | ADB、Fastboot 等工具集 | [官方(直链)](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
 
