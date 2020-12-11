@@ -123,16 +123,15 @@
 
   // Pixiv
   else if (domain === "i.pximg.net") {
-    return redirect(
-      src
-        .replace(
-          /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
-          "$1$2"
-        )
-        .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+)?\//, "/")
-        .replace(/\/img-master\//, "/img-original/")
-        .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2")
-    );
+    newSrc = src
+      .replace(
+        /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
+        "$1$2"
+      )
+      .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+)?\//, "/")
+      .replace(/\/img-master\//, "/img-original/")
+      .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2");
+    return redirect(addExts(newSrc, ["jpg", "png"]));
   }
 
   // Twitter
@@ -313,9 +312,7 @@
      * https://i.pinimg.com/originals/1f/3f/ed/1f3fed6c284955934c7d724d2fe13ecb.png
      * https://i.pinimg.com/640x/a7/db/c3/a7dbc392372f1ca8f744032ba3c5ade1.jpg
      * https://i.pinimg.com/originals/a7/db/c3/a7dbc392372f1ca8f744032ba3c5ade1.gif */
-    return redirect(
-      ["gif", "png", "jpg"].map(i => `${newSrc.slice(0, -3)}${i}`)
-    );
+    return redirect(addExts(newSrc));
   }
 
   // SankakuComplex
@@ -375,6 +372,30 @@
           }
         }
       });
+  }
+
+  /**
+   * Add multiple extensions for guessing real url.
+   * @param {String} obj - url(s) to edit suffix
+   * @param {Array} extList - Extensions list
+   */
+  function addExts(obj, extList = ["gif", "png", "jpg"]) {
+    let results = [];
+    if (!Array.isArray(obj)) {
+      obj = [obj];
+    }
+    const regex = /(.*)\.([^/.]*?)([?#].*)?$/;
+    for (let i = 0; i < obj.length; i++) {
+      let url = obj[i];
+      if (!url.match(regex)) {
+        result.push(url);
+        continue;
+      }
+      extList.forEach(ext => {
+        results.push(`${RegExp.$1}.${ext}${RegExp.$3}`);
+      });
+    }
+    return results;
   }
 
   function getQueries(url, decode = false) {
