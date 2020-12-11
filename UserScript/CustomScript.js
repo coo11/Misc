@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         CustomScript
-// @namespace         https://gist.github.com/coo11
-// @version         0.1.2
+// @namespace         https://github.com/coo11/Backup/tree/master/UserScript
+// @version         0.1.3
 // @description         My fitst user script
 // @author         coo11
+// @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
+// @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
 // @run-at         document-start
 // ----EnhanceStart----
 // SauceNAO
