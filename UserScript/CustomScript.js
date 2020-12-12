@@ -129,8 +129,9 @@
         "$1$2"
       )
       .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+)?\//, "/")
-      .replace(/\/img-master\//, "/img-original/")
+      .replace(/\/(img-master|custom-thumb)\//, "/img-original/")
       .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2");
+    //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     return redirect(addExts(newSrc, ["jpg", "png"]));
   }
 
