@@ -51,9 +51,10 @@
 // @match         *://*.level-plus.net/*
 // @match         *://*.white-plus.net/*
 // @match         *://*.summer-plus.net/*
-// To 3rd Website
+// Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://www.pixiv.net/jump.php?url=*
+// @match         *://www.inoreader.com/*
 // ----RewriteURLEnd------
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -94,6 +95,9 @@
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
+  } else if (domain === "www.inoreader.com") {
+    window.location.hostname = "jp.inoreader.com";
+    return;
   }
 
   // Weibo
