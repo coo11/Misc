@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CustomScript
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.3
+// @version         0.1.4
 // @description         My fitst user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -51,6 +51,9 @@
 // @match         *://*.level-plus.net/*
 // @match         *://*.white-plus.net/*
 // @match         *://*.summer-plus.net/*
+// To 3rd Website
+// @match         *://link.zhihu.com/?target=*
+// @match         *://www.pixiv.net/jump.php?url=*
 // ----RewriteURLEnd------
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -79,6 +82,18 @@
     domain === "steamuserimages-a.akamaihd.net"
   ) {
     return redirect(src.replace(/\?.*$/, ""));
+  }
+
+  // Jump to 3rd website
+  else if (
+    domain === "link.zhihu.com" ||
+    (domain === "www.pixiv.net" &&
+      src.indexOf("www.pixiv.net/jump.php?url=") > -1)
+  ) {
+    matched = src.match(/.*?=(.*)/);
+    if (matched && matched[1]) {
+      return redirect(decodeURIComponent(matched[1]));
+    } else return;
   }
 
   // Weibo
@@ -129,7 +144,7 @@
         "$1$2"
       )
       .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+)?\//, "/")
-      .replace(/\/(img-master|custom-thumb)\//, "/img-original/")
+      .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
       .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2");
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     return redirect(addExts(newSrc, ["jpg", "png"]));
@@ -334,45 +349,43 @@
 
   // SauceNAO
   else if (domain === "saucenao.com") {
-    document.addEventListener("DOMContentLoaded", saucenao);
-    return;
-  }
-
-  function saucenao() {
-    const tBody = document.body;
-    if (tBody.innerText.indexOf("Access to specified file was denied") > -1) {
-      tBody.innerText += "\nGO BACK TO START IN 3S...";
-      setTimeout(() => {
-        location.href = "/";
-      }, 3000);
-    }
-    document
-      .querySelectorAll("div#yourimageretrylinks > a")
-      .forEach(a => a.setAttribute("target", "_blank"));
-    document
-      .querySelectorAll("div:not(#result-hidden-notification).result")
-      .forEach(e => {
-        let desc = e.querySelector("img[title]").title,
-          isNeedShow = /hentai/i.test(desc),
-          content = e.querySelector(".resultcontentcolumn"),
-          miscinfo = e.querySelector(".resultmiscinfo");
-        e.querySelectorAll("a:not([href*='saucenao.com'])").forEach(a =>
-          a.setAttribute("target", "_blank")
-        );
-        if (content && isNeedShow) {
-          desc = desc.replace(/.*?#\d+:\s/, "");
-          content.innerHTML =
-            content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") +
-            `<small style="color: #999;">${desc}</small><br>`;
-          if (/E-Hentai/i.test(desc)) {
-            let sha1 = desc.match(/[0-9A-z]{40}/i);
-            if (sha1) {
-              let href = `https://exhentai.org/?f_cats=0&fs_similar=1&f_shash=${sha1[0]}`;
-              miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
+    document.addEventListener("DOMContentLoaded", () => {
+      const tBody = document.body;
+      if (tBody.innerText.indexOf("Access to specified file was denied") > -1) {
+        tBody.innerText += "\nGO BACK TO START IN 3S...";
+        setTimeout(() => {
+          location.href = "/";
+        }, 3000);
+      }
+      document
+        .querySelectorAll("div#yourimageretrylinks > a")
+        .forEach(a => a.setAttribute("target", "_blank"));
+      document
+        .querySelectorAll("div:not(#result-hidden-notification).result")
+        .forEach(e => {
+          let desc = e.querySelector("img[title]").title,
+            isNeedShow = /hentai/i.test(desc),
+            content = e.querySelector(".resultcontentcolumn"),
+            miscinfo = e.querySelector(".resultmiscinfo");
+          e.querySelectorAll("a:not([href*='saucenao.com'])").forEach(a =>
+            a.setAttribute("target", "_blank")
+          );
+          if (content && isNeedShow) {
+            desc = desc.replace(/.*?#\d+:\s/, "");
+            content.innerHTML =
+              content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") +
+              `<small style="color: #999;">${desc}</small><br>`;
+            if (/E-Hentai/i.test(desc)) {
+              let sha1 = desc.match(/[0-9A-z]{40}/i);
+              if (sha1) {
+                let href = `https://exhentai.org/?f_cats=0&fs_similar=1&f_shash=${sha1[0]}`;
+                miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
+              }
             }
           }
-        }
-      });
+        });
+    });
+    return;
   }
 
   /**

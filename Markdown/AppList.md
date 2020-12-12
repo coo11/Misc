@@ -68,7 +68,7 @@
 [PortScan](https://www.the-sz.com/products/portscan/) | 端口扫描 路由跟踪 速度测试 | [官方(直链)](https://www.the-sz.com/common/get.php?product=portscan)
 [Clash](https://github.com/Dreamacro/clash) | 使用 Golang 编写的代理工具 | [Github](https://github.com/Dreamacro/clash/releases)
 [Clash Premium](https://github.com/Dreamacro/clash/wiki/premium-core-features) | Clash 高级版 | [Github](https://github.com/Dreamacro/clash/releases/tag/premium/latest)
-[DNS Jumper](https://www.sordum.org/?s=Dns+Jumper) | DNS 测速优化工具 | [官方(直链)](https://www.sordum.org/downloads/?dns-jumper)
+[DNS Jumper](https://www.sordum.org/?s=Dns+Jumper) | DNS 测速优化工具 | [官方(直链)](https://www.sordum.org/files/download/dns-jumper/DnsJumper.zip)
 
 ## 影音
 
