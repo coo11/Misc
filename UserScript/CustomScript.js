@@ -164,7 +164,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    },
+    }
   };
 
   /**
@@ -292,42 +292,11 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
     ];
     let i = 0,
       uid,
       mid;
-    function getInfoByOid(oid) {
-      //DOM may be changed
-      let currentOid = window.location.href.match(regex[4]);
-      if (currentOid && currentOid[1] !== oid) {
-        oid = currentOid[1];
-      }
-      fetch(
-        `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
-        {
-          headers: {
-            "content-type": "application/x-www-form-urlencoded",
-          },
-          body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST",
-        }
-      )
-        .then(resp => {
-          if (resp && resp.status == 200) {
-            return resp.json();
-          }
-        })
-        .then(resp => {
-          if (resp) {
-            const info = resp.data.Component_Play_Playinfo;
-            mid = weiboFn.id2mid(info.mid);
-            uid = info.user.id;
-            window.open(`https://weibo.com/${uid}/${mid}`);
-          }
-        });
-      return;
-    }
     while (!(matched = src.match(regex[i]))) i++;
     switch (i) {
       case 0:
@@ -352,6 +321,7 @@
                 } else if (i === 0 && /^\d+$/.test(matched[1])) {
                   uid = matched[1];
                 }
+                resolve(true);
               });
           });
         })();
@@ -361,7 +331,22 @@
         return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
       case 4:
       default:
-        if (!mid && i !== 4) return;
+        if (!mid && i !== 4) {
+          return GM_registerMenuCommand("Weibo Base62", () => {
+            const input = prompt(
+              "Input String to execute Base 62 encode/decode:"
+            );
+            if (!input) {
+              return;
+            }
+            const isEncoded = /\D/.test(input);
+            const output = isEncoded
+                ? weiboFn.mid2id(input)
+                : weiboFn.id2mid(input),
+              tip = isEncoded ? "Decoded" : "Encoded";
+            return prompt(`${tip} result:`, output);
+          });
+        }
     }
     return GM_registerMenuCommand("Open Base62 URL", () => {
       if (i === 4) getInfoByOid(matched[1]);
@@ -369,6 +354,38 @@
         return window.open(`https://weibo.com/${uid}/${mid}`);
       }
     });
+
+    function getInfoByOid(oid) {
+       //DOM may be changed
+       let currentOid = window.location.href.match(regex[4]);
+       if (currentOid && currentOid[1] !== oid) {
+         oid = currentOid[1];
+       }
+       fetch(
+         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
+         {
+           headers: {
+             "content-type": "application/x-www-form-urlencoded"
+           },
+           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
+           method: "POST"
+         }
+       )
+         .then(resp => {
+           if (resp && resp.status == 200) {
+             return resp.json();
+           }
+         })
+         .then(resp => {
+           if (resp) {
+             const info = resp.data.Component_Play_Playinfo;
+             mid = weiboFn.id2mid(info.mid);
+             uid = info.user.id;
+             window.open(`https://weibo.com/${uid}/${mid}`);
+           }
+         });
+       return;
+     }
   }
 
   // Weibo
@@ -456,7 +473,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2],
+          format: matched[2]
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -537,7 +554,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2"),
+        src.replace(regex, "$1large/$2")
       ]);
     }
   }
