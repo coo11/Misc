@@ -61,7 +61,7 @@
 // @match         *://m.weibo.cn/*
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
-// @match         *://weibo.com/tv/show/*
+// @match         *://weibo.com/*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -164,7 +164,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    }
+    },
   };
 
   /**
@@ -288,104 +288,93 @@
   // Weibo Client Switch
   else if (domain.endsWith("weibo.cn") || domain.endsWith("weibo.com")) {
     const regex = [
-      /\/(status|detail|\d+)\/([a-z0-9]+)/i,
+      /\/\/m\.weibo\.cn\/(status|detail|\d+)\/([a-z0-9]+)/i,
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
     ];
-    let i = 0,
-      uid,
-      mid;
+    let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
+    console.log(i);
     switch (i) {
       case 0:
       case 1:
-        mid = i === 0 ? matched[2] : matched[1];
-        await (() => {
-          return new Promise(resolve => {
-            fetch(`https://m.weibo.cn/statuses/show?id=${mid}`)
-              .then(resp => {
-                if (resp && resp.status == 200) {
-                  return resp.json();
-                }
-              })
-              .then(resp => {
-                if (/^\d+$/.test(mid)) {
-                  mid = weiboFn.id2mid(matched[2]);
-                }
-                if (resp) {
-                  const info = resp.data;
-                  uid = info.user.id;
-                  resolve(true);
-                } else if (i === 0 && /^\d+$/.test(matched[1])) {
-                  uid = matched[1];
-                }
-                resolve(true);
-              });
+        return fetch(`https://m.weibo.cn/statuses/show?id=${matched[i === 0 ? 2 : 1]}`)
+          .then(resp => {
+            if (resp && resp.status == 200) {
+              return resp.json();
+            }
+          })
+          .then(resp => {
+            let mid, uid;
+            if (resp) {
+              const info = resp.data;
+              mid = weiboFn.id2mid(info.mid);
+              uid = info.user.id;
+            } else if (i === 0 && /^\d+$/.test(matched[1])) {
+              uid = matched[1];
+              mid = weiboFn.id2mid(matched[2]);
+            }
+            GM_registerMenuCommand("Open Base62 URL", () =>
+              window.open(`https://weibo.com/${uid}/${mid}`)
+            );
           });
-        })();
-        break;
       case 2:
       case 3:
         return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
       case 4:
-      default:
-        if (!mid && i !== 4) {
-          return GM_registerMenuCommand("Weibo Base62", () => {
-            const input = prompt(
-              "Input String to execute Base 62 encode/decode:"
-            );
-            if (!input) {
-              return;
-            }
-            const isEncoded = /\D/.test(input);
-            const output = isEncoded
-                ? weiboFn.mid2id(input)
-                : weiboFn.id2mid(input),
-              tip = isEncoded ? "Decoded" : "Encoded";
-            return prompt(`${tip} result:`, output);
-          });
-        }
+        return GM_registerMenuCommand("Open Base62 URL", () =>
+          getInfoByOid(matched[1])
+        );
+      case 5:
+        return GM_registerMenuCommand("Weibo Base62", () => {
+          const input = prompt(
+            "Input String to execute Base 62 encode/decode:"
+          );
+          if (!input) {
+            return;
+          }
+          const isEncoded = /\D/.test(input);
+          const output = isEncoded
+              ? weiboFn.mid2id(input)
+              : weiboFn.id2mid(input),
+            tip = isEncoded ? "Decoded" : "Encoded";
+          return prompt(`${tip} result:`, output);
+        });
     }
-    return GM_registerMenuCommand("Open Base62 URL", () => {
-      if (i === 4) getInfoByOid(matched[1]);
-      else {
-        return window.open(`https://weibo.com/${uid}/${mid}`);
-      }
-    });
 
     function getInfoByOid(oid) {
-       //DOM may be changed
-       let currentOid = window.location.href.match(regex[4]);
-       if (currentOid && currentOid[1] !== oid) {
-         oid = currentOid[1];
-       }
-       fetch(
-         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
-         {
-           headers: {
-             "content-type": "application/x-www-form-urlencoded"
-           },
-           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-           method: "POST"
-         }
-       )
-         .then(resp => {
-           if (resp && resp.status == 200) {
-             return resp.json();
-           }
-         })
-         .then(resp => {
-           if (resp) {
-             const info = resp.data.Component_Play_Playinfo;
-             mid = weiboFn.id2mid(info.mid);
-             uid = info.user.id;
-             window.open(`https://weibo.com/${uid}/${mid}`);
-           }
-         });
-       return;
-     }
+      //DOM may be changed
+      let currentOid = window.location.href.match(regex[4]);
+      if (currentOid && currentOid[1] !== oid) {
+        oid = currentOid[1];
+      }
+      fetch(
+        `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
+        {
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
+          method: "POST",
+        }
+      )
+        .then(resp => {
+          if (resp && resp.status == 200) {
+            return resp.json();
+          }
+        })
+        .then(resp => {
+          if (resp) {
+            const info = resp.data.Component_Play_Playinfo,
+              mid = weiboFn.id2mid(info.mid),
+              uid = info.user.id;
+            window.open(`https://weibo.com/${mid}/${uid}`);
+          }
+        });
+      return;
+    }
   }
 
   // Weibo
@@ -473,7 +462,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2]
+          format: matched[2],
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -554,7 +543,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2")
+        src.replace(regex, "$1large/$2"),
       ]);
     }
   }
