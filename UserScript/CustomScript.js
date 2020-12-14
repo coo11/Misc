@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         CustomScript
+// @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.5
-// @description         My fitst user script
+// @version         0.1.6
+// @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
 // @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
@@ -35,9 +35,7 @@
 // @match         *://*.pinimg.com/*
 // @match         *://s3.amazonaws.com/media.pinterest.com/*
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
-// Facebook
-// Instagram
-// Tumblr
+// TODO: Tumblr
 // ----GetOriginalSrcDomainEnd------
 //
 // ----RewriteURLStart----
@@ -300,7 +298,9 @@
     switch (i) {
       case 0:
       case 1:
-        return fetch(`https://m.weibo.cn/statuses/show?id=${matched[i === 0 ? 2 : 1]}`)
+        return fetch(
+          `https://m.weibo.cn/statuses/show?id=${matched[i === 0 ? 2 : 1]}`
+        )
           .then(resp => {
             if (resp && resp.status == 200) {
               return resp.json();
@@ -595,7 +595,8 @@
      * http://s3.amazonaws.com/media.pinterest.com/640x/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
      * http://s3.amazonaws.com/media.pinterest.com/originals/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
      * http://media.pinterest.com.s3.amazonaws.com/640x/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
-     * http://media.pinterest.com.s3.amazonaws.com/originals/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg */
+     * http://media.pinterest.com.s3.amazonaws.com/originals/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
+     */
   ) {
     const noSuffix = src.replace(/[?#].*$/, "");
     if (noSuffix.match(/:\/\/[^/]*\/media\.pinterest\.com\//)) {
