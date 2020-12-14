@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CustomScript
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.4
+// @version         0.1.5
 // @description         My fitst user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -56,8 +56,16 @@
 // @match         *://www.pixiv.net/jump.php?url=*
 // @match         *://www.inoreader.com/*
 // ----RewriteURLEnd------
+//
+// ----OtherStart----
+// @match         *://m.weibo.cn/*
+// @match         *://video.h5.weibo.cn/1034:*
+// @match         *://h5.video.weibo.com/show/*
+// @match         *://weibo.com/tv/show/*
+// ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
+// @grant             GM_registerMenuCommand
 // ==/UserScript==
 
 /**
@@ -68,13 +76,190 @@
  *     https://www.tampermonkey.net/documentation.php
  */
 
-(() => {
+(async () => {
   "use strict";
   let newSrc,
     matched,
     src = window.location.toString(),
     domain = window.location.hostname,
     xhr = new XMLHttpRequest();
+
+  const weiboFn = {
+    alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    /**
+     * mid字符转换为id
+     * @param {String} mid - 微博mid，Base62，如 "wr4mOFqpbO"
+     * @returns {String} id - 微博id，如 "201110410216293360"
+     */
+    mid2id(mid) {
+      let id = "";
+      for (
+        let i = mid.length - 4;
+        i > -4;
+        i = i - 4 //从最后往前以4字节为一组读取URL字符
+      ) {
+        let offset1 = i < 0 ? 0 : i,
+          offset2 = i + 4,
+          str = mid.substring(offset1, offset2);
+
+        str = this.decodeBase62(str).toString();
+        if (offset1 > 0) {
+          //若不是第一组则不足7位补0
+          while (str.length < 7) {
+            str = "0" + str;
+          }
+        }
+        id = str + id;
+      }
+      return id;
+    },
+    /**
+     * id转换为mid字符
+     * @param {string} id - 微博id，如 "201110410216293360"
+     * @returns {string} mid - 微博mid，Base62，如 "wr4mOFqpbO"
+     */
+    id2mid(id) {
+      id = String(id);
+      let mid = "";
+      for (
+        let i = id.length - 7;
+        i > -7;
+        i = i - 7 //从最后往前以7字节为一组读取id
+      ) {
+        let offset1 = i < 0 ? 0 : i,
+          offset2 = i + 7,
+          num = id.substring(offset1, offset2);
+        num = this.encodeBase62(num);
+        if (offset1 > 0) {
+          //若不足4位补0
+          while (num.length < 4) {
+            num = "0" + num;
+          }
+        }
+        mid = num + mid;
+      }
+      return mid;
+    },
+    encodeBase62(int10) {
+      let s62 = "",
+        r = 0;
+      while (int10 != 0) {
+        r = int10 % 62;
+        s62 = this.alphabet[r] + s62;
+        int10 = Math.floor(int10 / 62);
+      }
+      return s62;
+    },
+    decodeBase62(number) {
+      let out = 0,
+        len = number.length - 1;
+      for (let t = 0; t <= len; t++) {
+        out +=
+          this.alphabet.indexOf(number.substr(t, 1)) * Math.pow(62, len - t);
+      }
+      return out;
+    },
+    openHomepageFromSinaimg(hash) {
+      const pre = hash.substr(0, 8),
+        uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
+      window.open(`https://weibo.com/u/${uid}`);
+      return;
+    },
+  };
+
+  /**
+   * Add multiple extensions for guessing real url.
+   * @param {String} obj - url(s) to edit suffix
+   * @param {Array} extList - Extensions list
+   */
+  function addExts(obj, extList = ["gif", "png", "jpg"]) {
+    let results = [];
+    if (!Array.isArray(obj)) {
+      obj = [obj];
+    }
+    const regex = /(.*)\.([^/.]*?)([?#].*)?$/;
+    for (let i = 0; i < obj.length; i++) {
+      let url = obj[i];
+      if (!url.match(regex)) {
+        results.push(url);
+        continue;
+      }
+      extList.forEach(ext => {
+        results.push(`${RegExp.$1}.${ext}${RegExp.$3}`);
+      });
+    }
+    return results;
+  }
+
+  function getQueries(url, decode = false) {
+    const querystring = url.replace(/^[^#]*?\?/, "");
+    if (!querystring || querystring === url) return {};
+    else {
+      const splitted = querystring.split("&");
+      return Object.fromEntries(
+        splitted.map(i => {
+          let [k, v] = i.split("=");
+          if (decode) v = decodeURIComponent(v);
+          return [k, v];
+        })
+      );
+    }
+  }
+
+  function addQueries(url, queries) {
+    const parsed = getQueries(url),
+      allQueries = [];
+
+    for (let i in queries) {
+      parsed[i] = queries[i];
+    }
+
+    for (let i in parsed) {
+      allQueries.push(`${i}=${parsed[i]}`);
+    }
+
+    const newQueryStr = allQueries.join("&");
+    if (newQueryStr) {
+      return url.replace(/^([^#]*?)(?:\?.*)?$/, "$1?" + newQueryStr);
+    } else return url;
+  }
+
+  function guessUrl(urls, cb) {
+    const count = guessUrl.count;
+    xhr.open("GET", urls[count], true);
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        xhr.abort();
+        return cb(urls[count]);
+      } else {
+        guessUrl.count++;
+        if (count === urls.length - 1) {
+          return cb(null);
+        } else {
+          return guessUrl(urls, cb);
+        }
+      }
+    };
+    xhr.send();
+  }
+
+  function redirect(newSrc) {
+    if (newSrc === src) return;
+    if (Array.isArray(newSrc)) {
+      let _url = GM_getValue("lastMaxUrl");
+      if (_url && _url === src) {
+        GM_setValue("lastMaxUrl", null);
+        return;
+      }
+      guessUrl.count = 0;
+      guessUrl(newSrc, url => {
+        if (url) {
+          GM_setValue("lastMaxUrl", url);
+          window.location.assign(url);
+        } else return;
+      });
+    } else window.location.replace(newSrc);
+  }
 
   // These universal links need pretreatment.
   if (
@@ -100,6 +285,92 @@
     return;
   }
 
+  // Weibo Client Switch
+  else if (domain.endsWith("weibo.cn") || domain.endsWith("weibo.com")) {
+    const regex = [
+      /\/(status|detail|\d+)\/([a-z0-9]+)/i,
+      /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
+      /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
+      /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+    ];
+    let i = 0,
+      uid,
+      mid;
+    function getInfoByOid(oid) {
+      //DOM may be changed
+      let currentOid = window.location.href.match(regex[4]);
+      if (currentOid && currentOid[1] !== oid) {
+        oid = currentOid[1];
+      }
+      fetch(
+        `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
+        {
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
+          method: "POST",
+        }
+      )
+        .then(resp => {
+          if (resp && resp.status == 200) {
+            return resp.json();
+          }
+        })
+        .then(resp => {
+          if (resp) {
+            const info = resp.data.Component_Play_Playinfo;
+            mid = weiboFn.id2mid(info.mid);
+            uid = info.user.id;
+            window.open(`https://weibo.com/${uid}/${mid}`);
+          }
+        });
+      return;
+    }
+    while (!(matched = src.match(regex[i]))) i++;
+    switch (i) {
+      case 0:
+      case 1:
+        mid = i === 0 ? matched[2] : matched[1];
+        await (() => {
+          return new Promise(resolve => {
+            fetch(`https://m.weibo.cn/statuses/show?id=${mid}`)
+              .then(resp => {
+                if (resp && resp.status == 200) {
+                  return resp.json();
+                }
+              })
+              .then(resp => {
+                if (/^\d+$/.test(mid)) {
+                  mid = weiboFn.id2mid(matched[2]);
+                }
+                if (resp) {
+                  const info = resp.data;
+                  uid = info.user.id;
+                  resolve(true);
+                } else if (i === 0 && /^\d+$/.test(matched[1])) {
+                  uid = matched[1];
+                }
+              });
+          });
+        })();
+        break;
+      case 2:
+      case 3:
+        return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
+      case 4:
+      default:
+        if (!mid && i !== 4) return;
+    }
+    return GM_registerMenuCommand("Open Base62 URL", () => {
+      if (i === 4) getInfoByOid(matched[1]);
+      else {
+        return window.open(`https://weibo.com/${uid}/${mid}`);
+      }
+    });
+  }
+
   // Weibo
   else if (domain.endsWith("sinaimg.cn")) {
     if (domain.startsWith("ss")) {
@@ -109,11 +380,16 @@
       );
     } else if (domain.startsWith("n.")) {
       newSrc = newSrc.replace(/(\/ent\/+[0-9]+_)img(\/+upload\/)/, "$1ori$2");
-    } else if (domain.match(/^([a-z]{2,3}\d|wxt)\./)) {
+    } else if (domain.match(/^([a-z]{2,4}\d|wxt)\./)) {
+      /* tvax2.sinaimg.cn */
       newSrc = src.replace(
         /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
         ".sinaimg.cn/large/$1"
       );
+      GM_registerMenuCommand("Image Publisher Homepage", () => {
+        const hash = src.match(/\/([a-z0-9]{32,})\./i);
+        if (hash) weiboFn.openHomepageFromSinaimg(hash[1]);
+      });
     } else return;
     return redirect(newSrc);
   }
@@ -390,99 +666,5 @@
         });
     });
     return;
-  }
-
-  /**
-   * Add multiple extensions for guessing real url.
-   * @param {String} obj - url(s) to edit suffix
-   * @param {Array} extList - Extensions list
-   */
-  function addExts(obj, extList = ["gif", "png", "jpg"]) {
-    let results = [];
-    if (!Array.isArray(obj)) {
-      obj = [obj];
-    }
-    const regex = /(.*)\.([^/.]*?)([?#].*)?$/;
-    for (let i = 0; i < obj.length; i++) {
-      let url = obj[i];
-      if (!url.match(regex)) {
-        result.push(url);
-        continue;
-      }
-      extList.forEach(ext => {
-        results.push(`${RegExp.$1}.${ext}${RegExp.$3}`);
-      });
-    }
-    return results;
-  }
-
-  function getQueries(url, decode = false) {
-    const querystring = url.replace(/^[^#]*?\?/, "");
-    if (!querystring || querystring === url) return {};
-    else {
-      const splitted = querystring.split("&");
-      return Object.fromEntries(
-        splitted.map(i => {
-          let [k, v] = i.split("=");
-          if (decode) v = decodeURIComponent(v);
-          return [k, v];
-        })
-      );
-    }
-  }
-
-  function addQueries(url, queries) {
-    const parsed = getQueries(url),
-      allQueries = [];
-
-    for (let i in queries) {
-      parsed[i] = queries[i];
-    }
-
-    for (let i in parsed) {
-      allQueries.push(`${i}=${parsed[i]}`);
-    }
-
-    const newQueryStr = allQueries.join("&");
-    if (newQueryStr) {
-      return url.replace(/^([^#]*?)(?:\?.*)?$/, "$1?" + newQueryStr);
-    } else return url;
-  }
-
-  function guessUrl(urls, cb) {
-    const count = guessUrl.count;
-    xhr.open("GET", urls[count], true);
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        xhr.abort();
-        return cb(urls[count]);
-      } else {
-        guessUrl.count++;
-        if (count === urls.length - 1) {
-          return cb(null);
-        } else {
-          return guessUrl(urls, cb);
-        }
-      }
-    };
-    xhr.send();
-  }
-
-  function redirect(newSrc) {
-    if (newSrc === src) return;
-    if (Array.isArray(newSrc)) {
-      let _url = GM_getValue("lastMaxUrl");
-      if (_url && _url === src) {
-        GM_setValue("lastMaxUrl", null);
-        return;
-      }
-      guessUrl.count = 0;
-      guessUrl(newSrc, url => {
-        if (url) {
-          GM_setValue("lastMaxUrl", url);
-          window.location.assign(url);
-        } else return;
-      });
-    } else window.location.replace(newSrc);
   }
 })();
