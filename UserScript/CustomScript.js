@@ -60,6 +60,7 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
+// @include       *://*.google.tld/search*tbs=sbi:*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -375,6 +376,22 @@
         });
       return;
     }
+  }
+
+  // Google Image Search's images from result list
+  else if (/\.google\./.test(domain) > -1 && src.indexOf("tbs=sbi:") > -1) {
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .querySelectorAll("div.g > div.rc > div:last-child a")
+        .forEach(a => {
+          a.setAttribute("target", "_blank");
+          const obj = getQueries(a.href, true);
+          if ("imgurl" in obj) {
+            a.href = obj.imgurl;
+          }
+        });
+      return;
+    });
   }
 
   // Weibo
