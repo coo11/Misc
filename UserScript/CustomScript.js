@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.7
+// @version         0.1.8
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -703,7 +703,9 @@
       document
         .querySelectorAll("div:not(#result-hidden-notification).result")
         .forEach(e => {
-          let desc = e.querySelector("img[title]").title,
+          let img = e.querySelector(".resultimage img"),
+            desc = img.title,
+            src = img.src,
             isNeedShow = /hentai/i.test(desc),
             content = e.querySelector(".resultcontentcolumn"),
             miscinfo = e.querySelector(".resultmiscinfo");
@@ -715,11 +717,17 @@
             content.innerHTML =
               content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") +
               `<small style="color: #999;">${desc}</small><br>`;
-            if (/E-Hentai/i.test(desc)) {
-              let sha1 = desc.match(/[0-9A-z]{40}/i);
+            if (desc.indexOf("E-Hentai") > -1) {
+              const sha1 = src.match(/[0-9A-z]{40}/i);
               if (sha1) {
-                let href = `https://exhentai.org/?f_cats=0&fs_similar=1&f_shash=${sha1[0]}`;
+                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&f_shash=${sha1[0]}`;
                 miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
+              }
+            } else if (desc.indexOf("nhentai") > -1) {
+              const id = src.match(/res\/nhentai\/(\d+)/);
+              if (id) {
+                const href = `https://nhentai.net/g/${id[1]}/`;
+                miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/nhentai.ico" width="16" height="16" border="0" alt=""></a><br>`;
               }
             }
           }
