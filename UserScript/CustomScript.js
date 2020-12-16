@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.6
+// @version         0.1.7
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -53,6 +53,7 @@
 // @match         *://link.zhihu.com/?target=*
 // @match         *://www.pixiv.net/jump.php?url=*
 // @match         *://www.inoreader.com/*
+// @match         *://*.moegirl.org/*
 // ----RewriteURLEnd------
 //
 // ----OtherStart----
@@ -63,6 +64,7 @@
 // @include         *://*.google.tld/search*tbs=sbi:*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
+// @match         *://nhentai.net/*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -281,8 +283,14 @@
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
-  } else if (domain === "www.inoreader.com") {
+  }
+
+  // Rewrite
+  else if (domain === "www.inoreader.com") {
     window.location.hostname = "jp.inoreader.com";
+    return;
+  } else if (domain.endsWith("moegirl.org")) {
+    window.location.hostname = domain + ".cn";
     return;
   }
 
@@ -380,9 +388,12 @@
     }
   }
 
-  // Google Image Search's images from result list
+  // Close Safe Search & Show Image Direct Link
   else if (/\.google\./.test(domain) > -1 && src.indexOf("tbs=sbi:") > -1) {
-    document.addEventListener("DOMContentLoaded", () => {
+    if (src.indexOf("safe=off") === -1) {
+      return redirect(addQueries(src, { safe: "off" }));
+    }
+    return document.addEventListener("DOMContentLoaded", () => {
       document
         .querySelectorAll("div.g > div.rc > div:last-child a")
         .forEach(a => {
@@ -398,11 +409,23 @@
 
   // Add Read Status To E-Hentai
   else if (domain === "exhentai.org" || domain === "e-hentai.org") {
-    document.addEventListener("DOMContentLoaded", () => {
+    return document.addEventListener("DOMContentLoaded", () => {
       const customStyle = document.createElement("style");
       customStyle.innerText =
         ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";
       document.head.appendChild(customStyle);
+      return;
+    });
+  }
+
+  // Restore the overwritten `window.open` for nHentai
+  else if (domain.endsWith("nhentai.net")) {
+    return document.addEventListener("DOMContentLoaded", () => {
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.text =
+        '(()=>{const e=document.createElement("iframe");document.body.appendChild(e),window.open=e.contentWindow.open,document.body.removeChild(e)})();';
+      document.body.insertAdjacentElement("afterend", script);
       return;
     });
   }
