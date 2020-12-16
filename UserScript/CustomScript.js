@@ -60,7 +60,9 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @include       *://*.google.tld/search*tbs=sbi:*
+// @include         *://*.google.tld/search*tbs=sbi:*
+// @match         *://exhentai.org/*
+// @match         *://e-hentai.org/*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -390,6 +392,17 @@
             a.href = obj.imgurl;
           }
         });
+      return;
+    });
+  }
+
+  // Add Read Status To E-Hentai
+  else if (domain === "exhentai.org" || domain === "e-hentai.org") {
+    document.addEventListener("DOMContentLoaded", () => {
+      const customStyle = document.createElement("style");
+      customStyle.innerText =
+        ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";
+      document.head.appendChild(customStyle);
       return;
     });
   }

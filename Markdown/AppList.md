@@ -178,6 +178,7 @@
 [酷狗MP3切割]() |  | [蓝奏云](https://www.lanzous.com/iarTNiggz4j)
 [Directory Opus Pro](https://www.gpsoft.com.au/) | 文件管理器
 [iTunes](https://support.apple.com/zh-cn/HT208079) | 12.6.5.3 是**最后一版**带商店的版本 | [官方(直链)](https://secure-appldnld.apple.com/itunes12/091-87819-20180912-69177170-B085-11E8-B6AB-C1D03409AD2A6/iTunes64Setup.exe) [蓝奏云](https://lanzous.com/b0dkfunob)
+[Chrome](https://support.apple.com/zh-cn/HT208079) | Google Chrome | [官方(直链)](https://dl.google.com/release2/chrome/) [ShuaX](https://shuax.com/project/chrome/)
 [Resource Hacker](http://www.angusj.com/resourcehacker/) | 资源提取工具
 
 ## 软件社区
