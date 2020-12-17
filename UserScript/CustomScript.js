@@ -410,6 +410,24 @@
   // Add Read Status To E-Hentai
   else if (domain === "exhentai.org" || domain === "e-hentai.org") {
     return document.addEventListener("DOMContentLoaded", () => {
+      // Add Search in South Plus
+      const inputArea = document.getElementById("f_search");
+      inputArea.size = 40;
+      const input = document.createElement("input");
+      input.type = "button";
+      input.value = "South Plus";
+      input.onclick = () => {
+        const text = inputArea.value;
+        if (text) {
+          window.open(
+            "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
+              encodeURIComponent(text),
+            "_blank"
+          );
+        }
+      };
+      inputArea.parentNode.appendChild(input);
+      // Add Status
       const customStyle = document.createElement("style");
       customStyle.innerText =
         ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";

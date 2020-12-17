@@ -29,7 +29,7 @@ javascript: ({
       const engine = div.children[0].value;
       const { d, p } = this.engines[engine];
       const prefix = engine === "Baidu" ? p : d + p;
-      window.open(prefix + encodeURI(element.src), "_blank");
+      window.open(prefix + encodeURIComponent(element.src), "_blank");
     }
     document.body.removeChild(div);
   },
