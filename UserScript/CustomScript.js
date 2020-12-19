@@ -415,8 +415,15 @@
   // Add Read Status To E-Hentai
   else if (domain === "exhentai.org" || domain === "e-hentai.org") {
     return document.addEventListener("DOMContentLoaded", () => {
+      // Open Gallery in New Tab
+      [].forEach.call(document.getElementsByClassName("itg"), table => {
+        table
+          .querySelectorAll("a")
+          .forEach(a => a.setAttribute("target", "_blank"));
+      });
       // Add Search in South Plus
       const inputArea = document.getElementById("f_search");
+      if (!inputArea) return;
       inputArea.size = 40;
       const input = document.createElement("input");
       input.type = "button";
