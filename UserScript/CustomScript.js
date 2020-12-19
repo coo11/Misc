@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.8
+// @version         0.1.9
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -51,7 +51,9 @@
 // @match         *://*.summer-plus.net/*
 // Others
 // @match         *://link.zhihu.com/?target=*
+// @match         *://link.csdn.net/?target=*
 // @match         *://www.pixiv.net/jump.php?url=*
+// @match         *://www.jianshu.com/go-wild*
 // @match         *://www.inoreader.com/*
 // @match         *://*.moegirl.org/*
 // ----RewriteURLEnd------
@@ -61,10 +63,12 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @include         *://*.google.tld/search*tbs=sbi:*
+// @include         *://www.google.tld/search*tbs=sbi:*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
 // @match         *://nhentai.net/*
+// @match         *://lolibooru.moe/*
+// @match         *://danbooru.donmai.us/*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -276,10 +280,11 @@
   // Jump to 3rd website
   else if (
     domain === "link.zhihu.com" ||
-    (domain === "www.pixiv.net" &&
-      src.indexOf("www.pixiv.net/jump.php?url=") > -1)
+    domain === "link.csdn.net" ||
+    (domain === "www.pixiv.net" && src.indexOf("/jump.php?url=") > -1) ||
+    (domain === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
   ) {
-    matched = src.match(/.*?=(.*)/);
+    matched = src.match(/.*?(?:target|url)=(.*)/);
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
@@ -389,7 +394,7 @@
   }
 
   // Close Safe Search & Show Image Direct Link
-  else if (/\.google\./.test(domain) > -1 && src.indexOf("tbs=sbi:") > -1) {
+  else if (/www\.google\./.test(domain) && src.indexOf("tbs=sbi:") > -1) {
     if (src.indexOf("safe=off") === -1) {
       return redirect(addQueries(src, { safe: "off" }));
     }
@@ -444,6 +449,44 @@
       script.text =
         '(()=>{const e=document.createElement("iframe");document.body.appendChild(e),window.open=e.contentWindow.open,document.body.removeChild(e)})();';
       document.body.insertAdjacentElement("afterend", script);
+      return;
+    });
+  }
+
+  // Auto expand hidden posts for Lolibooru
+  else if (domain === "lolibooru.moe") {
+    return document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const n = document.getElementById("blacklist-count").innerText;
+        if (n !== "0") {
+          document
+            .querySelectorAll(
+              "ul#blacklisted-list a.no-focus-outline:not(.blacklisted-tags-disabled)"
+            )
+            .forEach(e => e.click());
+        }
+      } catch (e) {
+        console.log(e);
+      }
+      return;
+    });
+  }
+
+  // Auto expand blacklisted for Danbooru
+  else if (domain === "danbooru.donmai.us") {
+    return document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const disable = document.getElementById("disable-all-blacklists"),
+          enable = document.getElementById("re-enable-all-blacklists");
+        if (
+          disable.style.display !== "none" &&
+          enable.style.display === "none"
+        ) {
+          disable.click();
+        }
+      } catch (e) {
+        console.log(e);
+      }
       return;
     });
   }

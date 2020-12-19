@@ -48,7 +48,7 @@ javascript: ({
     },
     ASCII2D: {
       d: "https://ascii2d.net",
-      p: "https://ascii2d.net/search/url/",
+      p: "/search/url/",
     },
     Baidu: {
       d: "https://image.baidu.com",

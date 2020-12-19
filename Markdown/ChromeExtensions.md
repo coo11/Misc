@@ -19,10 +19,9 @@
 ### User Script
 
 | 名称 | 备注
-| :- | :- | :- |
+| :- | :- |
 [Image Max URL](https://github.com/qsniyg/maxurl) | 原图显示 |
 [解除B站区域限制](https://greasyfork.org/zh-CN/scripts/25718) | 解除 B 站区域限制 |
 [本地 YouTube 下载器](https://greasyfork.org/zh-CN/scripts/369400) | 下载 YouTube 视频 |
 [AC-baidu](https://greasyfork.org/zh-CN/scripts/14178) | 搜索引擎体验优化 |
 [哔哩哔哩收藏夹Fix](https://greasyfork.org/zh-CN/scripts/369400) | 查看下架视频元数据 |
-[View Image](https://github.com/bijij/ViewImage) | 恢复谷歌搜索「查看图片」按钮。原为 [Chrome 扩展](https://chrome.google.com/webstore/detail/jpcmhcelnjdmblfmjabdeclccemkghjk)，另有 [UserScript 版本](https://gist.github.com/bijij/58cc8cfc859331e4cf80210528a7b255)但均已长期未更新。现有修复问题、L18N 的 [Fork 版本](https://gist.github.com/saviorxzero98/88662a751b48cfeb90f22a61ca4567eb)。

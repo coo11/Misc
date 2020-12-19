@@ -85,6 +85,7 @@
 
 | 名称 | 描述 | 下载 |
 | :- | :- | :-: |
+[Ditto](https://ditto-cp.sourceforge.io/) | 剪贴板管理器 | [SourceForge](https://sourceforge.net/projects/ditto-cp/files/Ditto/)
 [FastCopy](https://fastcopy.jp/) | 文件拷贝、删除
 [AdvancedRenamer](https://www.advancedrenamer.com/) | 高级批量重命名工具 | [官方(直链)](https://www.advancedrenamer.com/down/advanced_renamer_portable.zip)
 [UltraISO](https://www.ultraiso.com/) | ISO 文件处理
@@ -209,6 +210,7 @@
 [优启时代](http://www.uqi.me/) | USB 启动技术
 [Twm000](http://twm000.top/) | Windows 系统封装
 [kkocdko](https://kkocdko.github.io/) | kkocdko 的博客
+[Crx4Chrome](https://kkocdko.github.io/) | 第三方 Chrome 扩展商店
 
 ## Android
 
