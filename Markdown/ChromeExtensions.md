@@ -15,6 +15,7 @@
 [AHA Music](https://chrome.google.com/webstore/detail/dpacanjfikmhoddligfbehkpomnbgblf) | 网页音乐识别
 [新浪微博图床](https://chrome.google.com/webstore/detail/fdfdnfpdplfbbnemmmoklbfjbhecpnhf) | 
 [二箱](https://chrome.google.com/webstore/detail/kidibbfcblfbbafhnlanccjjdehoahep) | 以图搜图
+[一键管理扩展](https://chrome.google.com/webstore/detail/lboblnfejcmcaplhnbkkfcienhlhpnni) | 扩展管理器
 
 ### User Script
 

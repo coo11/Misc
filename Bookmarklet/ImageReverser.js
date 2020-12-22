@@ -1,5 +1,5 @@
 javascript: ({
-  init: function () {
+  init() {
     if ("about:blank" !== location.href) {
       const div = document.createElement("div");
       div.id = "ImageReverseSearch";
@@ -16,15 +16,15 @@ javascript: ({
       };
     }
   },
-  handleEvent: function (event) {
-    let element = event.target,
+  handleEvent(event) {
+    let element = event.target, 
       div = document.getElementById("ImageReverseSearch");
     if (element.parentNode.id !== "ImageReverseSearch") {
       document.removeEventListener("click", this, true);
       event.stopImmediatePropagation(); // 阻止绑定在同一元素的其它事件
     } else return;
     event.preventDefault(); // 阻止默认事件
-    if (element && element.tagName === "IMG") {
+    if (element.tagName === "IMG") {
       event.stopPropagation(); // 阻止捕获和冒泡事件传播
       const engine = div.children[0].value;
       const { d, p } = this.engines[engine];
