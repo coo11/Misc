@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.9
+// @version         0.1.10
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -13,25 +13,21 @@
 // ----EnhanceEnd------
 //
 // ----GetOriginalSrcDomainStart----
-// Weibo
+// Weibo, Zhihu, Bilibili, Alibaba
 // @match         *://*.sinaimg.cn/*
-// Zhihu
 // @match         *://*.zhimg.com/*
-// Bilibili
 // @match         *://*.hdslb.com/*
-// Pixiv
+// @match         *://*.alicdn.com/*
+// Pixiv, Twitter, Artstation, Steam, Pinterest
 // @match         *://i.pximg.net/*
-// Twitter
+// @match         *://i-cf.pximg.net/*
 // @match         *://*.twimg.com/*
-// Artstation
 // @match         *://cdna.artstation.com/*
 // @match         *://cdnb.artstation.com/*
-// Steam
 // @match         *://*.steamstatic.com/*
 // @match         *://steamusercontent-a.akamaihd.net/*
 // @match         *://steamuserimages-a.akamaihd.net/*
 // @match         *://steamcdn-a.akamaihd.net/*
-// Pinterest
 // @match         *://*.pinimg.com/*
 // @match         *://s3.amazonaws.com/media.pinterest.com/*
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
@@ -543,8 +539,33 @@
     );
   }
 
+  // Alibaba
+  else if (domain.endsWith("alicdn.com")) {
+    if (domain === "img-tmdetail.alicdn.com") {
+      newSrc = src.replace(
+        /^[a-z]+:\/\/[^/]+\/+bao\/+uploaded\/+([^/]+\.[^/]+\/+)/,
+        "$1"
+      );
+      if (!newSrc.match(/^https?:\/\//)) {
+        src = "https://" + newSrc;
+      }
+    }
+    if (
+      /[0-9]*\.alicdn\.com/.test(domain) ||
+      domain === "img.alicdn.com"
+    ) {
+      return redirect(
+        src
+          .replace(/\.[0-9]+x[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1")
+          .replace(/(\.[^/._?#]+)_(?:\d+x\d+|Q\d+|\d+x\d+q\d+)\.[^/.]+$/i, "$1")
+          .replace(/(\.[^/._?#]+)_\.webp(?:[?#].*)?$/, "$1")
+          .replace(/\?.*/, "")
+      );
+    }
+  }
+
   // Pixiv
-  else if (domain === "i.pximg.net") {
+  else if (domain === "i.pximg.net" || domian === "i-cf.pximg.net") {
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
