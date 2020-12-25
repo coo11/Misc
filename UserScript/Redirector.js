@@ -52,6 +52,8 @@
 // @match         *://www.jianshu.com/go-wild*
 // @match         *://www.inoreader.com/*
 // @match         *://*.moegirl.org/*
+// @match         *://bangumi.tv/*
+// @match         *://chii.in/*
 // ----RewriteURLEnd------
 //
 // ----OtherStart----
@@ -83,8 +85,7 @@
   "use strict";
   let newSrc,
     matched,
-    src = window.location.toString(),
-    domain = window.location.hostname,
+    { href: src, hostname, protocol } = window.location,
     xhr = new XMLHttpRequest();
 
   const weiboFn = {
@@ -267,18 +268,18 @@
   // These universal links need pretreatment.
   if (
     // Steam
-    domain === "steamusercontent-a.akamaihd.net" ||
-    domain === "steamuserimages-a.akamaihd.net"
+    hostname === "steamusercontent-a.akamaihd.net" ||
+    hostname === "steamuserimages-a.akamaihd.net"
   ) {
     return redirect(src.replace(/\?.*$/, ""));
   }
 
   // Jump to 3rd website
   else if (
-    domain === "link.zhihu.com" ||
-    domain === "link.csdn.net" ||
-    (domain === "www.pixiv.net" && src.indexOf("/jump.php?url=") > -1) ||
-    (domain === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
+    hostname === "link.zhihu.com" ||
+    hostname === "link.csdn.net" ||
+    (hostname === "www.pixiv.net" && src.indexOf("/jump.php?url=") > -1) ||
+    (hostname === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
   ) {
     matched = src.match(/.*?(?:target|url)=(.*)/);
     if (matched && matched[1]) {
@@ -287,16 +288,22 @@
   }
 
   // Rewrite
-  else if (domain === "www.inoreader.com") {
+  else if (hostname === "www.inoreader.com") {
     window.location.hostname = "jp.inoreader.com";
     return;
-  } else if (domain.endsWith("moegirl.org")) {
-    window.location.hostname = domain + ".cn";
+  } else if (hostname.endsWith("moegirl.org")) {
+    window.location.hostname = hostname + ".cn";
+    return;
+  } else if (hostname === "chii.in" || hostname === "bangumi.tv") {
+    window.location.hostname = "bgm.tv";
+    if (protocol === "http:") {
+      window.location.protocol = "https:";
+    }
     return;
   }
 
   // Weibo Client Switch
-  else if (domain.endsWith("weibo.cn") || domain.endsWith("weibo.com")) {
+  else if (hostname.endsWith("weibo.cn") || hostname.endsWith("weibo.com")) {
     const regex = [
       /\/\/m\.weibo\.cn\/(status|detail|\d+)\/([a-z0-9]+)/i,
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
@@ -390,7 +397,7 @@
   }
 
   // Close Safe Search & Show Image Direct Link
-  else if (/www\.google\./.test(domain) && src.indexOf("tbs=sbi:") > -1) {
+  else if (/www\.google\./.test(hostname) && src.indexOf("tbs=sbi:") > -1) {
     if (src.indexOf("safe=off") === -1) {
       return redirect(addQueries(src, { safe: "off" }));
     }
@@ -409,7 +416,7 @@
   }
 
   // Add Read Status To E-Hentai
-  else if (domain === "exhentai.org" || domain === "e-hentai.org") {
+  else if (hostname === "exhentai.org" || hostname === "e-hentai.org") {
     return document.addEventListener("DOMContentLoaded", () => {
       // Open Gallery in New Tab
       [].forEach.call(document.getElementsByClassName("itg"), table => {
@@ -445,7 +452,7 @@
   }
 
   // Restore the overwritten `window.open` for nHentai
-  else if (domain.endsWith("nhentai.net")) {
+  else if (hostname.endsWith("nhentai.net")) {
     return document.addEventListener("DOMContentLoaded", () => {
       const script = document.createElement("script");
       script.type = "text/javascript";
@@ -457,7 +464,7 @@
   }
 
   // Auto expand hidden posts for Lolibooru
-  else if (domain === "lolibooru.moe") {
+  else if (hostname === "lolibooru.moe") {
     return document.addEventListener("DOMContentLoaded", () => {
       try {
         const n = document.getElementById("blacklist-count").innerText;
@@ -476,7 +483,7 @@
   }
 
   // Auto expand blacklisted for Danbooru
-  else if (domain === "danbooru.donmai.us") {
+  else if (hostname === "danbooru.donmai.us") {
     return document.addEventListener("DOMContentLoaded", () => {
       try {
         const disable = document.getElementById("disable-all-blacklists"),
@@ -495,15 +502,15 @@
   }
 
   // Weibo
-  else if (domain.endsWith("sinaimg.cn")) {
-    if (domain.startsWith("ss")) {
+  else if (hostname.endsWith("sinaimg.cn")) {
+    if (hostname.startsWith("ss")) {
       newSrc = src.replace(
         /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
         ".sinaimg.cn/orignal/$1"
       );
-    } else if (domain.startsWith("n.")) {
+    } else if (hostname.startsWith("n.")) {
       newSrc = newSrc.replace(/(\/ent\/+[0-9]+_)img(\/+upload\/)/, "$1ori$2");
-    } else if (domain.match(/^([a-z]{2,4}\d|wxt)\./)) {
+    } else if (hostname.match(/^([a-z]{2,4}\d|wxt)\./)) {
       /* tvax2.sinaimg.cn */
       newSrc = src.replace(
         /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
@@ -518,7 +525,7 @@
   }
 
   // Zhihu
-  else if (domain.match(/pic[0-9]\.zhimg\.com/)) {
+  else if (hostname.match(/pic[0-9]\.zhimg\.com/)) {
     return redirect(
       src.replace(
         /\/((?:v[0-9]*-)?[0-9a-f]+)(?:_[^/._]*)?(\.(jpg|jpeg|gif|png|bmp|webp))(?:\?.+)?$/i,
@@ -528,7 +535,7 @@
   }
 
   // Bilibili
-  else if (domain.match(/i[0-9]*\.hdslb\.com/)) {
+  else if (hostname.match(/i[0-9]*\.hdslb\.com/)) {
     return redirect(
       src.indexOf("videoshot") > -1 // No Check
         ? src
@@ -540,9 +547,9 @@
   }
 
   // Alibaba
-  else if (domain.endsWith("alicdn.com")) {
+  else if (hostname.endsWith("alicdn.com")) {
     newSrc = src;
-    if (domain === "img-tmdetail.alicdn.com") {
+    if (hostname === "img-tmdetail.alicdn.com") {
       newSrc = src.replace(
         /^[a-z]+:\/\/[^/]+\/+bao\/+uploaded\/+([^/]+\.[^/]+\/+)/,
         "$1"
@@ -551,7 +558,7 @@
         newSrc = "https://" + newSrc;
       }
     }
-    if (/[0-9]*\.alicdn\.com/.test(domain) || domain === "img.alicdn.com") {
+    if (/[0-9]*\.alicdn\.com/.test(hostname) || hostname === "img.alicdn.com") {
       return redirect(
         newSrc
           .replace(/\.[0-9]+x[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1")
@@ -563,7 +570,7 @@
   }
 
   // Pixiv
-  else if (domain === "i.pximg.net" || domain === "i-cf.pximg.net") {
+  else if (hostname === "i.pximg.net" || hostname === "i-cf.pximg.net") {
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
@@ -578,8 +585,8 @@
 
   // Twitter
   else if (
-    domain === "pbs.twimg.com" ||
-    (domain === "ton.twitter.com" && src.indexOf("/ton/data/dm/") > -1)
+    hostname === "pbs.twimg.com" ||
+    (hostname === "ton.twitter.com" && src.indexOf("/ton/data/dm/") > -1)
   ) {
     if (src.indexOf("/profile_images/") > -1) {
       return redirect(
@@ -653,7 +660,7 @@
   }
 
   // Tumblr
-  else if (domain.endsWith("media.tumblr.com")) {
+  else if (hostname.endsWith("media.tumblr.com")) {
     newSrc = src
       .replace(/\.pnj(\?.*)?$/, ".png$1")
       .replace(/\.gifv(\?.*)?$/, ".gif$1");
@@ -677,7 +684,7 @@
   }
 
   // Artstation
-  else if (/^cdn(?:a|b)\.artstation\.com$/.test(domain)) {
+  else if (/^cdn(?:a|b)\.artstation\.com$/.test(hostname)) {
     const regex = /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
     if (regex.test(src)) {
       return redirect([
@@ -690,8 +697,8 @@
 
   // Steam
   else if (
-    domain.match(/cdn\.[^.]*\.steamstatic\.com/) ||
-    domain.match(/steamcdn(?:-[a-z]*)?\.akamaihd\.net/)
+    hostname.match(/cdn\.[^.]*\.steamstatic\.com/) ||
+    hostname.match(/steamcdn(?:-[a-z]*)?\.akamaihd\.net/)
   ) {
     newSrc = src.replace(
       /(\/steam\/+apps\/+[0-9]+\/+movie)[0-9]+(?:_vp9)?(\.[^/.]+)(?:[?#].*)?$/,
@@ -726,10 +733,10 @@
 
   // Pinterest
   else if (
-    domain === "i.pinimg.com" ||
-    (domain.endsWith("pinimg.com") &&
-      domain.match(/^(?:i|(?:s-)?media-cache)-[^.]*\.pinimg/)) ||
-    (domain.endsWith("s3.amazonaws.com") &&
+    hostname === "i.pinimg.com" ||
+    (hostname.endsWith("pinimg.com") &&
+      hostname.match(/^(?:i|(?:s-)?media-cache)-[^.]*\.pinimg/)) ||
+    (hostname.endsWith("s3.amazonaws.com") &&
       src.indexOf("media.pinterest.com") > -1)
     /**
      * http://s3.amazonaws.com/media.pinterest.com/640x/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
@@ -759,7 +766,7 @@
   }
 
   // SankakuComplex
-  else if (domain === "chan.sankakucomplex.com") {
+  else if (hostname === "chan.sankakucomplex.com") {
     return redirect(
       src.replace(/(:\/\/[^/]*\/)(.*?)(?=post\/show\/)/, "$1cn/")
     );
@@ -767,15 +774,15 @@
 
   // SouthPlus
   else if (
-    /(summer|white|north|south|soul|level)-plus\.net$/i.test(domain) ||
-    domain.endsWith("south-plus.org")
+    /(summer|white|north|south|soul|level)-plus\.net$/i.test(hostname) ||
+    hostname.endsWith("south-plus.org")
   ) {
     window.location.hostname = "bbs.imoutolove.me";
     return;
   }
 
   // SauceNAO
-  else if (domain === "saucenao.com") {
+  else if (hostname === "saucenao.com") {
     document.addEventListener("DOMContentLoaded", () => {
       const tBody = document.body;
       if (tBody.innerText.indexOf("Access to specified file was denied") > -1) {
