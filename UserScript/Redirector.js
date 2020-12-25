@@ -541,21 +541,19 @@
 
   // Alibaba
   else if (domain.endsWith("alicdn.com")) {
+    newSrc = src;
     if (domain === "img-tmdetail.alicdn.com") {
       newSrc = src.replace(
         /^[a-z]+:\/\/[^/]+\/+bao\/+uploaded\/+([^/]+\.[^/]+\/+)/,
         "$1"
       );
       if (!newSrc.match(/^https?:\/\//)) {
-        src = "https://" + newSrc;
+        newSrc = "https://" + newSrc;
       }
     }
-    if (
-      /[0-9]*\.alicdn\.com/.test(domain) ||
-      domain === "img.alicdn.com"
-    ) {
+    if (/[0-9]*\.alicdn\.com/.test(domain) || domain === "img.alicdn.com") {
       return redirect(
-        src
+        newSrc
           .replace(/\.[0-9]+x[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1")
           .replace(/(\.[^/._?#]+)_(?:\d+x\d+|Q\d+|\d+x\d+q\d+)\.[^/.]+$/i, "$1")
           .replace(/(\.[^/._?#]+)_\.webp(?:[?#].*)?$/, "$1")
@@ -565,7 +563,7 @@
   }
 
   // Pixiv
-  else if (domain === "i.pximg.net" || domian === "i-cf.pximg.net") {
+  else if (domain === "i.pximg.net" || domain === "i-cf.pximg.net") {
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
