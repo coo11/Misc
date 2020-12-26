@@ -12,7 +12,7 @@
 // @match         *://saucenao.com/search.php*
 // ----EnhanceEnd------
 //
-// ----GetOriginalSrcDomainStart----
+// ----GetOriginalSrcStart----
 // Weibo, Zhihu, Bilibili, Alibaba
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
@@ -32,7 +32,7 @@
 // @match         *://s3.amazonaws.com/media.pinterest.com/*
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
 // TODO: Tumblr
-// ----GetOriginalSrcDomainEnd------
+// ----GetOriginalSrcEnd------
 //
 // ----RewriteURLStart----
 // SankakuComplex

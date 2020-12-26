@@ -21,8 +21,8 @@
 
 | 名称 | 备注
 | :- | :- |
-[Image Max URL](https://github.com/qsniyg/maxurl) | 原图显示 |
-[解除B站区域限制](https://greasyfork.org/zh-CN/scripts/25718) | 解除 B 站区域限制 |
-[本地 YouTube 下载器](https://greasyfork.org/zh-CN/scripts/369400) | 下载 YouTube 视频 |
-[AC-baidu](https://greasyfork.org/zh-CN/scripts/14178) | 搜索引擎体验优化 |
-[哔哩哔哩收藏夹Fix](https://greasyfork.org/zh-CN/scripts/369400) | 查看下架视频元数据 |
+[Image Max URL](https://github.com/qsniyg/maxurl) | 原图显示
+[解除B站区域限制](https://greasyfork.org/zh-CN/scripts/25718) | 解除 B 站区域限制
+[本地 YouTube 下载器](https://greasyfork.org/zh-CN/scripts/369400) | 下载 YouTube 视频
+[AC-baidu](https://greasyfork.org/zh-CN/scripts/14178) | 搜索引擎体验优化
+[哔哩哔哩收藏夹Fix](https://greasyfork.org/zh-CN/scripts/369400) | 查看下架视频元数据

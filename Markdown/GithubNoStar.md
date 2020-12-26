@@ -6,6 +6,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[AC-baidu](https://github.com/langren1353/GM_script) | UserScript，搜索引擎优化
 [Anime4K](https://github.com/bloc97/Anime4K) | 一套开源，高质量的实时动漫缩放 / 降噪算法
 [Aria2](https://github.com/aria2/aria2) | 一个轻量级的多协议、多源、跨平台的下载工具
 [AriaNg](https://github.com/mayswind/AriaNg) | 一个使 Aria2 更易于使用的现代网络前端
@@ -17,6 +18,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[Calibre](https://github.com/kovidgoyal/calibre) | 电子书管理器
 [Clash](https://github.com/Dreamacro/clash) | 由 Go 语言编写的基于规则的隧道代理工具
 [Clash Dashboard](https://github.com/Dreamacro/clash-dashboard) | Clash 网络仪表盘
 [Clash for Windows](https://github.com/Fndroid/clash_for_windows_pkg) | Windows/macOS 平台 Clash 图形界面
@@ -51,6 +53,10 @@
 ## K
 
 ## L
+
+| 名称 | 描述 |
+| :- | :- |
+[libarchive](https://github.com/libarchive/libarchive) | 多格式存档和压缩库
 
 ## M
 
