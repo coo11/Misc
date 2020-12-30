@@ -837,6 +837,12 @@
 
   // Twitter Video Direct Link
   else if (hostname.endsWith("twitter.com")) {
+    /**
+     * Reference:
+     *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b
+     *   https://greasyfork.org/zh-CN/scripts/384702/code
+     *   https://stackoverflow.com/a/40624294/14168341
+     */
     const addVideoLink = {
       added: false,
       hasVideo: true,
