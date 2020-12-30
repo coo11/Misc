@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.10
+// @version         0.1.12
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -10,6 +10,7 @@
 // ----EnhanceStart----
 // SauceNAO
 // @match         *://saucenao.com/search.php*
+// @match         *://*.twitter.com/*
 // ----EnhanceEnd------
 //
 // ----GetOriginalSrcStart----
@@ -61,7 +62,7 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @include         *://www.google.tld/search*tbs=sbi:*
+// @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
 // @match         *://nhentai.net/*
@@ -226,6 +227,10 @@
     if (newQueryStr) {
       return url.replace(/^([^#]*?)(?:\?.*)?$/, "$1?" + newQueryStr);
     } else return url;
+  }
+
+  function wait(ms = 1000) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   function guessUrl(urls, cb) {
@@ -828,5 +833,149 @@
         });
     });
     return;
+  }
+
+  // Twitter Video Direct Link
+  else if (hostname.endsWith("twitter.com")) {
+    const addVideoLink = {
+      added: false,
+      hasVideo: true,
+      updating: false,
+      get href() {
+        return window.location.href;
+      },
+      get tid() {
+        const _ = this.href.match(/status\/(\d+)/);
+        if (_ && _[1]) return _[1];
+      },
+      init() {
+        this.hookXHR();
+        this.findTarget();
+        this.setMutation();
+      },
+      get elem() {
+        return this._elem;
+      },
+      set elem({ id, target }) {
+        if (id === this.tid) {
+          this._elem = { id, target };
+          this.add();
+        }
+      },
+      get resp() {
+        if (this._resp && this._resp.id !== this.tid) {
+          this._resp.id = this.tid;
+        }
+        return this._resp;
+      },
+      set resp({ id, tweets }) {
+        if (id === this.tid) {
+          // console.log(tweets);
+          if (!this._resp) this._resp = { tweets: {} };
+          this._resp.id = id;
+          this._resp.tweets[id] = tweets[id];
+          this.add();
+        }
+      },
+      add() {
+        const { id, target } = this.elem || {},
+          { id: _id, tweets } = this.resp || {};
+        if (id && id === _id) {
+          // Elements to add
+          if (target.classList.contains("added")) return;
+          let div = target.parentElement,
+            dot = div.children[div.childElementCount - 2].cloneNode(true),
+            a = div.lastChild.cloneNode(true);
+          a.target = "_blank";
+          a.innerText = "下载视频";
+          // Video url to add
+          let url;
+          try {
+            const info =
+              tweets[id].extended_entities.media[0].video_info.variants;
+            url = info
+              .filter(i => i.content_type === "video/mp4")
+              .sort((a, b) => b.bitrate - a.bitrate)[0].url;
+            console.log(url);
+          } catch (e) {
+            console.log(e);
+            return;
+          }
+          // Add
+          a.href = url;
+          div.appendChild(dot);
+          div.appendChild(a);
+          target.classList.add("added");
+          this.added = true;
+        } else return;
+      },
+      hookXHR() {
+        let proxied = window.XMLHttpRequest.prototype.open,
+          that = this;
+        window.XMLHttpRequest.prototype.open = function (method, url) {
+          const matched = url.match(
+            /\/api\/2\/timeline\/conversation\/(\d+)\.json/
+          );
+          if (matched && !that.added && that.tid) {
+            this.addEventListener(
+              "readystatechange",
+              function () {
+                if (this.readyState != XMLHttpRequest.DONE) {
+                  return;
+                }
+                let resp = this.response;
+                resp = typeof resp === "string" ? JSON.parse(resp) : resp;
+                that.resp = {
+                  id: matched[1],
+                  tweets: resp.globalObjects.tweets,
+                };
+              },
+              false
+            );
+          }
+          return proxied.apply(this, [].slice.call(arguments));
+        };
+      },
+      async findTarget(times = 50) {
+        if (this.updating && !this.tid) return;
+        this.updating = true;
+        const id = this.tid;
+        for (let i = 0; i < times; i++) {
+          const target = document.querySelector(`a[href*="${id}"]`);
+          if (target) {
+            const article = target.closest("article");
+            if (article && article.querySelector("video")) {
+              this.elem = { id, target };
+              this.updating = false;
+              return;
+            }
+          }
+          await wait(500);
+        }
+        this.updating = false;
+        this.hasVideo = false;
+        return;
+      },
+      setMutation() {
+        const observer = new MutationObserver(mutations => {
+          mutations.forEach(() => {
+            const id = this.tid;
+            if (!id) return;
+            const a = document.querySelector(`a[href*="${id}"]`);
+            if (a && !a.classList.contains("added")) {
+              this.added = false;
+              this.hasVideo = true;
+              this.findTarget();
+            }
+            if (this.added && this.hasVideo && !a) {
+              this.added = false;
+              this.findTarget();
+            }
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      },
+    };
+    addVideoLink.init();
   }
 })();
