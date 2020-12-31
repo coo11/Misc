@@ -5,7 +5,7 @@
 ### 常见的零宽字符
 
 | 名称 | Unicode | HTML | 说明 |
-|:-:|:-:|:-:|:-|
+|-:|:-:|:-:|:-|
 | [零宽空格](https://unicode-table.com/cn/200B/)（*zero-width space, ZWSP*） | `U+200B` | `&#8203;` | 用于可能需要换行处。 |
 | [零宽不连字](https://unicode-table.com/cn/200C/)（*zero-width non-joiner, ZWNJ*） | `U+200C` | `&#8204;` | 用于矫正文本中连字的出现和替代性字形显示。 |
 | [零宽连字](https://unicode-table.com/cn/200D/)（*zero-width joiner, ZWJ*） | `U+200D` | `&#8205;` | 用于两个本不会发生连字的字符产生连字效果。 |

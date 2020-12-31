@@ -141,6 +141,8 @@
 [Easy Recovery](https://www.ontrack.com/zh-hk/data-recovery/software) | 专业数据恢复软件
 [FINALDATA Enterprise](http://finaldata.com/) | 专业数据恢复软件 | [蓝奏云](https://lanzous.com/iOBl3ik2m0h)
 [Recuva](https://www.ccleaner.com/recuva) | 与 CCleaner 师出同门
+[R-STUDIO Network](https://www.r-studio.com/DataRecovery_over_Network.shtml) | 撤消删除与数据恢复软件
+[DiskGenius](https://www.diskgenius.cn/) | 数据恢复软件
 
 ## 游戏工具
 
@@ -149,6 +151,8 @@
 [Xbox 360 Controller Emulator](https://www.x360ce.com/) | 手柄模拟器 | [Github](https://github.com/x360ce/x360ce/releases)
 [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) | 像素风格游戏清晰化
 [Cheat Engine](https://www.cheatengine.org/) | 内存修改编辑工具
+[JoyToKey](https://joytokey.net/en/) | 内存修改编辑工具 | [官方](https://joytokey.net/en/download)
+[Locale Emulator](https://pooi.moe/Locale-Emulator/) | 系统区域与语言的伪造、模拟 | [Github](https://github.com/xupefei/Locale-Emulator/releases/latest)
 
 ## UWP
 
@@ -170,6 +174,7 @@
 [OpenSSL](https://www.openssl.org/) | 开放式安全套接层协议软件库 | [Github](https://github.com/openssl/openssl)
 [Precompiled WebP utilities](https://developers.google.com/speed/webp) | WebP 官方工具集 | [官方](https://developers.google.com/speed/webp/download)
 [Android SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) | ADB、Fastboot 等工具集 | [官方(直链)](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
+[youtube-dl](https://yt-dl.org/) | 从 YouTube 和许多其他网站下载视频 | [官方](https://ytdl-org.github.io/youtube-dl/download.html)
 
 ## 其他
 
@@ -182,6 +187,7 @@
 [iTunes](https://support.apple.com/zh-cn/HT208079) | 12.6.5.3 是**最后一版**带商店的版本 | [官方(直链)](https://secure-appldnld.apple.com/itunes12/091-87819-20180912-69177170-B085-11E8-B6AB-C1D03409AD2A6/iTunes64Setup.exe) [蓝奏云](https://lanzous.com/b0dkfunob)
 [Chrome](https://support.apple.com/zh-cn/HT208079) | Google Chrome | [官方(直链)](https://dl.google.com/release2/chrome/) [ShuaX](https://shuax.com/project/chrome/)
 [Resource Hacker](http://www.angusj.com/resourcehacker/) | 资源提取工具
+[GlassWire](https://www.glasswire.com/) | 联网监控工具；防火墙 | 
 
 ## 软件社区
 

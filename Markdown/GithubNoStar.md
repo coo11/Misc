@@ -6,10 +6,11 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[ACL4SSR](https://github.com/ACL4SSR/ACL4SSR/tree/master) | 代理分流规则
 [AC-baidu](https://github.com/langren1353/GM_script) | UserScript，搜索引擎优化
 [Anime4K](https://github.com/bloc97/Anime4K) | 一套开源，高质量的实时动漫缩放 / 降噪算法
-[Aria2](https://github.com/aria2/aria2) | 一个轻量级的多协议、多源、跨平台的下载工具
-[AriaNg](https://github.com/mayswind/AriaNg) | 一个使 Aria2 更易于使用的现代网络前端
+[aria2](https://github.com/aria2/aria2) | 一个轻量级的多协议、多源、跨平台的下载工具
+[AriaNg](https://github.com/mayswind/AriaNg) | 一个使 aria2 更易于使用的现代网络前端
 [awesome-bookmarks](https://github.com/PanJiaChen/awesome-bookmarks) | 一个私人网页收藏夹
 
 ## B
@@ -25,6 +26,10 @@
 
 ## D
 
+| 名称 | 描述 |
+| :- | :- |
+[DivineEngine](https://github.com/DivineEngine/Profiles/tree/master) | 神机代理分流规则
+
 ## E
 
 | 名称 | 描述 |
@@ -38,6 +43,7 @@
 | :- | :- |
 [FFmpeg](https://github.com/FFmpeg/FFmpeg) | 项目 [FFmpeg](https://git.ffmpeg.org/ffmpeg.git) 在 Github 的仓库镜像
 [flowerss bot](https://github.com/indes/flowerss-bot) | 一个可以将 RSS 订阅内容转换为 Instant View 的 Telegram Bot
+[FontMod](https://github.com/ysc3839/FontMod) | 修改 Win32 程序字体的 hook 工具
 
 ## G
 
@@ -57,9 +63,13 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[lhie1 Rules](https://github.com/lhie1/Rules/tree/master) | 代理分流规则
 [libarchive](https://github.com/libarchive/libarchive) | 多格式存档和压缩库
 
 ## M
+
+| 名称 | 描述 |
+| :- | :- |
 
 ## N
 
@@ -101,6 +111,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[Telegram-Anti-Revoke](https://github.com/SpriteOvO/Telegram-Anti-Revoke) | Telegram 防撤回插件
 [trace.moe](https://github.com/soruly/trace.moe) | 以图搜番
 [TumblThree](https://github.com/TumblThreeApp/TumblThree) | Tumblr 博客备份工具
 
@@ -127,6 +138,10 @@
 [Xcatliu/123](https://github.com/xcatliu/123) | 一个简单的私人导航页
 
 ## Y
+
+| 名称 | 描述 |
+| :- | :- |
+[youtube-dl](https://github.com/ytdl-org/youtube-dl) | 从 YouTube 和许多其他网站下载视频
 
 ## Z
 
