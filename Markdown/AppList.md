@@ -164,6 +164,7 @@
 | :- | :- | :-: |
 [aria2](https://aria2.github.io/) | 下载工具 | [Github](https://github.com/aria2/aria2/releases/latest)
 [curl](https://curl.se/) | 综合传输工具 | [官方](https://curl.se/download.html)
+[FFmpeg](http://ffmpeg.org/) | 音视频处理工具 | [官方](http://ffmpeg.org/download.html)
 [libarchive](https://www.libarchive.org/) | 压缩工具 | [Github](https://github.com/libarchive/libarchive/releases/latest)
 [dig](https://www.isc.org/bind/) | 域名信息搜索工具 | [官方](https://www.isc.org/download/#BIND)
 [OpenSSL](https://www.openssl.org/) | 开放式安全套接层协议软件库 | [Github](https://github.com/openssl/openssl)

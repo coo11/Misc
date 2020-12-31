@@ -844,6 +844,7 @@
      *   https://stackoverflow.com/a/40624294/14168341
      */
     const addVideoLink = {
+      current: src,
       added: false,
       hasVideo: true,
       updating: false,
@@ -860,7 +861,7 @@
         this.setMutation();
       },
       get elem() {
-        return this._elem;
+        return this._elem || {};
       },
       set elem({ id, target }) {
         if (id === this.tid) {
@@ -872,7 +873,7 @@
         if (this._resp && this._resp.id !== this.tid) {
           this._resp.id = this.tid;
         }
-        return this._resp;
+        return this._resp || {};
       },
       set resp({ id, tweets }) {
         if (id === this.tid) {
@@ -884,14 +885,15 @@
         }
       },
       add() {
-        const { id, target } = this.elem || {},
-          { id: _id, tweets } = this.resp || {};
+        const { id, target } = this.elem,
+          { id: _id, tweets } = this.resp;
         if (id && id === _id) {
           // Elements to add
-          if (target.classList.contains("added")) return;
-          let div = target.parentElement,
-            dot = div.children[div.childElementCount - 2].cloneNode(true),
+          let div = target.parentElement;
+          if (div.querySelector("#LinkAdded")) return;
+          let dot = div.children[div.childElementCount - 2].cloneNode(true),
             a = div.lastChild.cloneNode(true);
+          a.id = "LinkAdded";
           a.target = "_blank";
           a.innerText = "下载视频";
           // Video url to add
@@ -911,7 +913,6 @@
           a.href = url;
           div.appendChild(dot);
           div.appendChild(a);
-          target.classList.add("added");
           this.added = true;
         } else return;
       },
@@ -965,15 +966,24 @@
       setMutation() {
         const observer = new MutationObserver(mutations => {
           mutations.forEach(() => {
-            const id = this.tid;
-            if (!id) return;
-            const a = document.querySelector(`a[href*="${id}"]`);
-            if (a && !a.classList.contains("added")) {
+            const id = this.tid,
+              href = this.href;
+            if (!id) {
+              this.current = href;
+              return;
+            }
+            if (this.current !== href) {
+              this.current = href;
               this.added = false;
               this.hasVideo = true;
               this.findTarget();
             }
-            if (this.added && this.hasVideo && !a) {
+            if (
+              this.added &&
+              this.hasVideo &&
+              !document.querySelector(`a[href*="${id}"]`)
+            ) {
+              // Added elements might disappear after scroll to comment area.
               this.added = false;
               this.findTarget();
             }

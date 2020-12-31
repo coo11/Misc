@@ -36,6 +36,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[FFmpeg](https://github.com/FFmpeg/FFmpeg) | 项目 [FFmpeg](https://git.ffmpeg.org/ffmpeg.git) 在 Github 的仓库镜像
 [flowerss bot](https://github.com/indes/flowerss-bot) | 一个可以将 RSS 订阅内容转换为 Instant View 的 Telegram Bot
 
 ## G
