@@ -49,7 +49,7 @@
 // Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://link.csdn.net/?target=*
-// @match         *://www.pixiv.net/jump.php?url=*
+// @match         *://www.pixiv.net/jump.php?*
 // @match         *://www.jianshu.com/go-wild*
 // @match         *://www.inoreader.com/*
 // @match         *://*.moegirl.org/*
@@ -287,6 +287,11 @@
     (hostname === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
   ) {
     matched = src.match(/.*?(?:target|url)=(.*)/);
+    if (matched && matched[1]) {
+      return redirect(decodeURIComponent(matched[1]));
+    } else return;
+  } else if (hostname === "www.pixiv.net" && src.indexOf("/jump.php?http") > -1) {
+    matched = src.match(/\?(http[^#&]*)/);
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
