@@ -70,6 +70,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[Microsoft Activation Scripts](https://github.com/massgravel/Microsoft-Activation-Scripts) | Microsoft 激活脚本
 
 ## N
 

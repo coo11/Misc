@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.12
+// @version         0.1.13
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -71,6 +71,7 @@
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
+// @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
 // ==/UserScript==
 
@@ -169,7 +170,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    },
+    }
   };
 
   /**
@@ -290,7 +291,10 @@
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
-  } else if (hostname === "www.pixiv.net" && src.indexOf("/jump.php?http") > -1) {
+  } else if (
+    hostname === "www.pixiv.net" &&
+    src.indexOf("/jump.php?http") > -1
+  ) {
     matched = src.match(/\?(http[^#&]*)/);
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
@@ -319,7 +323,7 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
@@ -383,10 +387,10 @@
         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
         {
           headers: {
-            "content-type": "application/x-www-form-urlencoded",
+            "content-type": "application/x-www-form-urlencoded"
           },
           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST",
+          method: "POST"
         }
       )
         .then(resp => {
@@ -428,36 +432,67 @@
   // Add Read Status To E-Hentai
   else if (hostname === "exhentai.org" || hostname === "e-hentai.org") {
     return document.addEventListener("DOMContentLoaded", () => {
-      // Open Gallery in New Tab
-      [].forEach.call(document.getElementsByClassName("itg"), table => {
-        table
-          .querySelectorAll("a")
-          .forEach(a => a.setAttribute("target", "_blank"));
-      });
-      // Add Search in South Plus
-      const inputArea = document.getElementById("f_search");
-      if (!inputArea) return;
-      inputArea.size = 40;
-      const input = document.createElement("input");
-      input.type = "button";
-      input.value = "South Plus";
-      input.onclick = () => {
-        const text = inputArea.value;
-        if (text) {
-          window.open(
-            "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-              encodeURIComponent(text),
-            "_blank"
-          );
-        }
-      };
-      inputArea.parentNode.appendChild(input);
-      // Add Status
-      const customStyle = document.createElement("style");
-      customStyle.innerText =
-        ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";
-      document.head.appendChild(customStyle);
-      return;
+      if (src.indexOf("gallerytorrents.php") > -1) {
+        return document
+          .querySelectorAll("#torrentinfo form table tr:nth-child(2)")
+          .forEach(tr => {
+            let magnet,
+              a = tr.nextElementSibling.querySelector("a");
+            if (a) {
+              magnet = a.href.replace(
+                /.*?([0-9a-f]{40}).*$/i,
+                "magnet:?xt=urn:btih:$1"
+              );
+              if (!magnet || magnet.length !== 60) return;
+            }
+            let td = tr.querySelector("td[rowspan='2']");
+            if (td) {
+              td.setAttribute("rowspan", "1");
+              const newTd = td.cloneNode(true),
+                input = newTd.children[0];
+              input.type = "button";
+              input.value = "Magnet";
+              input.onclick = function () {
+                if (input.value === "Copied!") return;
+                GM_setClipboard(magnet);
+                input.value = "Copied!";
+                wait(2000).then(() => (input.value = "Magnet"));
+              };
+              tr.appendChild(newTd);
+            }
+          });
+      } else {
+        // Open Gallery in New Tab
+        [].forEach.call(document.getElementsByClassName("itg"), table => {
+          table
+            .querySelectorAll("a")
+            .forEach(a => a.setAttribute("target", "_blank"));
+        });
+        // Add Search in South Plus
+        const inputArea = document.getElementById("f_search");
+        if (!inputArea) return;
+        inputArea.size = 40;
+        const input = document.createElement("input");
+        input.type = "button";
+        input.value = "South Plus";
+        input.onclick = () => {
+          const text = inputArea.value;
+          if (text) {
+            window.open(
+              "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
+                encodeURIComponent(text),
+              "_blank"
+            );
+          }
+        };
+        inputArea.parentNode.appendChild(input);
+        // Add Status
+        const customStyle = document.createElement("style");
+        customStyle.innerText =
+          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";
+        document.head.appendChild(customStyle);
+        return;
+      }
     });
   }
 
@@ -619,7 +654,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2],
+          format: matched[2]
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -700,7 +735,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2"),
+        src.replace(regex, "$1large/$2")
       ]);
     }
   }
@@ -939,7 +974,7 @@
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
                 that.resp = {
                   id: matched[1],
-                  tweets: resp.globalObjects.tweets,
+                  tweets: resp.globalObjects.tweets
                 };
               },
               false
@@ -995,7 +1030,7 @@
           });
         });
         observer.observe(document.body, { childList: true, subtree: true });
-      },
+      }
     };
     addVideoLink.init();
   }
