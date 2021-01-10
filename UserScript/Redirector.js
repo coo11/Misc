@@ -8,7 +8,6 @@
 // @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
 // @run-at         document-start
 // ----EnhanceStart----
-// SauceNAO
 // @match         *://saucenao.com/search.php*
 // @match         *://*.twitter.com/*
 // ----EnhanceEnd------
@@ -453,6 +452,7 @@
               input.type = "button";
               input.value = "Magnet";
               input.onclick = function () {
+                input.blur();
                 if (input.value === "Copied!") return;
                 GM_setClipboard(magnet);
                 input.value = "Copied!";
