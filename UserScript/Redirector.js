@@ -54,6 +54,7 @@
 // @match         *://*.moegirl.org/*
 // @match         *://bangumi.tv/*
 // @match         *://chii.in/*
+// @match         *://t.cn/*
 // ----RewriteURLEnd------
 //
 // ----OtherStart----
@@ -309,6 +310,12 @@
     return;
   } else if (hostname === "chii.in" || hostname === "bangumi.tv") {
     window.location.hostname = "bgm.tv";
+    if (protocol === "http:") {
+      window.location.protocol = "https:";
+    }
+    return;
+  } else if (hostname === "t.cn") {
+    window.location.hostname = "sinaurl.cn";
     if (protocol === "http:") {
       window.location.protocol = "https:";
     }
