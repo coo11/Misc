@@ -79,7 +79,7 @@
 
   // 替换回 frame
   query(_script)[forEach](function (script) {
-    script[parentNode][replaceChild](frames.shift(), script);
+    frames.length && script[parentNode][replaceChild](frames.shift(), script);
   })
 
   query('*')[forEach](strip);
