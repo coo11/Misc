@@ -1,9 +1,10 @@
 (() => {
   let headers = $response.headers;
-  console.log("新浪短链接重定向", headers)
-  headers = JSON.parse(headers);
+  headers = JSON.stringify(headers);
   if ("Location" in headers) {
     headers["Http-Status-Code"] = 302;
   }
-  $done({ header });
+  console.log("新浪短链接重定向", headers)
+  headers = JSON.parse(headers);
+  $done({ headers });
 })();
