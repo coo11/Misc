@@ -5,7 +5,7 @@
     $done({ status: "HTTP/1.1 302 Found" });
     return;
   }
-  if (/toasturl=([^&#]*?)/.test(url) > -1) {
+  if (/toasturl=([^&#]*?)/.test(url)) {
     headers["Location"] = decodeURIComponent(RegExp.$1);
     $done({ status: "HTTP/1.1 302 Found", headers });
     return;
