@@ -1,6 +1,14 @@
 (() => {
-  let headers = $response.headers;
+  let headers = $response.headers,
+    url = $response.url;
   if ("Location" in headers && $response.statusCode != 302) {
     $done({ status: "HTTP/1.1 302 Found" });
-  } else $done({});
+    return;
+  }
+  if (/toasturl=([^&#]*?)/.test(url) > -1) {
+    headers["Location"] = decodeURIComponent(RegExp.$1);
+    $done({ status: "HTTP/1.1 302 Found", headers });
+    return;
+  }
+  $done({});
 })();

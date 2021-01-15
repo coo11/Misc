@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.13
+// @version         0.1.14
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -55,6 +55,8 @@
 // @match         *://bangumi.tv/*
 // @match         *://chii.in/*
 // @match         *://t.cn/*
+// @match         *://sinaurl.cn/*
+// @match         *://weibo.cn/sinaurl?toasturl=*
 // ----RewriteURLEnd------
 //
 // ----OtherStart----
@@ -314,11 +316,17 @@
       window.location.protocol = "https:";
     }
     return;
-  } else if (hostname === "t.cn") {
-    window.location.hostname = "sinaurl.cn";
-    if (protocol === "http:") {
-      window.location.protocol = "https:";
-    }
+  } else if (
+    hostname === "t.cn" ||
+    hostname === "sinaurl.cn" ||
+    /^https?:\/\/weibo\.cn\/sinaurl\?toasturl=/.test(src)
+  ) {
+    document.addEventListener("DOMContentLoaded", () => {
+      const div = document.querySelector("div.desc");
+      if (div && div.innerText.startsWith("http")) {
+        return redirect(div.innerText);
+      }
+    });
     return;
   }
 
