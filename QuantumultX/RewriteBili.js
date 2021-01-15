@@ -66,12 +66,13 @@
         const classes = {
           tab: new Set(["直播", "推荐", "热门", "追番", "影视"]),
           top: new Set(["消息"]),
-          bottom: new Set(["首页", "频道", "动态", "我的", "消息"])
+          bottom: new Set(["首页", "频道", "动态", "我的"])
         };
         let obj = JSON.parse(body);
         for (let i in classes) {
           if (i in obj.data)
             obj.data[i] = obj.data[i].filter(e => classes[i].has(e));
+          for (let j = 0; j < obj.data.length; j++) obj.data.pos = j;
         }
         body = JSON.stringify(obj);
       } catch (e) {
