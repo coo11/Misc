@@ -70,9 +70,10 @@
         };
         let obj = JSON.parse(body);
         for (let i in classes) {
-          if (i in obj.data)
+          if (i in obj.data) {
             obj.data[i] = obj.data[i].filter(e => classes[i].has(e.name));
-          for (let j = 0; j < obj.data[i].length; j++) obj.data[i].pos = j;
+            for (let j = 0; j < obj.data[i].length; j++) obj.data[i].pos = j;
+          }
         }
         body = JSON.stringify(obj);
       } catch (e) {
