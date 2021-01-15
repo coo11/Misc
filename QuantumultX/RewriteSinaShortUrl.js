@@ -1,6 +1,6 @@
 (() => {
   let headers = $response.headers,
-    url = $response.url;
+    url = $request.url;
   if ("Location" in headers && $response.statusCode != 302) {
     $done({ status: "HTTP/1.1 302 Found" });
     return;
