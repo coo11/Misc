@@ -431,8 +431,9 @@
     }
     return document.addEventListener("DOMContentLoaded", () => {
       document
-        .querySelectorAll("div.g > div.rc > div:last-child a")
-        .forEach(a => {
+        .querySelectorAll("div.g > div:last-child a > g-img")
+        .forEach(g => {
+          let a = g.parentElement;
           a.setAttribute("target", "_blank");
           const obj = getQueries(a.href, true);
           if ("imgurl" in obj) {

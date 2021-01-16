@@ -80,6 +80,9 @@
 [MKVToolNix](https://mkvtoolnix.download/) | MKV 视频制作、处理 | [官方](https://mkvtoolnix.download/downloads.html)
 [gMKVExtractGUI](https://sourceforge.net/projects/gmkvextractgui/) | MKVExtract GUI | [SourceForge](https://sourceforge.net/projects/gmkvextractgui/files/)
 [GoldWave](https://goldwave.com/goldwave.php) | 高级音频编辑软件
+[madVR](http://www.madvr.net/) | 视频渲染器 | [官方(直链)](http://madshi.net/madVR.zip)
+[LAVFilters](https://github.com/Nevcairiel/LAVFilters) | 分离/解码器 | [Github](https://github.com/Nevcairiel/LAVFilters/releases/latest)
+[xy-vsFilter & xy-SubFilter](https://github.com/Cyberbeing/xy-VSFilter) | *通用字幕插件* 和 *madVR 专用字幕插件* | [Github](https://github.com/Cyberbeing/xy-VSFilter/releases)
 
 ## 效率
 

@@ -63,6 +63,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[LAVFilters](https://github.com/Nevcairiel/LAVFilters) | 分离/解码器
 [lhie1 Rules](https://github.com/lhie1/Rules/tree/master) | 代理分流规则
 [libarchive](https://github.com/libarchive/libarchive) | 多格式存档和压缩库
 
@@ -131,12 +132,15 @@
 | :- | :- |
 [waifu2x](https://github.com/nagadomi/waifu2x) | 使用卷积神经网络对动漫风格的图片进行放大的工具
 [watermark](https://github.com/dxcweb/watermark) | 在线纯前端图片加水印
+[What the f*ck Python!😱](https://github.com/satwikkansal/wtfpython) | 通过令人惊讶的代码片段探索和理解 Python
+[What the f*ck Python!🐍](https://github.com/leisurelicht/wtfpython-cn) | wtfpython 中文翻译
 
 ## X
 
 | 名称 | 描述 |
 | :- | :- |
 [Xcatliu/123](https://github.com/xcatliu/123) | 一个简单的私人导航页
+[xy-vsFilter & xy-SubFilter](https://github.com/Cyberbeing/xy-VSFilter) | *通用字幕插件* 和 *madVR 专用字幕插件*
 
 ## Y
 
