@@ -49,11 +49,16 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[GeoIP2 · CN](https://github.com/Hackl0us/GeoIP2-CN) | 最小巧、最准确、最实用的中国大陆 IP 段 + GeoIP2 数据库
 [gfwlist](https://github.com/gfwlist/gfwlist) | gfwlist
 
 ## H
 
 ## I
+
+| 名称 | 描述 |
+| :- | :- |
+[iPac](https://github.com/ifyour/ipac) | 一个中国域名 PAC 白名单
 
 ## J
 
@@ -91,6 +96,7 @@
 | :- | :- |
 [Powerful Pixiv Downloader](https://github.com/xuejianxianzun/PixivBatchDownloader) | 批量下载 Pixiv 的插画和小说的 Chrome 扩展
 [Philomena](https://github.com/derpibooru/philomena) | 下一代以标签为纲的互联网图库
+[PPSSPP](https://github.com/hrydgard/ppsspp) | PSP 模拟器
 
 ## Q
 
@@ -104,6 +110,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[Sandboxie Plus](https://github.com/sandboxie-plus/Sandboxie) | 沙盒计算机程序
 [Sci-Hub EVA](https://github.com/leovan/SciHubEVA) | 一个用 Python 和 Qt（PySide2）编写的跨平台 Sci-Hub GUI 应用程序
 [Shadowsocks for Android](https://github.com/shadowsocks/shadowsocks-android) | Shadowsocks Android 客户端
 [Shadowsocks for Windows](https://github.com/shadowsocks/shadowsocks-windows) | Shadowsocks Windows 客户端

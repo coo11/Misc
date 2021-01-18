@@ -97,7 +97,7 @@
 [7-Zip](https://sparanoid.com/lab/7z/) | 开源压缩软件 | [SourceForge](https://sourceforge.net/projects/sevenzip/files/7-Zip/)
 [VirtualBox](https://www.virtualbox.org/) | 虚拟机软件 
 [VMware](https://www.vmware.com/) | 虚拟机软件 
-[Sandboxie](https://github.com/sandboxie/sandboxie) | 沙盒计算机程序 | [蓝奏云](https://lanzous.com/iskdrif4thi)
+[Sandboxie Plus](https://sandboxie-plus.com/) | 沙盒计算机程序 | [Github](https://github.com/sandboxie-plus/Sandboxie/releases/latest)
 
 ## 系统工具
 
@@ -156,6 +156,7 @@
 [Cheat Engine](https://www.cheatengine.org/) | 内存修改编辑工具
 [JoyToKey](https://joytokey.net/en/) | 内存修改编辑工具 | [官方](https://joytokey.net/en/download)
 [Locale Emulator](https://pooi.moe/Locale-Emulator/) | 系统区域与语言的伪造、模拟 | [Github](https://github.com/xupefei/Locale-Emulator/releases/latest)
+[PPSSPP](https://www.ppsspp.org/index-cn.html) | 一款 PSP 模拟器 | [官方](https://ppsspp.org/downloads-cn.html)
 
 ## UWP
 
@@ -231,4 +232,5 @@
 [Telegram](https://telegram.org/apps) | 即时通讯 | [官方(直链)](https://telegram.org/dl/android/apk)
 [贴吧Lite](https://github.com/HuanCheng65/TiebaLite) | 百度贴吧第三方客户端 | [Github](https://github.com/HuanCheng65/TiebaLite/releases/latest)
 [ClashForAndroid](https://github.com/Kr328/ClashForAndroid) | Clash 第三方客户端 | [Github](https://github.com/Kr328/ClashForAndroid/releases/latest)
+[Shadowsocks for Android](https://github.com/shadowsocks/shadowsocks-android) | Shadowsocks 客户端 | [Github](https://github.com/shadowsocks/shadowsocks-android/releases/latest)
 [EhViewer](https://github.com/seven332/EhViewer) | E 绅士第三方客户端 | [Telegram](https://t.me/ehviewer)
