@@ -6,7 +6,7 @@
 
 | 名称 | 描述 | 下载 |
 | :- | :- | :-: |
-[Cent Browser](https://www.centbrowser.cn/) | Chromium 套壳浏览器 | [官方](http://static.centbrowser.cn/installer_64/) 
+[Cent Browser](https://www.centbrowser.cn/) | Chromium 套壳浏览器 | [官方](http://static.centbrowser.cn/win_stable/) 
 [BitComet](https://www.google.com/intl/zh-CN/chrome/) | BT 下载客户端 | [官方](https://www.bitcomet.com/cn/archive)
 [Telegram](https://desktop.telegram.org/) | 优秀的即时通讯软件 | [官方(直链)](https://telegram.org/dl/desktop/win_portable)
 [WinRAR](https://www.rarlab.com/) | 老牌压缩文件管理器 | [烈火](https://apphot.cc/121.html)
@@ -134,8 +134,8 @@
 [AIDA64](https://www.aida64.com/) | 系统信息、诊断和审计程序 | 
 [CPU-Z](https://www.cpuid.com/) | 查看 CPU 等多种硬件信息
 [GPU-Z](http://www.techpowerup.com/gpuz/) | 查看显卡信息 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102xomu.html)
-[CrystalDiskInfo](https://crystalmark.info/en/software/crystaldiskinfo/) | 硬盘信息检测
-[CrystalDiskMark](https://crystalmark.info/en/software/crystaldiskmark/) | 硬盘读写速度测试
+[CrystalDiskInfo](https://crystalmark.info/en/software/crystaldiskinfo/) | 硬盘信息检测 | [官方(直链)](https://crystalmark.info/redirect.php?product=CrystalDiskInfo)
+[CrystalDiskMark](https://crystalmark.info/en/software/crystaldiskmark/) | 硬盘读写速度测试 | [官方(直链)](https://crystalmark.info/redirect.php?product=CrystalDiskMark)
 
 ## 数据恢复
 
@@ -145,7 +145,7 @@
 [FINALDATA Enterprise](http://finaldata.com/) | 专业数据恢复软件 | [蓝奏云](https://lanzous.com/iOBl3ik2m0h)
 [Recuva](https://www.ccleaner.com/recuva) | 与 CCleaner 师出同门
 [R-STUDIO Network](https://www.r-studio.com/DataRecovery_over_Network.shtml) | 撤消删除与数据恢复软件
-[DiskGenius](https://www.diskgenius.cn/) | 数据恢复软件
+[DiskGenius](https://www.diskgenius.cn/) | 数据恢复软件 | [官方](https://www.diskgenius.cn/download.php)
 
 ## 游戏工具
 
@@ -172,13 +172,14 @@
 | :- | :- | :-: |
 [aria2](https://aria2.github.io/) | 下载工具 | [Github](https://github.com/aria2/aria2/releases/latest)
 [curl](https://curl.se/) | 综合传输工具 | [官方](https://curl.se/download.html)
-[FFmpeg](http://ffmpeg.org/) | 音视频处理工具 | [官方](http://ffmpeg.org/download.html)
+[FFmpeg](http://ffmpeg.org/) | 音视频处理工具 | [官方](https://ffmpeg.org/download.html#get-packages)
 [libarchive](https://www.libarchive.org/) | 压缩工具 | [Github](https://github.com/libarchive/libarchive/releases/latest)
 [dig](https://www.isc.org/bind/) | 域名信息搜索工具 | [官方](https://www.isc.org/download/#BIND)
 [OpenSSL](https://www.openssl.org/) | 开放式安全套接层协议软件库 | [Github](https://github.com/openssl/openssl)
 [Precompiled WebP utilities](https://developers.google.com/speed/webp) | WebP 官方工具集 | [官方](https://developers.google.com/speed/webp/download)
 [Android SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) | ADB、Fastboot 等工具集 | [官方(直链)](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
 [youtube-dl](https://yt-dl.org/) | 从 YouTube 和许多其他网站下载视频 | [官方](https://ytdl-org.github.io/youtube-dl/download.html)
+[Subversion CLI binaries](http://subversion.apache.org/packages.html#windows) | 开放源代码的版本控制系统 | [SLIKSVN](https://sliksvn.com/download/) [CollabNet](https://www.collab.net/downloads/subversion)
 
 ## 其他
 
@@ -192,6 +193,7 @@
 [Chrome](https://support.apple.com/zh-cn/HT208079) | Google Chrome | [官方(直链)](https://dl.google.com/release2/chrome/) [ShuaX](https://shuax.com/project/chrome/)
 [Resource Hacker](http://www.angusj.com/resourcehacker/) | 资源提取工具
 [GlassWire](https://www.glasswire.com/) | 联网监控工具；防火墙 | 
+[Live2D Cubism](https://www.live2d.com/zh-CHS/) | Live2D 制作、预览 | 
 
 ## 软件社区
 
@@ -234,3 +236,6 @@
 [ClashForAndroid](https://github.com/Kr328/ClashForAndroid) | Clash 第三方客户端 | [Github](https://github.com/Kr328/ClashForAndroid/releases/latest)
 [Shadowsocks for Android](https://github.com/shadowsocks/shadowsocks-android) | Shadowsocks 客户端 | [Github](https://github.com/shadowsocks/shadowsocks-android/releases/latest)
 [EhViewer](https://github.com/seven332/EhViewer) | E 绅士第三方客户端 | [Telegram](https://t.me/ehviewer)
+[VirtualXposed](https://vxposed.com/) | 非 ROOT 环境下运行 Xposed 模块的实现 | [Github](https://github.com/android-hacker/VirtualXposed/releases/latest)
+[EdXposed](https://edxp.meowcat.org/) | 为运行高版本 Android ART 的设备上提供原生 Xposed 框架 | [Github](https://github.com/ElderDrivers/EdXposed/releases/latest)
+[Magisk](https://github.com/topjohnwu/Magisk) | The Magic Mask for Android | [Github](https://github.com/topjohnwu/Magisk/releases/latest)

@@ -15,6 +15,10 @@
 
 ## B
 
+| 名称 | 描述 |
+| :- | :- |
+[baiduwp](https://github.com/TkzcM/baiduwp) | 使用 CloudFlare Workers 构建的 PanDownload 网页版
+
 ## C
 
 | 名称 | 描述 |
@@ -35,6 +39,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [Editor.md](https://github.com/pandao/editor.md) | 一款开源的、可嵌入的 Markdown 在线编辑器（组件）
+[EdXposed](https://github.com/ElderDrivers/EdXposed) | 为运行高版本 Android ART 的设备上提供原生 Xposed 框架
 [Eruda](https://github.com/liriliri/eruda) | 专为手机网页前端设计的调试面板，类似 DevTools 的迷你版
 
 ## F
@@ -71,11 +76,13 @@
 [LAVFilters](https://github.com/Nevcairiel/LAVFilters) | 分离/解码器
 [lhie1 Rules](https://github.com/lhie1/Rules/tree/master) | 代理分流规则
 [libarchive](https://github.com/libarchive/libarchive) | 多格式存档和压缩库
+[Live2D model collection](https://github.com/Eikanya/Live2d-model) | 个人收集的 Live2D 模型
 
 ## M
 
 | 名称 | 描述 |
 | :- | :- |
+[Magisk](https://github.com/topjohnwu/Magisk) | The Magic Mask for Android
 [Microsoft Activation Scripts](https://github.com/massgravel/Microsoft-Activation-Scripts) | Microsoft 激活脚本
 
 ## N
@@ -132,6 +139,10 @@
 [UnblockNeteaseMusic](https://github.com/nondanee/UnblockNeteaseMusic) | 解锁网易云音乐客户端变灰歌曲
 
 ## V
+
+| 名称 | 描述 |
+| :- | :- |
+[VirtualXposed](https://github.com/android-hacker/VirtualXposed) | 非 ROOT 环境下运行 Xposed 模块的实现
 
 ## W
 

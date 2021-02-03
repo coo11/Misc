@@ -5,7 +5,7 @@
 ## Git
 
 - Use `--global` for all repositories or `--local` for current.
-```
+```Properties
 # Add
 git config --global http.proxy http://[user:passwd@]proxy.server:port
 
@@ -13,7 +13,7 @@ git config --global http.proxy http://[user:passwd@]proxy.server:port
 git config --global --unset http.proxy
 ```
 - You can also specify domain:
-```
+```Properties
 # Just for github.com
 git config --global http.https://github.com.proxy socks5://127.0.0.1:1080
 
@@ -22,7 +22,7 @@ git config --global --unset http.https://github.com.proxy
 ```
 - Edit file ` ~/.git/config` or `%HOMEPATH%\.gitconfig` (Global) is OK.
 - As for accessing to Github.com via SSH, you should edit or create a file `%HOMEPATH%\.ssh\config` with following code:
-```
+```Properties
 ProxyCommand connect -S 127.0.0.1:1080 -a none %h %p
 
 Host github.com
@@ -53,8 +53,8 @@ Host ssh.github.com
 - [Windows 下 Git SSH 连接方式配置 Socks 代理](https://upupming.site/2019/05/09/git-ssh-socks-proxy/)
 
 ## NPM
-- Add & Cancel Proxy
-```
+- Add or Cancel Proxy
+```Properties
 # Add
 npm config set proxy http://[user:passwd@]proxy.server:port
 npm config set https-proxy http://http://127.0.0.1:1080
@@ -63,10 +63,11 @@ npm config set https-proxy http://http://127.0.0.1:1080
 npm config delete proxy
 npm config delete https-proxy
 ```
+
 - Change Source
   - Default: `https://registry.npmjs.org/`
   - Taobao: `http://registry.npm.taobao.org/`
-```
+```Properties
 npm config set registry http://registry.cnpmjs.org
 
 # Test
@@ -80,7 +81,7 @@ npm config set registry http://registry.cnpmjs.org
 
 ## PIP
 - For temporary use, set proxy via `--porxy <proxy_server>` and set source via `-i, --index-url <url>`. If it **doesn't work**, try to set command line environment variables, or use `setx` for system environment.
-```
+```Properties
 # For temporary use
 pip install -i <source> <package> --proxy http://[user:passwd@]proxy.server:port
 
@@ -95,7 +96,7 @@ set http_proxy_pass=pwd
 set http_proxy=
 ```
 - Add source
-```
+```Properties
 # Add
 pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
 pip config set install.trusted-host mirrors.aliyun.com
@@ -105,7 +106,7 @@ pip config unset global.index-url
 pip config unset install.trusted-host
 ```
 - You can also edit configuration file `%APPDATA%\pip\pip.ini` for source.
-```
+```Properties
 [global]
 index-url = https://pypi.org/simple/
 [install]
@@ -118,3 +119,17 @@ trusted-host = pypi.org
 
 ### Reference
 - [pip documentation](https://pip.pypa.io/en/stable/user_guide/)
+
+## Subversion
+You can edit configuration file `%APPDATA%\Subversion\servers`  to indicate which proxy to use.
+```Properties
+[global]
+# http-proxy-exceptions = *.exception.com, www.internal-site.org
+http-proxy-host = 127.0.0.1
+http-proxy-port = 6789
+# http-proxy-username = defaultusername
+# http-proxy-password = defaultpassword
+```
+
+### Reference
+- [Subversion FAQ](http://subversion.apache.org/faq.html#proxy)

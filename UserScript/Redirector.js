@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.14
+// @version         0.1.15
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -955,8 +955,19 @@
           // Video url to add
           let url;
           try {
-            const info =
-              tweets[id].extended_entities.media[0].video_info.variants;
+            let info,
+              { extended_entities, card } = tweets[id];
+            if (extended_entities) {
+              info = extended_entities.media[0].video_info.variants;
+            } else if (card) {
+              info = JSON.parse(card.binding_values.unified_card.string_value)
+                .media_entities;
+              const keyName = Object.keys(info)[0];
+              info = info[keyName].video_info.variants;
+            } else {
+              console.log("No source found in API response.");
+              return;
+            }
             url = info
               .filter(i => i.content_type === "video/mp4")
               .sort((a, b) => b.bitrate - a.bitrate)[0].url;
