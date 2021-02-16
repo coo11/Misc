@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.15
+// @version         0.1.19
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -70,6 +70,8 @@
 // @match         *://nhentai.net/*
 // @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
+// @match         *://*.dbsearch.net/*
+// @match         *://blog.csdn.net/*/article/details/*
 // ----OtherEnd-----
 // @grant             GM_setValue
 // @grant             GM_getValue
@@ -477,6 +479,18 @@
               tr.appendChild(newTd);
             }
           });
+      } else if (src.indexOf("hentai.org/g/") > -1) {
+        document
+          .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
+          .forEach(a => {
+            if (a.href.indexOf("hentai.org/s/") > -1) {
+              a.setAttribute("target", "_blank");
+            }
+          });
+      } else if (src.indexOf("hentai.org/s/") > -1) {
+        const galleryUrl = document.querySelector("div.sb > a").href,
+          h1 = document.querySelector("h1");
+        h1.outerHTML = `<a href="${galleryUrl}" style="text-decoration:none;">${h1.outerHTML}</a>`;
       } else {
         // Open Gallery in New Tab
         [].forEach.call(document.getElementsByClassName("itg"), table => {
@@ -560,6 +574,47 @@
       }
       return;
     });
+  }
+
+  // Auto skip R18 warning for dbsearach
+  else if (hostname.endsWith("dbsearch.net")) {
+    if (/^(adult(comic|novel|anime)|erogame)\./.test(hostname)) {
+      let r18Warning =
+        document.querySelector("div#warning-box > p:first-of-type") ||
+        document.querySelector("div#contents > p:first-of-type");
+      if (
+        r18Warning &&
+        r18Warning.innerText.indexOf("Adults only, or 18 and older.") > -1
+      ) {
+        window.location.href = document.querySelector(
+          "ul#select > li > a"
+        ).href;
+        return;
+      } else return;
+    } else return;
+  }
+
+  // CSDN
+  else if (hostname == "blog.csdn.net") {
+    window.onload = () => {// Later than document.onload
+      try {
+        document.querySelector("div.login-mark").style.display = "none";
+        document.getElementById("passportbox").style.display = "none";
+      } catch (e) {
+        console.log(e);
+      }
+      document.querySelectorAll("div.hljs-button").forEach(b => {
+        b.setAttribute("data-title", "复制");
+        b.addEventListener("click", function (e) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          GM_setClipboard(this.parentNode.innerText);
+          b.setAttribute("data-title", "复制成功");
+          wait(1000).then(() => b.setAttribute("data-title", "复制"));
+        });
+      });
+    };
+    return;
   }
 
   // Weibo
