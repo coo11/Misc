@@ -20,6 +20,7 @@
 // @match         *://*.alicdn.com/*
 // Pixiv, Twitter, Artstation, Steam, Pinterest
 // @match         *://i.pximg.net/*
+// @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
 // @match         *://*.twimg.com/*
 // @match         *://cdna.artstation.com/*
@@ -73,8 +74,6 @@
 // @match         *://*.dbsearch.net/*
 // @match         *://blog.csdn.net/*/article/details/*
 // ----OtherEnd-----
-// @grant             GM_setValue
-// @grant             GM_getValue
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
 // ==/UserScript==
@@ -91,8 +90,9 @@
   "use strict";
   let newSrc,
     matched,
-    { href: src, hostname, protocol } = window.location,
+    { hostname, protocol } = window.location,
     xhr = new XMLHttpRequest();
+  const src = window.location.href;
 
   const weiboFn = {
     alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -240,7 +240,7 @@
 
   function guessUrl(urls, cb) {
     const count = guessUrl.count;
-    xhr.open("GET", urls[count], true);
+    xhr.open("HEAD", urls[count], true);
     xhr.onload = function () {
       if (xhr.status === 200) {
         xhr.abort();
@@ -260,16 +260,11 @@
   function redirect(newSrc) {
     if (newSrc === src) return;
     if (Array.isArray(newSrc)) {
-      let _url = GM_getValue("lastMaxUrl");
-      if (_url && _url === src) {
-        GM_setValue("lastMaxUrl", null);
-        return;
-      }
       guessUrl.count = 0;
       guessUrl(newSrc, url => {
         if (url) {
-          GM_setValue("lastMaxUrl", url);
-          window.location.assign(url);
+          if (url === src) return;
+          return window.location.assign(url);
         } else return;
       });
     } else window.location.replace(newSrc);
@@ -419,7 +414,7 @@
             const info = resp.data.Component_Play_Playinfo,
               mid = weiboFn.id2mid(info.mid),
               uid = info.user.id;
-            window.open(`https://weibo.com/${mid}/${uid}`);
+            window.open(`https://weibo.com/${uid}/${mid}`);
           }
         });
       return;
@@ -596,7 +591,8 @@
 
   // CSDN
   else if (hostname == "blog.csdn.net") {
-    window.onload = () => {// Later than document.onload
+    window.onload = () => {
+      // Later than document.onload
       try {
         document.querySelector("div.login-mark").style.display = "none";
         document.getElementById("passportbox").style.display = "none";
@@ -686,7 +682,7 @@
   }
 
   // Pixiv
-  else if (hostname === "i.pximg.net" || hostname === "i-cf.pximg.net") {
+  else if (/i(-c?f)?\.pximg\.net/.test(hostname)) {
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
@@ -733,14 +729,9 @@
 
     /* https://pbs.twimg.com/tweet_video_thumb/EmCgOz9U4AA0bib.jpg
      * https://pbs.twimg.com/tweet_video/EmCgOz9U4AA0bib.mp4 */
-    matched = newSrc.match(/\/tweet_video_thumb\/+([^/.?#]+)\./);
+    matched = newSrc.match(/\/tweet_video(?:_thumb)?\/+([^/.?#]+)\./);
     if (matched) {
-      return redirect(
-        newSrc.replace(
-          /\/tweet_video_thumb\/+[^/]+\.[^/.]+(?:[?#].*)?$/,
-          "/tweet_video/" + matched[1] + ".mp4"
-        )
-      );
+      return redirect(`https://video.twimg.com/tweet_video/${matched[1]}.mp4`);
     }
 
     /**
