@@ -1,10 +1,12 @@
 javascript: ({
   init() {
     if ("about:blank" !== location.href) {
-      const div = document.createElement("div");
+      const div = document.createElement("div"),
+        options = Object.keys(this.engines)
+          .map(i => `<option value="${i}">${i}</option>`)
+          .join("");
       div.id = "ImageReverseSearch";
-      div.innerHTML =
-        '搜索引擎 <select><option value="Google">Google</option><option value="Yandex">Yandex</option><option value="sauceNAO">sauceNAO</option><option value="ASCII2D">ASCII2D</option><option value="Baidu">Baidu</option><option value="WAIT">WAIT</option></select><button>访问</button>';
+      div.innerHTML = `使用 <select>${options}</select><button>搜索</button>`;
       div.style =
         "color: white; background-color: rgba(20, 20, 20, 0.4); position: fixed; z-index: 999999; left: 0px; top: 0px;padding: 0 2px 2px;";
       document.body.appendChild(div);
@@ -17,7 +19,7 @@ javascript: ({
     }
   },
   handleEvent(event) {
-    let element = event.target, 
+    let element = event.target,
       div = document.getElementById("ImageReverseSearch");
     if (element.parentNode.id !== "ImageReverseSearch") {
       document.removeEventListener("click", this, true);
@@ -36,28 +38,36 @@ javascript: ({
   engines: {
     Google: {
       d: "https://image.google.com",
-      p: "/searchbyimage?image_url=",
+      p: "/searchbyimage?image_url="
     },
     Yandex: {
       d: "https://yandex.com/images",
-      p: "/search?rpt=imageview&url=",
+      p: "/search?rpt=imageview&url="
     },
     sauceNAO: {
       d: "https://saucenao.com",
-      p: "/search.php?db=999&url=",
+      p: "/search.php?db=999&url="
     },
     ASCII2D: {
       d: "https://ascii2d.net",
-      p: "/search/url/",
+      p: "/search/url/"
     },
     Baidu: {
       d: "https://image.baidu.com",
       p:
-        "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image=",
+        "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image="
+    },
+    Bing: {
+      d: "https://www.bing.com",
+      p: "/images/searchbyimage?cbir=sbi&imgurl="
+    },
+    KarmaDecay: {
+      d: "http://karmadecay.com",
+      p: "/search?kdtoolver=m2&q="
     },
     WAIT: {
       d: "https://trace.moe",
-      p: "/?url=",
-    },
-  },
+      p: "/?url="
+    }
+  }
 }.init());

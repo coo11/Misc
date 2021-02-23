@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.19
+// @version         0.1.20
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -921,7 +921,7 @@
             if (desc.indexOf("E-Hentai") > -1) {
               const sha1 = src.match(/[0-9A-z]{40}/i);
               if (sha1) {
-                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&f_shash=${sha1[0]}`;
+                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&fs_exp=on&f_shash=${sha1[0]}`;
                 miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
               }
             } else if (desc.indexOf("nhentai") > -1) {
@@ -939,6 +939,18 @@
 
   // Twitter Video Direct Link
   else if (hostname.endsWith("twitter.com")) {
+    if (
+      /^https?:\/\/(mobile\.)?twitter\.com\/([\w/]+)\/status\/(\d+)([?#].*)?/.test(
+        src
+      )
+    ) {
+      newSrc = src;
+      if (RegExp.$2 === "i/web") {
+        newSrc = newSrc.replace(RegExp.$2, "user");
+      }
+      newSrc = newSrc.replace(RegExp.$1, "").replace(RegExp.$4, "");
+      if (newSrc != src) return redirect(newSrc);
+    }
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b
