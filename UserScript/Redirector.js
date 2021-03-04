@@ -90,7 +90,7 @@
   "use strict";
   let newSrc,
     matched,
-    { hostname, protocol } = window.location,
+    { hostname, protocol, pathname } = window.location,
     xhr = new XMLHttpRequest();
   const src = window.location.href;
 
@@ -710,7 +710,8 @@
           )
       );
     } else if (src.indexOf("/profile_banners/") > -1) {
-      return redirect(src.replace(/\/[0-9]+x[0-9]+(?:[?#].*)?$/, ""));
+      //https://pbs.twimg.com/profile_banners/247054763/1348017380/600x200
+      return redirect([src.replace(/\/[0-9]+x[0-9]+(?:[?#].*)?$/, ""), src]);
     }
 
     newSrc = src
@@ -939,18 +940,9 @@
 
   // Twitter Video Direct Link
   else if (hostname.endsWith("twitter.com")) {
-    if (
-      /^https?:\/\/(mobile\.)?twitter\.com\/([\w/]+)\/status\/(\d+)([?#].*)?/.test(
-        src
-      )
-    ) {
-      newSrc = src;
-      if (RegExp.$2 === "i/web") {
-        newSrc = newSrc.replace(RegExp.$2, "user");
-      }
-      newSrc = newSrc.replace(RegExp.$1, "").replace(RegExp.$4, "");
-      if (newSrc != src) return redirect(newSrc);
-    }
+    pathname = pathname.replace(/^\/i\/web/, "/user");
+    newSrc = `https://twitter.com${pathname}`;
+    if (newSrc != src) return redirect(newSrc);
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b

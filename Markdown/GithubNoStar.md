@@ -32,6 +32,7 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[DeepCreamPy](https://github.com/deeppomf/DeepCreamPy) | 使用深度神经网络进行去码的工具
 [DivineEngine](https://github.com/DivineEngine/Profiles/tree/master) | 神机代理分流规则
 
 ## E
