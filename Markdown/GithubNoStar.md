@@ -41,6 +41,7 @@
 | :- | :- |
 [Editor.md](https://github.com/pandao/editor.md) | 一款开源的、可嵌入的 Markdown 在线编辑器（组件）
 [EdXposed](https://github.com/ElderDrivers/EdXposed) | 为运行高版本 Android ART 的设备上提供原生 Xposed 框架
+[eHunter](https://github.com/hanFengSan/eHunter) | 提升 Ehentai 阅读体验的 Bookmarklet
 [Eruda](https://github.com/liriliri/eruda) | 专为手机网页前端设计的调试面板，类似 DevTools 的迷你版
 
 ## F
@@ -50,6 +51,7 @@
 [FFmpeg](https://github.com/FFmpeg/FFmpeg) | 项目 [FFmpeg](https://git.ffmpeg.org/ffmpeg.git) 在 Github 的仓库镜像
 [flowerss bot](https://github.com/indes/flowerss-bot) | 一个可以将 RSS 订阅内容转换为 Instant View 的 Telegram Bot
 [FontMod](https://github.com/ysc3839/FontMod) | 修改 Win32 程序字体的 hook 工具
+[fynas/ua](https://github.com/fynas/ua) | User-Agent 库
 
 ## G
 
@@ -117,6 +119,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [r0capture](https://github.com/r0ysue/r0capture) | 安卓应用层抓包通杀脚本
+[RPCS3](https://github.com/RPCS3) | 开源 PS3 模拟器
 
 ## S
 
@@ -133,6 +136,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [Telegram-Anti-Revoke](https://github.com/SpriteOvO/Telegram-Anti-Revoke) | Telegram 防撤回插件
+[TocaEdit Xbox 360 Controller Emulator](https://github.com/x360ce/x360ce) | Xbox 手柄模拟器
 [trace.moe](https://github.com/soruly/trace.moe) | 以图搜番
 [TumblThree](https://github.com/TumblThreeApp/TumblThree) | Tumblr 博客备份工具
 

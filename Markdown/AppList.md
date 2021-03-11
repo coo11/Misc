@@ -157,6 +157,8 @@
 [JoyToKey](https://joytokey.net/en/) | 内存修改编辑工具 | [官方](https://joytokey.net/en/download)
 [Locale Emulator](https://pooi.moe/Locale-Emulator/) | 系统区域与语言的伪造、模拟 | [Github](https://github.com/xupefei/Locale-Emulator/releases/latest)
 [PPSSPP](https://www.ppsspp.org/index-cn.html) | 一款 PSP 模拟器 | [官方](https://ppsspp.org/downloads-cn.html)
+[RPCS3](https://rpcs3.net/) | 开源 PS3 模拟器 | [Github](https://github.com/RPCS3/rpcs3-binaries-win/releases/latest)
+[TocaEdit Xbox 360 Controller Emulator](https://www.x360ce.com/) | Xbox 手柄模拟器 |
 
 ## UWP
 

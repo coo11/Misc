@@ -23,6 +23,8 @@ git config --global --unset http.https://github.com.proxy
 - Edit file ` ~/.git/config` or `%HOMEPATH%\.gitconfig` (Global) is OK.
 - As for accessing to Github.com via SSH, you should edit or create a file `%HOMEPATH%\.ssh\config` with following code:
 ```Properties
+# '-a none': NO-AUTH Mode
+# The following line can be put under "Host hostname" for just proxying specified hostname.
 ProxyCommand connect -S 127.0.0.1:1080 -a none %h %p
 
 Host github.com
@@ -30,6 +32,7 @@ Host github.com
   Port 22
   Hostname github.com
   IdentityFile "C:\Users\****\.ssh\id_rsa"
+  # ProxyCommand connect -S 127.0.0.1:1080 %h %p
   TCPKeepAlive yes
   ServerAliveInterval 600
   IPQoS=throughput
