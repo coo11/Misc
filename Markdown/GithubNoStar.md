@@ -18,6 +18,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [baiduwp](https://github.com/TkzcM/baiduwp) | 使用 CloudFlare Workers 构建的 PanDownload 网页版
+[blackmatrix7 Rules](https://github.com/blackmatrix7/ios_rule_script) | 代理分流规则
 
 ## C
 
