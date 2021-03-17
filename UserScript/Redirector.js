@@ -942,7 +942,8 @@
   else if (hostname.endsWith("twitter.com")) {
     pathname = pathname.replace(/^\/i\/web/, "/user");
     newSrc = `https://twitter.com${pathname}`;
-    if (newSrc != src) return redirect(newSrc);
+    if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname))
+      return redirect(newSrc);
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b

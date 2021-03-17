@@ -108,6 +108,7 @@
 [Powerful Pixiv Downloader](https://github.com/xuejianxianzun/PixivBatchDownloader) | 批量下载 Pixiv 的插画和小说的 Chrome 扩展
 [Philomena](https://github.com/derpibooru/philomena) | 下一代以标签为纲的互联网图库
 [PPSSPP](https://github.com/hrydgard/ppsspp) | PSP 模拟器
+[Public Nitter Instances](https://github.com/zedeus/nitter/wiki/Instances) | 第三方 Twitter 网页客户端的实例汇总
 
 ## Q
 
