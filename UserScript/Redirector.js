@@ -46,6 +46,7 @@
 // @match         *://*.level-plus.net/*
 // @match         *://*.white-plus.net/*
 // @match         *://*.summer-plus.net/*
+// @match         *://*.spring-plus.net/*
 // Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://link.csdn.net/?target=*
@@ -72,7 +73,6 @@
 // @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
-// @match         *://blog.csdn.net/*/article/details/*
 // ----OtherEnd-----
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
@@ -589,30 +589,6 @@
     } else return;
   }
 
-  // CSDN
-  else if (hostname == "blog.csdn.net") {
-    window.onload = () => {
-      // Later than document.onload
-      try {
-        document.querySelector("div.login-mark").style.display = "none";
-        document.getElementById("passportbox").style.display = "none";
-      } catch (e) {
-        console.log(e);
-      }
-      document.querySelectorAll("div.hljs-button").forEach(b => {
-        b.setAttribute("data-title", "复制");
-        b.addEventListener("click", function (e) {
-          e.stopImmediatePropagation();
-          e.preventDefault();
-          GM_setClipboard(this.parentNode.innerText);
-          b.setAttribute("data-title", "复制成功");
-          wait(1000).then(() => b.setAttribute("data-title", "复制"));
-        });
-      });
-    };
-    return;
-  }
-
   // Weibo
   else if (hostname.endsWith("sinaimg.cn")) {
     if (hostname.startsWith("ss")) {
@@ -882,7 +858,7 @@
 
   // SouthPlus
   else if (
-    /(summer|white|north|south|soul|level)-plus\.net$/i.test(hostname) ||
+    /(spring|summer|white|north|south|soul|level)-plus\.net$/i.test(hostname) ||
     hostname.endsWith("south-plus.org")
   ) {
     window.location.hostname = "bbs.imoutolove.me";

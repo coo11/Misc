@@ -55,6 +55,7 @@
 [ScreenToGif](https://www.screentogif.com) | 强大的录屏工具 | [Github](https://github.com/NickeManarin/ScreenToGif/releases/latest)
 [FastStone Capture](https://www.faststone.org/FSCaptureDetail.htm) | 增强截图工具 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102wjwk.html)
 [Caesium](https://saerasoft.com/caesium/) | 图片压缩工具 | [官方](https://saerasoft.com/caesium/#download) [Github](https://github.com/Lymphatus/caesium-image-compressor/releases/latest)
+[Aseprite](https://www.aseprite.org/) | 像素画绘制 | 
 
 ## 网络工具
 
@@ -83,13 +84,14 @@
 [madVR](http://www.madvr.net/) | 视频渲染器 | [官方(直链)](http://madshi.net/madVR.zip)
 [LAVFilters](https://github.com/Nevcairiel/LAVFilters) | 分离/解码器 | [Github](https://github.com/Nevcairiel/LAVFilters/releases/latest)
 [xy-vsFilter & xy-SubFilter](https://github.com/Cyberbeing/xy-VSFilter) | *通用字幕插件* 和 *madVR 专用字幕插件* | [Github](https://github.com/Cyberbeing/xy-VSFilter/releases)
+[MP3TAG](https://www.mp3tag.de/en/) | 通用标签编辑器 | [官方](https://www.mp3tag.de/en/portable.html)
 
 ## 效率
 
 | 名称 | 描述 | 下载 |
 | :- | :- | :-: |
 [Ditto](https://ditto-cp.sourceforge.io/) | 剪贴板管理器 | [SourceForge](https://sourceforge.net/projects/ditto-cp/files/Ditto/)
-[FastCopy](https://fastcopy.jp/) | 文件拷贝、删除
+[FastCopy](https://fastcopy.jp/) | 文件拷贝、删除 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102z52b.html)
 [AdvancedRenamer](https://www.advancedrenamer.com/) | 高级批量重命名工具 | [官方(直链)](https://www.advancedrenamer.com/down/advanced_renamer_portable.zip)
 [UltraISO](https://www.ultraiso.com/) | ISO 文件处理
 [TreeSize Free](https://www.jam-software.com/treesize_free) | 文件夹大小可视化 | [官方(直链)](https://downloads.jam-software.de/treesize_free/TreeSizeFree-Portable.zip)
@@ -142,9 +144,9 @@
 | 名称 | 描述 | 下载 |
 | :- | :- | :-: |
 [Easy Recovery](https://www.ontrack.com/zh-hk/data-recovery/software) | 专业数据恢复软件
-[FINALDATA Enterprise](http://finaldata.com/) | 专业数据恢复软件 | [蓝奏云](https://lanzous.com/iOBl3ik2m0h)
+[FINALDATA Enterprise](http://finaldata.com/) | 数据恢复，较慢，停更 | [蓝奏云](https://lanzous.com/iOBl3ik2m0h)
 [Recuva](https://www.ccleaner.com/recuva) | 与 CCleaner 师出同门
-[R-STUDIO Network](https://www.r-studio.com/DataRecovery_over_Network.shtml) | 撤消删除与数据恢复软件
+[R-STUDIO Network](https://www.r-studio.com/DataRecovery_over_Network.shtml) | 数据恢复，非常推荐 | [Version History](https://forum.r-tt.com/viewtopic.php?t=4853)
 [DiskGenius](https://www.diskgenius.cn/) | 数据恢复软件 | [官方](https://www.diskgenius.cn/download.php)
 
 ## 游戏工具
@@ -153,8 +155,8 @@
 | :- | :- | :-: |
 [Xbox 360 Controller Emulator](https://www.x360ce.com/) | 手柄模拟器 | [Github](https://github.com/x360ce/x360ce/releases)
 [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) | 像素风格游戏清晰化
-[Cheat Engine](https://www.cheatengine.org/) | 内存修改编辑工具
-[JoyToKey](https://joytokey.net/en/) | 内存修改编辑工具 | [官方](https://joytokey.net/en/download)
+[Cheat Engine](https://www.cheatengine.org/) | 内存修改编辑工具 | [吾爱破解 红尘旧梦i](https://www.52pojie.cn/home.php?mod=space&uid=530967)
+[JoyToKey](https://joytokey.net/en/) | 手柄键盘转换器 | [官方](https://joytokey.net/en/download)
 [Locale Emulator](https://pooi.moe/Locale-Emulator/) | 系统区域与语言的伪造、模拟 | [Github](https://github.com/xupefei/Locale-Emulator/releases/latest)
 [PPSSPP](https://www.ppsspp.org/index-cn.html) | 一款 PSP 模拟器 | [官方](https://ppsspp.org/downloads-cn.html)
 [RPCS3](https://rpcs3.net/) | 开源 PS3 模拟器 | [Github](https://github.com/RPCS3/rpcs3-binaries-win/releases/latest)
