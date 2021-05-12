@@ -16,6 +16,7 @@
 [新浪微博图床](https://chrome.google.com/webstore/detail/fdfdnfpdplfbbnemmmoklbfjbhecpnhf) | 
 [二箱](https://chrome.google.com/webstore/detail/kidibbfcblfbbafhnlanccjjdehoahep) | 以图搜图
 [一键管理扩展](https://chrome.google.com/webstore/detail/lboblnfejcmcaplhnbkkfcienhlhpnni) | 扩展管理器
+[Tree Style History](https://chrome.google.com/webstore/detail/khcenbpnhbeplojhaolbpldmoppicold/related) | 以树状图展示历史记录
 
 ### User Script
 

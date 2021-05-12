@@ -27,6 +27,7 @@
 [Office 365](https://products.office.com/) | 生产力套件 | 
 [GnuCash](https://www.gnucash.org/) | 开源财务软件
 [SumatraPDF](https://www.sumatrapdfreader.org/free-pdf-reader.html) | 多格式阅读器 | [官方](https://www.sumatrapdfreader.org/download-free-pdf-viewer.html)
+[Copy++](https://github.com/CopyPlusPlus/CopyPlusPlus-NetFramework) | PDF、CAJ 复制增强 | [Github](https://github.com/CopyPlusPlus/CopyPlusPlus-NetFramework/releases/latest)
 
 ## 开发环境
 

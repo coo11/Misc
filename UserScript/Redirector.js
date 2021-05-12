@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.20
+// @version         0.1.21
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -72,6 +72,9 @@
 // @match         *://nhentai.net/*
 // @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
+// @match         *://hijiribe.donmai.us/*
+// @match         *://sonohara.donmai.us/*
+// @match         *://safebooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
 // ----OtherEnd-----
 // @grant             GM_setClipboard
@@ -553,7 +556,7 @@
   }
 
   // Auto expand blacklisted for Danbooru
-  else if (hostname === "danbooru.donmai.us") {
+  else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
       try {
         const disable = document.getElementById("disable-all-blacklists"),
@@ -664,9 +667,10 @@
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
         "$1$2"
       )
-      .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+)?\//, "/")
+      .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+){1,2}\//, "/")
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
       .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2");
+    //https://i.pximg.net/c/384x280_80_a2_g2/img-master/img/2018/12/30/23/23/32/72389353_p0_master1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     return redirect(addExts(newSrc, ["jpg", "png"]));
   }

@@ -25,6 +25,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [Calibre](https://github.com/kovidgoyal/calibre) | 电子书管理器
+[Canvas2Image](https://github.com/hongru/canvas2image) | 将 Canvas 保存或转换为图像的 Javascript 库
 [Clash](https://github.com/Dreamacro/clash) | 由 Go 语言编写的基于规则的隧道代理工具
 [Clash Dashboard](https://github.com/Dreamacro/clash-dashboard) | Clash 网络仪表盘
 [Clash for Windows](https://github.com/Fndroid/clash_for_windows_pkg) | Windows/macOS 平台 Clash 图形界面
@@ -35,6 +36,7 @@
 | :- | :- |
 [DeepCreamPy](https://github.com/deeppomf/DeepCreamPy) | 使用深度神经网络进行去码的工具
 [DivineEngine](https://github.com/DivineEngine/Profiles/tree/master) | 神机代理分流规则
+[DuiVision](https://github.com/blueantst/DuiVision) | Pandownload 使用的界面库
 
 ## E
 
@@ -109,6 +111,7 @@
 [Philomena](https://github.com/derpibooru/philomena) | 下一代以标签为纲的互联网图库
 [PPSSPP](https://github.com/hrydgard/ppsspp) | PSP 模拟器
 [Public Nitter Instances](https://github.com/zedeus/nitter/wiki/Instances) | 第三方 Twitter 网页客户端的实例汇总
+[Pyston](https://github.com/pyston/pyston) | Python 的高性能实现
 
 ## Q
 
@@ -140,6 +143,7 @@
 [Telegram-Anti-Revoke](https://github.com/SpriteOvO/Telegram-Anti-Revoke) | Telegram 防撤回插件
 [TocaEdit Xbox 360 Controller Emulator](https://github.com/x360ce/x360ce) | Xbox 手柄模拟器
 [trace.moe](https://github.com/soruly/trace.moe) | 以图搜番
+[Tree Style History](https://github.com/tumuyan/Tree-Style-History) | 树状图展示浏览器历史记录的 Chrome 扩展
 [TumblThree](https://github.com/TumblThreeApp/TumblThree) | Tumblr 博客备份工具
 
 ## U
