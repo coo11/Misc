@@ -29,6 +29,7 @@
 [Clash](https://github.com/Dreamacro/clash) | 由 Go 语言编写的基于规则的隧道代理工具
 [Clash Dashboard](https://github.com/Dreamacro/clash-dashboard) | Clash 网络仪表盘
 [Clash for Windows](https://github.com/Fndroid/clash_for_windows_pkg) | Windows/macOS 平台 Clash 图形界面
+[Compressed 2 TXT](https://github.com/AveYo/Compressed2TXT) | 将二进制文件转换为批处理
 
 ## D
 
@@ -191,5 +192,6 @@
 
 | 名称 | 描述 |
 | :- | :- |
+[哔哩哔哩 UWP](https://github.com/xiaoyaocz/biliuwp-lite) | 第三方哔哩哔哩 UWP 客户端
 [番号大全](https://github.com/imfht/fanhaodaquan) | 番号大全
 [区块链的构造和解释](https://github.com/Ice-Storm/structure-and-interpretation-of-blockchain) | 通过对 Bitcoin，Ethereum，Fabric 的技术原理分析，自底而上的介绍区块链底层技术原理

@@ -1,7 +1,7 @@
 ![coo11](https://avatars1.githubusercontent.com/u/22176261?s=64&v=4)
 
 > 我的应用软件清单。Forked from [常用软件介绍及安装包下载](https://gist.github.com/ixiumu/6125637fd044d86ed62ad6f2434d3675)
-
+<br>
 ## 常用软件
 
 | 名称 | 描述 | 下载 |
@@ -19,7 +19,7 @@
 [2345看图王](http://pic.2345.cc/) | **第三方修改**后才能用 | [三千院雨](https://764350177.lofter.com/search?q=2345)
 [CLaunch](https://hp.vector.co.jp/authors/VA018351/en/) | 客制化启动器 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102wjwl.html)
 [Calibre](https://calibre-ebook.com) | 电子书、漫画管理器 | [Github](https://github.com/kovidgoyal/calibre/releases/latest)
-
+<br>
 ## 办公
 
 | 名称 | 描述 | 下载 |
@@ -28,7 +28,7 @@
 [GnuCash](https://www.gnucash.org/) | 开源财务软件
 [SumatraPDF](https://www.sumatrapdfreader.org/free-pdf-reader.html) | 多格式阅读器 | [官方](https://www.sumatrapdfreader.org/download-free-pdf-viewer.html)
 [Copy++](https://github.com/CopyPlusPlus/CopyPlusPlus-NetFramework) | PDF、CAJ 复制增强 | [Github](https://github.com/CopyPlusPlus/CopyPlusPlus-NetFramework/releases/latest)
-
+<br>
 ## 开发环境
 
 | 名称 | 描述 | 下载 |
@@ -37,7 +37,7 @@
 [Node.js](https://nodejs.org/zh-cn/) | 运行在服务端的 JavaScript 引擎 | [腾讯](https://pc.qq.com/detail/5/detail_24845.html)
 [Python](https://www.python.org/) | Python 运行环境 | [腾讯](https://pc.qq.com/detail/5/detail_24685.html)
 [AutoHotKey](https://www.python.org/) | 热键脚本语言，[文档](https://wyagd001.github.io/zh-cn/docs/AutoHotkey.htm) | [官方](https://www.autohotkey.com/download/) [Github](https://github.com/Lexikos/AutoHotkey_L/releases/latest)
-
+<br>
 ## 编辑器
 
 | 名称 | 描述 | 下载 |
@@ -46,7 +46,7 @@
 [Notepad++](https://notepad-plus-plus.org/) | | [Github](https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest)
 [WinHex](https://www.x-ways.net/winhex/) | 十六进制数据编辑处理程序
 [Visual Studio Code](https://code.visualstudio.com/) | 开源代码编辑器 | [官方(直链)](https://code.visualstudio.com/docs/?dv=winzip)
-
+<br>
 ## 图像
 
 | 名称 | 描述 | 下载 |
@@ -57,7 +57,7 @@
 [FastStone Capture](https://www.faststone.org/FSCaptureDetail.htm) | 增强截图工具 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102wjwk.html)
 [Caesium](https://saerasoft.com/caesium/) | 图片压缩工具 | [官方](https://saerasoft.com/caesium/#download) [Github](https://github.com/Lymphatus/caesium-image-compressor/releases/latest)
 [Aseprite](https://www.aseprite.org/) | 像素画绘制 | 
-
+<br>
 ## 网络工具
 
 | 名称 | 描述 | 下载 |
@@ -71,7 +71,7 @@
 [Clash](https://github.com/Dreamacro/clash) | 使用 Golang 编写的代理工具 | [Github](https://github.com/Dreamacro/clash/releases)
 [Clash Premium](https://github.com/Dreamacro/clash/wiki/premium-core-features) | Clash 高级版 | [Github](https://github.com/Dreamacro/clash/releases/tag/premium/latest)
 [DNS Jumper](https://www.sordum.org/?s=Dns+Jumper) | DNS 测速优化工具 | [官方(直链)](https://www.sordum.org/files/download/dns-jumper/DnsJumper.zip)
-
+<br>
 ## 影音
 
 | 名称 | 描述 | 下载 |
@@ -86,7 +86,7 @@
 [LAVFilters](https://github.com/Nevcairiel/LAVFilters) | 分离/解码器 | [Github](https://github.com/Nevcairiel/LAVFilters/releases/latest)
 [xy-vsFilter & xy-SubFilter](https://github.com/Cyberbeing/xy-VSFilter) | *通用字幕插件* 和 *madVR 专用字幕插件* | [Github](https://github.com/Cyberbeing/xy-VSFilter/releases)
 [MP3TAG](https://www.mp3tag.de/en/) | 通用标签编辑器 | [官方](https://www.mp3tag.de/en/portable.html)
-
+<br>
 ## 效率
 
 | 名称 | 描述 | 下载 |
@@ -102,7 +102,7 @@
 [VMware](https://www.vmware.com/) | 虚拟机软件 
 [Sandboxie Plus](https://sandboxie-plus.com/) | 沙盒计算机程序 | [Github](https://github.com/sandboxie-plus/Sandboxie/releases/latest)
 [TopC](https://www.52pojie.cn/thread-1150599-1-1.html) | 窗口管理 | 
-
+<br>
 ## 系统工具
 
 | 名称 | 描述 | 下载
@@ -130,7 +130,7 @@
 [Process Monitor](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) | 实时监视和显示 Windows 的所有文件系统活动
 [Autoruns](https://docs.microsoft.com/en-us/sysinternals/downloads/autoruns) | 自启动管理工具
 [TCPView](https://docs.microsoft.com/en-us/sysinternals/downloads/tcpview) | 查看与所有 UDP 和 TCP 端点相关的详细列表
-
+<br>
 ## 硬件
 
 | 名称 | 描述 | 下载 |
@@ -140,7 +140,7 @@
 [GPU-Z](http://www.techpowerup.com/gpuz/) | 查看显卡信息 | [飞扬时空](http://blog.sina.com.cn/s/blog_89a729a40102xomu.html)
 [CrystalDiskInfo](https://crystalmark.info/en/software/crystaldiskinfo/) | 硬盘信息检测 | [官方(直链)](https://crystalmark.info/redirect.php?product=CrystalDiskInfo)
 [CrystalDiskMark](https://crystalmark.info/en/software/crystaldiskmark/) | 硬盘读写速度测试 | [官方(直链)](https://crystalmark.info/redirect.php?product=CrystalDiskMark)
-
+<br>
 ## 数据恢复
 
 | 名称 | 描述 | 下载 |
@@ -150,7 +150,7 @@
 [Recuva](https://www.ccleaner.com/recuva) | 与 CCleaner 师出同门
 [R-STUDIO Network](https://www.r-studio.com/DataRecovery_over_Network.shtml) | 数据恢复，非常推荐 | [Version History](https://forum.r-tt.com/viewtopic.php?t=4853)
 [DiskGenius](https://www.diskgenius.cn/) | 数据恢复软件 | [官方](https://www.diskgenius.cn/download.php)
-
+<br>
 ## 游戏工具
 
 | 名称 | 描述 | 下载 |
@@ -163,15 +163,15 @@
 [PPSSPP](https://www.ppsspp.org/index-cn.html) | 一款 PSP 模拟器 | [官方](https://ppsspp.org/downloads-cn.html)
 [RPCS3](https://rpcs3.net/) | 开源 PS3 模拟器 | [Github](https://github.com/RPCS3/rpcs3-binaries-win/releases/latest)
 [TocaEdit Xbox 360 Controller Emulator](https://www.x360ce.com/) | Xbox 手柄模拟器 |
-
+<br>
 ## UWP
 
 | 名称 | 描述 |
 | :- | :- |
 [Windows Terminal](https://www.microsoft.com/zh-cn/store/apps/9n0dx20hk701) | 新命令行程序
-[哔哩哔哩UWP](https://www.microsoft.com/zh-cn/store/apps/9n7c87236453) | 哔哩哔哩第三方客户端
+[哔哩哔哩UWP](https://www.showdoc.com.cn/biliuwpv4) | 哔哩哔哩第三方客户端
 [Cover](https://www.microsoft.com/zh-cn/store/apps/9wzdncrfj9w7) | 简洁的漫画阅读器
-
+<br>
 ## CLI
 
 | 名称 | 描述 | 下载
@@ -186,7 +186,13 @@
 [Android SDK Platform-Tools](https://developer.android.com/studio/releases/platform-tools) | ADB、Fastboot 等工具集 | [官方(直链)](https://dl.google.com/android/repository/platform-tools-latest-windows.zip)
 [youtube-dl](https://yt-dl.org/) | 从 YouTube 和许多其他网站下载视频 | [官方](https://ytdl-org.github.io/youtube-dl/download.html)
 [Subversion CLI binaries](http://subversion.apache.org/packages.html#windows) | 开放源代码的版本控制系统 | [SLIKSVN](https://sliksvn.com/download/) [CollabNet](https://www.collab.net/downloads/subversion)
+<br>
+## 脚本
 
+| 名称 | 描述 | 下载
+| :- | :- | :-: |
+[Compressed 2 TXT](https://github.com/AveYo/Compressed2TXT) | 将二进制文件转换为批处理 | [Github](https://github.com/AveYo/Compressed2TXT/releases/latest)
+<br>
 ## 其他
 
 | 名称 | 描述 | 下载 |
@@ -200,7 +206,7 @@
 [Resource Hacker](http://www.angusj.com/resourcehacker/) | 资源提取工具
 [GlassWire](https://www.glasswire.com/) | 联网监控工具；防火墙 | 
 [Live2D Cubism](https://www.live2d.com/zh-CHS/) | Live2D 制作、预览 | 
-
+<br>
 ## 软件社区
 
 | 名称 | 描述 |
@@ -230,7 +236,7 @@
 [Twm000](http://twm000.top/) | Windows 系统封装
 [kkocdko](https://kkocdko.github.io/) | kkocdko 的博客
 [Crx4Chrome](https://kkocdko.github.io/) | 第三方 Chrome 扩展商店
-
+<br>
 ## Android
 
 | 名称 | 描述 | 下载 |

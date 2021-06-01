@@ -294,12 +294,4 @@ Could not open a connection to your authentication agent.
 
 > 自己在 Windows 下使用遇到的问题
 
-原因是沒有编写 config 文件。
-
-可以在 git 的安装目录的 bash.bashrc 文件添加：
-
-```bash
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/key1
-ssh-add ~/.ssh/key2
-```
+原因是沒有编写 config 文件（网上亦存在其它解决方案，个人认为不是最佳实践，在没有改动 Git 程序文件的前提下，请仔细检查 `IdentityFile` 的路径语法是否正确）。

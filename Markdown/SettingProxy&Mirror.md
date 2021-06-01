@@ -90,10 +90,19 @@ pip install -i <source> <package> --proxy http://[user:passwd@]proxy.server:port
 
 
 # Set command line environment variables
+
+## Use `setx` to set permanent environment variables
 set http_proxy=http://192.168.1.1:8080
 set https_proxy=https://192.168.1.1:8080
 set http_proxy_user=name
 set http_proxy_pass=pwd
+
+setx https_proxy https://192.168.1.1:8080
+
+## Use `netsh` to set porxy
+netsh winhttp set proxy proxy-server="socks=localhost:9090" bypass-list="localhost"
+netsh winhttp show proxy # View the current proxy settings
+netsh winhttp reset proxy # Clear all proxy settings
 
 # Leave blank for no proxy
 set http_proxy=
