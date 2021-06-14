@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.21
+// @version         0.1.23
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -32,6 +32,8 @@
 // @match         *://*.pinimg.com/*
 // @match         *://s3.amazonaws.com/media.pinterest.com/*
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
+// @match         *://preview.redd.it/*
+// @match         *://www.reddit.com/*
 // TODO: Tumblr
 // ----GetOriginalSrcEnd------
 //
@@ -241,19 +243,22 @@
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  function guessUrl(urls, cb) {
+  function guessUrl(urls, cb, method = "HEAD") {
     const count = guessUrl.count;
-    xhr.open("HEAD", urls[count], true);
+    xhr.open(method, urls[count], true);
     xhr.onload = function () {
       if (xhr.status === 200) {
         xhr.abort();
         return cb(urls[count]);
+      } else if (xhr.status === 503) {
+        //For twimg always respose 503 if method is "HEAD"
+        return guessUrl(urls, cb, "GET")
       } else {
         guessUrl.count++;
         if (count === urls.length - 1) {
           return cb(null);
         } else {
-          return guessUrl(urls, cb);
+          return guessUrl(urls, cb, method);
         }
       }
     };
@@ -384,8 +389,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-              ? weiboFn.mid2id(input)
-              : weiboFn.id2mid(input),
+            ? weiboFn.mid2id(input)
+            : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -508,7 +513,7 @@
           if (text) {
             window.open(
               "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-                encodeURIComponent(text),
+              encodeURIComponent(text),
               "_blank"
             );
           }
@@ -631,9 +636,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-            "$1"
-          )
+          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+          "$1"
+        )
     );
   }
 
@@ -669,9 +674,11 @@
       )
       .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+){0,2}\//, "/")
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
-      .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2");
+      .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2")
+      .replace(/(\/[0-9]+_)square[0-9]+(\.[^/.]*)$/, "$1ugoira0$2");
     //https://i.pximg.net/c/384x280_80_a2_g2/img-master/img/2018/12/30/23/23/32/72389353_p0_master1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
+    //https://i.pximg.net/c/250x250_80_a2/img-master/img/2015/12/27/23/24/55/54282140_square1200.jpg
     return redirect(addExts(newSrc, ["jpg", "png"]));
   }
 
@@ -860,6 +867,48 @@
     );
   }
 
+  // Reddit
+  else if (hostname === "preview.redd.it") {
+    return redirect(
+      src.replace(/:\/\/preview\.redd\.it\/((?:award_images\/+t[0-9]*_[0-9a-z]+\/+)?[^/.]*\.[^/.?]*)\?.*$/, "://i.redd.it/$1")
+    )
+  }
+
+  else if (hostname === "www.reddit.com") {
+    return document.addEventListener("DOMContentLoaded", () => {
+      let bodyList = document.querySelector("body")
+        , observer = new MutationObserver(mutations => {
+          mutations.forEach(mutation => {
+            const added = mutation.addedNodes;
+            if (added.length) {
+              added.forEach(e => {
+                if (e.nodeType === 1) {
+                  const userA = e.querySelector("div > a[href^=\"/user/\"]");
+                  if (userA /* this element sometimes appears too late to overwrite added element */) {
+                    const threadA = userA.parentElement.nextElementSibling;
+                    if (threadA && threadA.hasAttribute("data-click-id")) {
+                      const a = threadA.cloneNode();
+                      a.href = threadA.href.replace(/^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/, "https://redd.it/$1");
+                      threadA.parentElement.insertAdjacentElement("beforeend", a)
+                      a.innerText = "[Short Link]";
+                      a.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        if (a.innerText === "[Copied!]") return;
+                        GM_setClipboard(a.href);
+                        a.innerText = "[Copied!]";
+                        wait(2000).then(() => (a.innerText = "[Short Link]"));
+                      }, false);
+                    }
+                  }
+                }
+              })
+            }
+          });
+        });
+      observer.observe(bodyList, { childList: true, subtree: true });
+    });
+  }
+
   // SouthPlus
   else if (
     /(spring|summer|white|north|south|soul|level)-plus\.net$/i.test(hostname) ||
@@ -922,8 +971,7 @@
   else if (hostname.endsWith("twitter.com")) {
     pathname = pathname.replace(/^\/i\/web/, "/user");
     newSrc = `https://twitter.com${pathname}`;
-    if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname))
-      return redirect(newSrc);
+    if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname)) { return redirect(newSrc); }
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b

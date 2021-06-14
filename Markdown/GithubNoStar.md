@@ -26,6 +26,7 @@
 | :- | :- |
 [Calibre](https://github.com/kovidgoyal/calibre) | 电子书管理器
 [Canvas2Image](https://github.com/hongru/canvas2image) | 将 Canvas 保存或转换为图像的 Javascript 库
+[ChinaMobilePhoneNumberRegex](https://github.com/VincentSit/ChinaMobilePhoneNumberRegex) | 一组匹配中国大陆手机号码的正则表达式
 [Clash](https://github.com/Dreamacro/clash) | 由 Go 语言编写的基于规则的隧道代理工具
 [Clash Dashboard](https://github.com/Dreamacro/clash-dashboard) | Clash 网络仪表盘
 [Clash for Windows](https://github.com/Fndroid/clash_for_windows_pkg) | Windows/macOS 平台 Clash 图形界面
@@ -63,6 +64,7 @@
 | :- | :- |
 [GeoIP2 · CN](https://github.com/Hackl0us/GeoIP2-CN) | 最小巧、最准确、最实用的中国大陆 IP 段 + GeoIP2 数据库
 [gfwlist](https://github.com/gfwlist/gfwlist) | gfwlist
+[grepWin](https://tools.stefankueng.com/grepWin.html) | 批量正则表达式搜索和替换文本工具
 
 ## H
 
@@ -153,6 +155,7 @@
 | :- | :- |
 [uBlock Origin](https://github.com/gorhill/uBlock) | 高效的广告拦截器
 [UnblockNeteaseMusic](https://github.com/nondanee/UnblockNeteaseMusic) | 解锁网易云音乐客户端变灰歌曲
+[UPX](https://github.com/upx/upx) | the Ultimate Packer for eXecutables
 
 ## V
 

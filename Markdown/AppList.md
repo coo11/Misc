@@ -50,6 +50,7 @@
 [Notepad++](https://notepad-plus-plus.org/) | | [Github](https://github.com/notepad-plus-plus/notepad-plus-plus/releases/latest)
 [WinHex](https://www.x-ways.net/winhex/) | 十六进制数据编辑处理程序
 [Visual Studio Code](https://code.visualstudio.com/) | 开源代码编辑器 | [官方(直链)](https://code.visualstudio.com/docs/?dv=winzip)
+[grepWin](https://tools.stefankueng.com/grepWin.html) | 批量正则表达式搜索和替换文本工具 | [Github](https://github.com/stefankueng/grepWin/releases/latest)
 <br>
 
 ## 图像
@@ -221,7 +222,6 @@
 [iTunes](https://support.apple.com/zh-cn/HT208079) | 12.6.5.3 是**最后一版**带商店的版本 | [官方(直链)](https://secure-appldnld.apple.com/itunes12/091-87819-20180912-69177170-B085-11E8-B6AB-C1D03409AD2A6/iTunes64Setup.exe) [蓝奏云](https://lanzous.com/b0dkfunob)
 [Chrome](https://support.apple.com/zh-cn/HT208079) | Google Chrome | [官方(直链)](https://dl.google.com/release2/chrome/) [ShuaX](https://shuax.com/project/chrome/)
 [Resource Hacker](http://www.angusj.com/resourcehacker/) | 资源提取工具
-[Live2D Cubism](https://www.live2d.com/zh-CHS/) | Live2D 制作、预览 | 
 <br>
 
 ## 软件社区

@@ -16,7 +16,9 @@
 [新浪微博图床](https://chrome.google.com/webstore/detail/fdfdnfpdplfbbnemmmoklbfjbhecpnhf) | 
 [二箱](https://chrome.google.com/webstore/detail/kidibbfcblfbbafhnlanccjjdehoahep) | 以图搜图
 [一键管理扩展](https://chrome.google.com/webstore/detail/lboblnfejcmcaplhnbkkfcienhlhpnni) | 扩展管理器
-[Tree Style History](https://chrome.google.com/webstore/detail/khcenbpnhbeplojhaolbpldmoppicold/related) | 以树状图展示历史记录
+[Tree Style History](https://chrome.google.com/webstore/detail/khcenbpnhbeplojhaolbpldmoppicold) | 以树状图展示历史记录
+[User-Agent Switcher for Chrome](https://chrome.google.com/webstore/detail/djflhoibgkdhkhhcedjiklpkjnoahfmg) | 修改 UA
+[SingleFile](https://chrome.google.com/webstore/detail/mpiodijhokgodhhofbcjdecpffjipkle) | 完整保存网页为单独的文件
 
 ### User Script
 
