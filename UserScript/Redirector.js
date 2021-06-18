@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.23
+// @version         0.1.24
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -13,12 +13,17 @@
 // ----EnhanceEnd------
 //
 // ----GetOriginalSrcStart----
-// Weibo, Zhihu, Bilibili, Alibaba
+// Weibo, Zhihu, Bilibili, Alibaba, Baidu
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
 // @match         *://*.alicdn.com/*
-// Pixiv, Twitter, Artstation, Steam, Pinterest
+// @match         *://imgsa.baidu.com/*
+// @match         *://imgsrc.baidu.com/*
+// @match         *://tiebapic.baidu.com/*
+// @match         *://*.himg.baidu.com/*
+// @match         *://*.hiphotos.baidu.com/*
+// Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
@@ -663,6 +668,24 @@
           .replace(/\?.*/, "")
       );
     }
+  }
+
+  // Baidu
+  else if (hostname === "imgsrc.baidu.com" || hostname === "tiebapic.baidu.com" || hostname === "imgsa.baidu.com" || hostname.endsWith(".hiphotos.baidu.com")) {
+    newSrc = decodeURIComponent(src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1"));
+    if (newSrc !== src) { return redirect(newSrc); }
+    newSrc = src
+      .replace("/abpic/item/", "/pic/item/")
+      .replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
+    return redirect(newSrc);
+  } else if (hostname.endsWith("himg.baidu.com")) {
+    // http://tb.himg.baidu.com/sys/portrait/item/57cf0859
+    // http://tb.himg.baidu.com/sys/portraitn/item/57cf0859
+    // http://tb.himg.baidu.com/sys/portraitm/item/57cf0859
+    // http://tb.himg.baidu.com/sys/portraitl/item/57cf0859
+    // http://tb.himg.baidu.com/sys/original/item/57cf0859
+    // http://himg.baidu.com/sys/original/item/57cf4b616e6748796559656f6e0859
+    return redirect(src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/"));
   }
 
   // Pixiv
