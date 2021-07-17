@@ -71,7 +71,7 @@
 | :- | :- | :-: |
 [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/) | 虚拟终端、系统控制台和网络文件传输 | [官方(直链)](https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe)
 [WinSCP](https://winscp.net/) | 开源图形化 SFTP 客户端 | [SourceForge](https://sourceforge.net/projects/winscp/files/WinSCP/)
-[Fiddler](https://www.telerik.com/fiddler) | 易上手的抓包工具 | [腾讯](https://pc.qq.com/detail/10/detail_3330.html)
+[Fiddler](https://www.telerik.com/fiddler) | 易上手的抓包工具 | [360](https://baoku.360.cn/soft/show/appid/102430)
 [Cyberduck](https://cyberduck.io/) | FTP 和 SFTP，WebDAV 和云存储客户端
 [Shadowsocks](https://github.com/shadowsocks/shadowsocks-windows) | 代理工具 | [Github](https://github.com/shadowsocks/shadowsocks-windows/releases/latest)
 [PortScan](https://www.the-sz.com/products/portscan/) | 端口扫描 路由跟踪 速度测试 | [官方(直链)](https://www.the-sz.com/common/get.php?product=portscan)
@@ -176,6 +176,7 @@
 [PPSSPP](https://www.ppsspp.org/index-cn.html) | 一款 PSP 模拟器 | [官方](https://ppsspp.org/downloads-cn.html)
 [RPCS3](https://rpcs3.net/) | 开源 PS3 模拟器 | [Github](https://github.com/RPCS3/rpcs3-binaries-win/releases/latest)
 [TocaEdit Xbox 360 Controller Emulator](https://www.x360ce.com/) | Xbox 手柄模拟器 |
+[bsnes](https://bsnes.dev/) | 具有 100% 兼容性的超级任天堂模拟器 | [Github](https://github.com/bsnes-emu/bsnes/releases/latest)
 <br>
 
 ## UWP
@@ -202,6 +203,7 @@
 [youtube-dl](https://yt-dl.org/) | 从 YouTube 和许多其他网站下载视频 | [官方](https://ytdl-org.github.io/youtube-dl/download.html)
 [Subversion CLI binaries](http://subversion.apache.org/packages.html#windows) | 开放源代码的版本控制系统 | [SLIKSVN](https://sliksvn.com/download/) [CollabNet](https://www.collab.net/downloads/subversion)
 [Sqlite Tools](https://sqlite.org/) | 用于管理 SQLite 数据库的命令行工具 | [官方](https://sqlite.org/download.html)
+[BFG Repo-Cleaner](https://rtyley.github.io/bfg-repo-cleaner/) | Git 仓库清理工具
 <br>
 
 ## 脚本

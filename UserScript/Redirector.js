@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.24
+// @version         0.1.25
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -57,6 +57,7 @@
 // Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://link.csdn.net/?target=*
+// @match         *://www.oschina.net/action/GoToLink?url=*
 // @match         *://www.pixiv.net/jump.php?*
 // @match         *://www.jianshu.com/go-wild*
 // @match         *://www.inoreader.com/*
@@ -76,7 +77,7 @@
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
-// @match         *://nhentai.net/*
+// @match         *://*.nhentai.net/*
 // @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
 // @match         *://hijiribe.donmai.us/*
@@ -184,7 +185,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    }
+    },
   };
 
   /**
@@ -257,7 +258,7 @@
         return cb(urls[count]);
       } else if (xhr.status === 503) {
         //For twimg always respose 503 if method is "HEAD"
-        return guessUrl(urls, cb, "GET")
+        return guessUrl(urls, cb, "GET");
       } else {
         guessUrl.count++;
         if (count === urls.length - 1) {
@@ -296,6 +297,7 @@
   else if (
     hostname === "link.zhihu.com" ||
     hostname === "link.csdn.net" ||
+    hostname === "www.oschina.net" ||
     (hostname === "www.pixiv.net" && src.indexOf("/jump.php?url=") > -1) ||
     (hostname === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
   ) {
@@ -347,7 +349,7 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
@@ -394,8 +396,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-            ? weiboFn.mid2id(input)
-            : weiboFn.id2mid(input),
+              ? weiboFn.mid2id(input)
+              : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -411,10 +413,10 @@
         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
         {
           headers: {
-            "content-type": "application/x-www-form-urlencoded"
+            "content-type": "application/x-www-form-urlencoded",
           },
           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST"
+          method: "POST",
         }
       )
         .then(resp => {
@@ -518,7 +520,7 @@
           if (text) {
             window.open(
               "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-              encodeURIComponent(text),
+                encodeURIComponent(text),
               "_blank"
             );
           }
@@ -594,9 +596,8 @@
         r18Warning &&
         r18Warning.innerText.indexOf("Adults only, or 18 and older.") > -1
       ) {
-        window.location.href = document.querySelector(
-          "ul#select > li > a"
-        ).href;
+        window.location.href =
+          document.querySelector("ul#select > li > a").href;
         return;
       } else return;
     } else return;
@@ -641,9 +642,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-          "$1"
-        )
+            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+            "$1"
+          )
     );
   }
 
@@ -671,9 +672,18 @@
   }
 
   // Baidu
-  else if (hostname === "imgsrc.baidu.com" || hostname === "tiebapic.baidu.com" || hostname === "imgsa.baidu.com" || hostname.endsWith(".hiphotos.baidu.com")) {
-    newSrc = decodeURIComponent(src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1"));
-    if (newSrc !== src) { return redirect(newSrc); }
+  else if (
+    hostname === "imgsrc.baidu.com" ||
+    hostname === "tiebapic.baidu.com" ||
+    hostname === "imgsa.baidu.com" ||
+    hostname.endsWith(".hiphotos.baidu.com")
+  ) {
+    newSrc = decodeURIComponent(
+      src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1")
+    );
+    if (newSrc !== src) {
+      return redirect(newSrc);
+    }
     newSrc = src
       .replace("/abpic/item/", "/pic/item/")
       .replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
@@ -685,7 +695,9 @@
     // http://tb.himg.baidu.com/sys/portraitl/item/57cf0859
     // http://tb.himg.baidu.com/sys/original/item/57cf0859
     // http://himg.baidu.com/sys/original/item/57cf4b616e6748796559656f6e0859
-    return redirect(src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/"));
+    return redirect(
+      src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/")
+    );
   }
 
   // Pixiv
@@ -732,7 +744,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2]
+          format: matched[2],
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -803,12 +815,13 @@
 
   // Artstation
   else if (/^cdn(?:a|b)\.artstation\.com$/.test(hostname)) {
-    const regex = /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
+    const regex =
+      /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
     if (regex.test(src)) {
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2")
+        src.replace(regex, "$1large/$2"),
       ]);
     }
   }
@@ -893,38 +906,51 @@
   // Reddit
   else if (hostname === "preview.redd.it") {
     return redirect(
-      src.replace(/:\/\/preview\.redd\.it\/((?:award_images\/+t[0-9]*_[0-9a-z]+\/+)?[^/.]*\.[^/.?]*)\?.*$/, "://i.redd.it/$1")
-    )
-  }
-
-  else if (hostname === "www.reddit.com") {
+      src.replace(
+        /:\/\/preview\.redd\.it\/((?:award_images\/+t[0-9]*_[0-9a-z]+\/+)?[^/.]*\.[^/.?]*)\?.*$/,
+        "://i.redd.it/$1"
+      )
+    );
+  } else if (hostname === "www.reddit.com") {
     return document.addEventListener("DOMContentLoaded", () => {
-      let bodyList = document.querySelector("body")
-        , observer = new MutationObserver(mutations => {
+      let bodyList = document.querySelector("body"),
+        observer = new MutationObserver(mutations => {
           mutations.forEach(mutation => {
             const added = mutation.addedNodes;
             if (added.length) {
               added.forEach(e => {
                 if (e.nodeType === 1) {
-                  const userA = e.querySelector("div > a[href^=\"/user/\"]");
-                  if (userA /* this element sometimes appears too late to overwrite added element */) {
+                  const userA = e.querySelector('div > a[href^="/user/"]');
+                  if (
+                    userA /* this element sometimes appears too late to overwrite added element */
+                  ) {
                     const threadA = userA.parentElement.nextElementSibling;
                     if (threadA && threadA.hasAttribute("data-click-id")) {
                       const a = threadA.cloneNode();
-                      a.href = threadA.href.replace(/^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/, "https://redd.it/$1");
-                      threadA.parentElement.insertAdjacentElement("beforeend", a)
+                      a.href = threadA.href.replace(
+                        /^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/,
+                        "https://redd.it/$1"
+                      );
+                      threadA.parentElement.insertAdjacentElement(
+                        "beforeend",
+                        a
+                      );
                       a.innerText = "[Short Link]";
-                      a.addEventListener("click", function (e) {
-                        e.preventDefault();
-                        if (a.innerText === "[Copied!]") return;
-                        GM_setClipboard(a.href);
-                        a.innerText = "[Copied!]";
-                        wait(2000).then(() => (a.innerText = "[Short Link]"));
-                      }, false);
+                      a.addEventListener(
+                        "click",
+                        function (e) {
+                          e.preventDefault();
+                          if (a.innerText === "[Copied!]") return;
+                          GM_setClipboard(a.href);
+                          a.innerText = "[Copied!]";
+                          wait(2000).then(() => (a.innerText = "[Short Link]"));
+                        },
+                        false
+                      );
                     }
                   }
                 }
-              })
+              });
             }
           });
         });
@@ -994,7 +1020,9 @@
   else if (hostname.endsWith("twitter.com")) {
     pathname = pathname.replace(/^\/i\/web/, "/user");
     newSrc = `https://twitter.com${pathname}`;
-    if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname)) { return redirect(newSrc); }
+    if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname)) {
+      return redirect(newSrc);
+    }
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b
@@ -1062,8 +1090,9 @@
             if (extended_entities) {
               info = extended_entities.media[0].video_info.variants;
             } else if (card) {
-              info = JSON.parse(card.binding_values.unified_card.string_value)
-                .media_entities;
+              info = JSON.parse(
+                card.binding_values.unified_card.string_value
+              ).media_entities;
               const keyName = Object.keys(info)[0];
               info = info[keyName].video_info.variants;
             } else {
@@ -1103,7 +1132,7 @@
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
                 that.resp = {
                   id: matched[1],
-                  tweets: resp.globalObjects.tweets
+                  tweets: resp.globalObjects.tweets,
                 };
               },
               false
@@ -1159,7 +1188,7 @@
           });
         });
         observer.observe(document.body, { childList: true, subtree: true });
-      }
+      },
     };
     addVideoLink.init();
   }

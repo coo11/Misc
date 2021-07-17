@@ -18,7 +18,9 @@
 | 名称 | 描述 |
 | :- | :- |
 [baiduwp](https://github.com/TkzcM/baiduwp) | 使用 CloudFlare Workers 构建的 PanDownload 网页版
+[BFG Repo-Cleaner](https://github.com/rtyley/bfg-repo-cleaner) | Git 仓库清理工具
 [blackmatrix7 Rules](https://github.com/blackmatrix7/ios_rule_script) | 代理分流规则
+[bsnes](https://github.com/bsnes-emu/bsnes) | bsnes is a Super Nintendo (SNES) emulator focused on performance, features, and ease of use.
 
 ## C
 
@@ -113,6 +115,7 @@
 [Powerful Pixiv Downloader](https://github.com/xuejianxianzun/PixivBatchDownloader) | 批量下载 Pixiv 的插画和小说的 Chrome 扩展
 [Philomena](https://github.com/derpibooru/philomena) | 下一代以标签为纲的互联网图库
 [PPSSPP](https://github.com/hrydgard/ppsspp) | PSP 模拟器
+[Praw](https://github.com/praw-dev/praw) | Python Reddit API Wrapper
 [Public Nitter Instances](https://github.com/zedeus/nitter/wiki/Instances) | 第三方 Twitter 网页客户端的实例汇总
 [Pyston](https://github.com/pyston/pyston) | Python 的高性能实现
 
@@ -156,6 +159,7 @@
 [uBlock Origin](https://github.com/gorhill/uBlock) | 高效的广告拦截器
 [UnblockNeteaseMusic](https://github.com/nondanee/UnblockNeteaseMusic) | 解锁网易云音乐客户端变灰歌曲
 [UPX](https://github.com/upx/upx) | the Ultimate Packer for eXecutables
+[uuid](https://github.com/uuidjs/uuid) | Generate RFC-compliant UUIDs in JavaScript
 
 ## V
 

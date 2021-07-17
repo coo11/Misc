@@ -267,6 +267,7 @@ NSTimer *timer = [NSTimer timerWithTimeInterval:1.0/60 repeats:YES block:^(NSTim
 > Conceptually, an affine transform multiplies a row vector representing each point (x,y) in your drawing by this matrix, producing a vector that represents the corresponding point (x’,y’):
 >
 > ![A row vector multiplying a 3 by 3 matrix.](https://upload-images.jianshu.io/upload_images/1742463-aa57b592c9b92045.png)
+>
 > Given the 3 by 3 matrix, the following equations are used to transform a point (x, y) in one coordinate system into a resultant point (x’,y’) in another coordinate system.
 >
 > ![Transformation equations.](https://upload-images.jianshu.io/upload_images/1742463-ddc8eb566766ac37.png)
@@ -289,14 +290,14 @@ NSTimer *timer = [NSTimer timerWithTimeInterval:1.0/60 repeats:YES block:^(NSTim
 
 ![CGAffineTransformRotate的仿射矩阵推导](https://upload-images.jianshu.io/upload_images/1742463-ba2244a0184a6c76.png)
 
-- 相关推导用到的转换公式
+相关推导用到的转换公式
 
-    ```
-    sin(A+B) = sinAcosB + cosAsinB
-    sin(A-B) = sinAcosB - cosAsinB
-    cos(A+B) = cosAcosB - sinAsinB
-    cos(A-B) = cosAcosB + sinAsinB
-    ```
+```
+sin(A+B) = sinAcosB + cosAsinB
+sin(A-B) = sinAcosB - cosAsinB
+cos(A+B) = cosAcosB - sinAsinB
+cos(A-B) = cosAcosB + sinAsinB
+```
 
 
 下面给出相对简单的 `CGAffineTransformTranslate` 和 `CGAffineTransformScale` 的矩阵的简单推导
@@ -316,9 +317,9 @@ NSTimer *timer = [NSTimer timerWithTimeInterval:1.0/60 repeats:YES block:^(NSTim
 
 3D 矩阵变换，其实就是 2D 矩阵变换的拓展，相应的 3×3 矩阵变成 CATransform3D 代表的 4×4 矩阵
 
-经过对于 CGAffineTransform 的学习，这里我们就不再推导常用的 3D API 对应的变换了，直接贴上结果图
+经过对于 CGAffineTransform 的学习，这里我们就不再推导常用的 3D API 对应的变换了，直接贴上结果图（来自 [Apple Documentation Archive](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CoreAnimation_guide/CoreAnimationBasics/CoreAnimationBasics.html#//apple_ref/doc/uid/TP40004514-CH2-SW10)）
     
-![相关矩阵](https://upload-images.jianshu.io/upload_images/1742463-4b441ac9077478c2.png)
+![Matrix configurations for common transformations](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CoreAnimation_guide/Art/transform_manipulations_2x.png)
 
 **变换矩阵根据功能划分为四个区域，这里不做 T1、T3 区域的单独标注，观点在上文中已经提出，不再赘述**
 
