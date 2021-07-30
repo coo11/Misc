@@ -202,3 +202,4 @@
 [哔哩哔哩 UWP](https://github.com/xiaoyaocz/biliuwp-lite) | 第三方哔哩哔哩 UWP 客户端
 [番号大全](https://github.com/imfht/fanhaodaquan) | 番号大全
 [区块链的构造和解释](https://github.com/Ice-Storm/structure-and-interpretation-of-blockchain) | 通过对 Bitcoin，Ethereum，Fabric 的技术原理分析，自底而上的介绍区块链底层技术原理
+[霞鹜文楷](https://github.com/lxgw/LxgwWenKai) | 一款基于 FONTWORKS 的 Klee One 的开源中文字体

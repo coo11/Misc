@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.25
+// @version         0.1.27
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -13,7 +13,7 @@
 // ----EnhanceEnd------
 //
 // ----GetOriginalSrcStart----
-// Weibo, Zhihu, Bilibili, Alibaba, Baidu
+// Weibo, Zhihu, Bilibili, Alibaba, Baidu, Douban, NGA
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
@@ -23,6 +23,8 @@
 // @match         *://tiebapic.baidu.com/*
 // @match         *://*.himg.baidu.com/*
 // @match         *://*.hiphotos.baidu.com/*
+// @match         *://*.doubanio.com/*
+// @match         *://img.nga.178.com/*
 // Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
@@ -75,6 +77,7 @@
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
 // @match         *://www.google.com/search*tbs=sbi:*
+// @match         *://www.google.com/search*tbs=sbi%3A*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
 // @match         *://*.nhentai.net/*
@@ -437,7 +440,7 @@
   }
 
   // Close Safe Search & Show Image Direct Link
-  else if (/www\.google\./.test(hostname) && src.indexOf("tbs=sbi:") > -1) {
+  else if (/www\.google\./.test(hostname) && /tbs=sbi(:|%3A)/.test(src)) {
     if (src.indexOf("safe=off") === -1) {
       return redirect(addQueries(src, { safe: "off" }));
     }
@@ -623,7 +626,7 @@
         if (hash) weiboFn.openHomepageFromSinaimg(hash[1]);
       });
     } else return;
-    return redirect(newSrc);
+    return redirect(newSrc.replace(/^http:/, "https:"));
   }
 
   // Zhihu
@@ -697,6 +700,57 @@
     // http://himg.baidu.com/sys/original/item/57cf4b616e6748796559656f6e0859
     return redirect(
       src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/")
+    );
+  }
+
+  // Douban
+  else if (
+    hostname.endsWith(".doubanio.com") &&
+    hostname.match(/^img[0-9]*\./)
+  ) {
+    newSrc = src.replace(/\/img\/+trailer\/+small\/+/, "/img/trailer/medium/");
+    if (newSrc !== src) {
+      return redirect(newSrc);
+    }
+
+    newSrc = src
+      .replace(/\/[a-z]+(\/public\/[a-f0-9]+\.[^/.]*)$/, "/raw$1")
+      .replace(/\/(?:small|medium)\//, "/large/")
+      .replace(/\/[a-z]pic\//, "/opic/")
+      .replace(
+        /\/+img\/+([^/]*)\/+[^/]*\/+([0-9]+[^/]*)(?:[?#].*)?$/,
+        "/pview/$1/raw/public/p$2"
+      );
+    if (newSrc !== src) {
+      return redirect([newSrc, src]);
+    }
+
+    newSrc = src.replace(/\/view\/+subject\/+[a-z]+\/+/, "/view/subject/raw/");
+    // Both of the following urls have the same content
+    //   https://img3.doubanio.com/view/subject/raw/public/s4580920.webp
+    //   https://img3.doubanio.com/view/subject/raw/public/s4580920.jpg
+    if (newSrc !== src) {
+      return redirect(newSrc);
+    }
+
+    if (src.match(/\/+view\/+([^/]*)\/+[^/]*\/+/)) {
+      newSrc = src.replace(/\/+view\/+([^/]*)\/+[^/]*\/+/, "/pview/$1/raw/");
+      if (newSrc !== src) {
+        return redirect(
+          addExts(newSrc.replace(/\.webp(?:[?#].*)?$/, ".jpg"), ["jpg", "png"])
+        );
+      }
+    }
+    return;
+  }
+
+  // NGA
+  else if (hostname === "img.nga.178.com") {
+    return redirect(
+      src.replace(
+        /(\/attachments\/+[^/]*_[0-9]{6}\/+[0-9]+\/+[^/]*)\.(?:thumb|medium)(?:_[a-z])?\.[^/.]*(?:[?#].*)?$/,
+        "$1"
+      )
     );
   }
 
@@ -1057,22 +1111,23 @@
       },
       get resp() {
         if (this._resp && this._resp.id !== this.tid) {
-          this._resp.id = this.tid;
+          console.warn("Something wrong with new API");
+          /* this._resp.id = this.tid; */
         }
         return this._resp || {};
       },
-      set resp({ id, tweets }) {
+      set resp({ id, tweet }) {
         if (id === this.tid) {
-          // console.log(tweets);
-          if (!this._resp) this._resp = { tweets: {} };
+          // console.log(tweet);
+          if (!this._resp) this._resp = { tweet: {} };
           this._resp.id = id;
-          this._resp.tweets[id] = tweets[id];
+          this._resp.tweet = tweet;
           this.add();
         }
       },
       add() {
         const { id, target } = this.elem,
-          { id: _id, tweets } = this.resp;
+          { id: _id, tweet } = this.resp;
         if (id && id === _id) {
           // Elements to add
           let div = target.parentElement;
@@ -1086,7 +1141,8 @@
           let url;
           try {
             let info,
-              { extended_entities, card } = tweets[id];
+              { extended_entities, card } =
+                tweet.content.itemContent.tweet_results.result.legacy;
             if (extended_entities) {
               info = extended_entities.media[0].video_info.variants;
             } else if (card) {
@@ -1119,7 +1175,7 @@
           that = this;
         window.XMLHttpRequest.prototype.open = function (method, url) {
           const matched = url.match(
-            /\/api\/2\/timeline\/conversation\/(\d+)\.json/
+            /\/i\/api\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
           );
           if (matched && !that.added && that.tid) {
             this.addEventListener(
@@ -1132,7 +1188,10 @@
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
                 that.resp = {
                   id: matched[1],
-                  tweets: resp.globalObjects.tweets,
+                  tweet:
+                    resp.data.threaded_conversation_with_injections.instructions[0].entries.filter(
+                      i => i.entryId == `tweet-${matched[1]}`
+                    )[0],
                 };
               },
               false
@@ -1142,9 +1201,9 @@
         };
       },
       async findTarget(times = 50) {
-        if (this.updating && !this.tid) return;
-        this.updating = true;
         const id = this.tid;
+        if (this.updating && !id) return;
+        this.updating = true;
         for (let i = 0; i < times; i++) {
           const target = document.querySelector(`a[href*="${id}"]`);
           if (target) {

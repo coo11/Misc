@@ -26,7 +26,7 @@
       let src = element.src;
       if (src && !images.has(src)) {
         images.add(src);
-        content += parseImg(src);
+        content += parseImg(element);
       }
     } else {
       pesudos.forEach(pesudo => {
