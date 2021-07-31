@@ -15,9 +15,14 @@
         for (let item of obj.data.items) {
           if ("banner_item" in item) {
             let bannerItems = [];
-            bannerItems = item.banner_item.filter(
-              i => !i.is_ad && !i.is_ad_loc
-            );
+            bannerItems = item.banner_item.filter(i => {
+              if (!i.is_ad && !i.is_ad_loc) {
+                if (i.type === "ad") return;
+                else if (i.static_banner && !i.static_banner.is_ad_loc) {
+                  return true;
+                }
+              }
+            });
             if (bannerItems.length >= 1) {
               items.banner_item = bannerItems;
               items.push(item);
@@ -66,7 +71,7 @@
         const classes = {
           tab: new Set(["直播", "推荐", "热门", "追番", "影视"]),
           top: new Set(["消息"]),
-          bottom: new Set(["首页", "频道", "动态", "我的"])
+          bottom: new Set(["首页", "频道", "动态", "我的"]),
         };
         let obj = JSON.parse(body);
         for (let i in classes) {
@@ -89,7 +94,7 @@
           new Set(["离线缓存", "历史记录", "我的收藏", "稍后再看"]),
           new Set(["创作首页", "创作学院", "打卡挑战"]),
           new Set(["看视频免流量", "我的钱包", "直播中心", "反馈论坛"]),
-          new Set(["联系客服", "设置"])
+          new Set(["联系客服", "设置"]),
         ];
         let obj = JSON.parse(body);
         for (let i = 0; i < 4; i++) {
