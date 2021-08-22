@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.27
+// @version         0.1.29
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -13,7 +13,7 @@
 // ----EnhanceEnd------
 //
 // ----GetOriginalSrcStart----
-// Weibo, Zhihu, Bilibili, Alibaba, Baidu, Douban, NGA
+// Weibo, Zhihu, Bilibili, Alibaba, Baidu, Douban, NGA, Tencent
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
@@ -25,10 +25,12 @@
 // @match         *://*.hiphotos.baidu.com/*
 // @match         *://*.doubanio.com/*
 // @match         *://img.nga.178.com/*
+// @match         *://*.qpic.cn/*
 // Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
+// @match         *://pixiv.pximg.net/*
 // @match         *://*.twimg.com/*
 // @match         *://cdna.artstation.com/*
 // @match         *://cdnb.artstation.com/*
@@ -76,6 +78,8 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
+// @match         *://*.wikipedia.org/*
+// @match         *://*.wikimedia.org/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
 // @match         *://exhentai.org/*
@@ -439,6 +443,14 @@
     }
   }
 
+  // Use Timeless skin instead of Vector
+  else if (/\.wiki(p|m)edia\.org$/.test(hostname)) {
+    if (hostname.startsWith("upload.wikimedia")) return;
+    const queries = getQueries(src, true);
+    if ("useskin" in queries) return;
+    else return redirect(addQueries(src, { useskin: "timeless" }));
+  }
+
   // Close Safe Search & Show Image Direct Link
   else if (/www\.google\./.test(hostname) && /tbs=sbi(:|%3A)/.test(src)) {
     if (src.indexOf("safe=off") === -1) {
@@ -754,8 +766,19 @@
     );
   }
 
+  // Tencent
+  else if (hostname.endsWith(".qpic.cn")) {
+    if (src.match(/\/mblogpic\//)) {
+      return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/2000"));
+    }
+    return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/0"));
+  }
+
   // Pixiv
-  else if (/i(-c?f)?\.pximg\.net/.test(hostname)) {
+  else if (
+    /i(-c?f)?\.pximg\.net/.test(hostname) ||
+    hostname === "pixiv.pximg.net"
+  ) {
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
@@ -768,7 +791,9 @@
     //https://i.pximg.net/c/384x280_80_a2_g2/img-master/img/2018/12/30/23/23/32/72389353_p0_master1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/img-master/img/2015/12/27/23/24/55/54282140_square1200.jpg
-    return redirect(addExts(newSrc, ["jpg", "png"]));
+    return redirect(
+      addExts(newSrc, [hostname === "pixiv.pximg.net" ? "jpeg" : "jpg", "png"])
+    );
   }
 
   // Twitter

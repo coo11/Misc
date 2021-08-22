@@ -2,6 +2,12 @@
 
 > 不想点 Star 就收藏的 Github 仓库列表。Forked from [常用软件介绍及安装包下载](https://gist.github.com/ixiumu/6125637fd044d86ed62ad6f2434d3675)
 
+## 5
+
+| 名称 | 描述 |
+| :- | :- |
+[5000兆円生成器](https://github.com/yurafuca/5000choyen) | 生成 5000 兆円风格图片的工具
+
 ## A
 
 | 名称 | 描述 |
@@ -75,6 +81,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [iPac](https://github.com/ifyour/ipac) | 一个中国域名 PAC 白名单
+[IPTV](https://github.com/iptv-org/iptv) | 高清 IPTV 电视频道
 
 ## J
 
@@ -130,6 +137,7 @@
 | 名称 | 描述 |
 | :- | :- |
 [r0capture](https://github.com/r0ysue/r0capture) | 安卓应用层抓包通杀脚本
+[RE2](https://github.com/google/re2/blob/main/doc/syntax.txt) | A regular expression library
 [RPCS3](https://github.com/RPCS3) | 开源 PS3 模拟器
 
 ## S
@@ -173,6 +181,7 @@
 | :- | :- |
 [waifu2x](https://github.com/nagadomi/waifu2x) | 使用卷积神经网络对动漫风格的图片进行放大的工具
 [watermark](https://github.com/dxcweb/watermark) | 在线纯前端图片加水印
+[WechatMomentScreenshot](https://github.com/TransparentLC/WechatMomentScreenshot) | 朋友圈转发截图生成工具
 [What the f*ck Python!😱](https://github.com/satwikkansal/wtfpython) | 通过令人惊讶的代码片段探索和理解 Python
 [What the f*ck Python!🐍](https://github.com/leisurelicht/wtfpython-cn) | wtfpython 中文翻译
 
@@ -193,7 +202,8 @@
 
 | 名称 | 描述 |
 | :- | :- |
-[ZZKIA](https://github.com/dcalsky/zzkia) | Generate Nokia message picture for fun!
+[ZY Player](https://github.com/cuiocean/ZY-Player) | 视频资源播放器
+[ZZKIA](https://github.com/dcalsky/zzkia) | 诺基亚短信图片生成器
 
 ## \#
 

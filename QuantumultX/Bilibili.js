@@ -16,11 +16,9 @@
           if ("banner_item" in item) {
             let bannerItems = [];
             bannerItems = item.banner_item.filter(i => {
-              if (!i.is_ad && !i.is_ad_loc) {
-                if (i.type === "ad") return;
-                else if (i.static_banner && !i.static_banner.is_ad_loc) {
-                  return true;
-                }
+              if (i.type === "ad") return;
+              else if (i.static_banner && !i.static_banner.is_ad_loc) {
+                return true;
               }
             });
             if (bannerItems.length >= 1) {
@@ -28,8 +26,9 @@
               items.push(item);
             }
           } else if (
-            (!("ad_info" in item) && item.card_type === "small_cover_v2") ||
-            item.card_type === "large_cover_v1"
+            !("ad_info" in item) &&
+            (item.card_type === "small_cover_v2" ||
+              item.card_type === "large_cover_v1")
           ) {
             items.push(item);
           }
@@ -54,10 +53,6 @@
           obj["data"]["list"][i]["begin_time"] = 1915027200;
           obj["data"]["list"][i]["end_time"] = 1924272000;
         }
-        for (let i = 0; i < obj["data"]["show"].length; i++) {
-          obj["data"]["show"][i]["stime"] = 1915027200;
-          obj["data"]["show"][i]["etime"] = 1924272000;
-        }
         body = JSON.stringify(obj);
       } catch (e) {
         console.log(`开屏广告处理出现异常：${e}`);
@@ -69,14 +64,17 @@
     case /x\/resource\/show\/tab/.test(url):
       try {
         const classes = {
-          tab: new Set(["直播", "推荐", "热门", "追番", "影视"]),
-          top: new Set(["消息"]),
-          bottom: new Set(["首页", "频道", "动态", "我的"]),
+          // 442 开始为概念版 ID 适配港澳台代理模式
+          tab: new Set([39, 40, 41, 545, 151, 442, 99, 100, 101, 554, 556]),
+          // 消息
+          top: new Set([176]),
+          // 102 开始为概念版 ID
+          bottom: new Set([177, 179, 181, 102, 103, 104, 105, 106]),
         };
         let obj = JSON.parse(body);
         for (let i in classes) {
           if (i in obj.data) {
-            obj.data[i] = obj.data[i].filter(e => classes[i].has(e.name));
+            obj.data[i] = obj.data[i].filter(e => classes[i].has(e.id));
             for (let j = 0; j < obj.data[i].length; j++) obj.data[i].pos = j;
           }
         }
@@ -88,18 +86,16 @@
     /**
      * ^https?:\/\/app\.bilibili\.com\/x\/v2\/account\/mine url script-response-body THIS_FILE_URL
      */
-    case /x\/v2\/account\/mine/.test(url):
+    case /\/\/app\.bilibili\.com\/x\/v2\/account\/mine/.test(url):
       try {
-        const sections = [
-          new Set(["离线缓存", "历史记录", "我的收藏", "稍后再看"]),
-          new Set(["创作首页", "创作学院", "打卡挑战"]),
-          new Set(["看视频免流量", "我的钱包", "直播中心", "反馈论坛"]),
-          new Set(["联系客服", "设置"]),
-        ];
+        const itemList = new Set([
+          396, 397, 398, 399, 171, 401, 404, 406, 514, 407, 410,
+        ]);
+        // "离线缓存", "历史记录", "我的收藏", "稍后再看", "创作首页", "看视频免流量", "我的钱包", "直播中心", "反馈论坛", "联系客服", "设置"
         let obj = JSON.parse(body);
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < obj.data.sections_v2.length; i++) {
           const items = obj.data.sections_v2[i].items.filter(e =>
-            sections[i].has(e.title)
+            itemList.has(e.id)
           );
           obj.data.sections_v2[i].items = items;
         }
@@ -147,7 +143,8 @@
         let obj = JSON.parse(body);
         let cards = [];
         obj.data.cards.forEach(e => {
-          if ("display" in e && e.card.indexOf("ad_ctx") == -1) {
+          if (e.hasOwnProperty("display") && e.card.indexOf("ad_ctx") <= 0) {
+            // 解决number类型精度问题导致B站动态中图片无法打开的问题
             e["desc"]["dynamic_id"] = e["desc"]["dynamic_id_str"];
             e["desc"]["pre_dy_id"] = e["desc"]["pre_dy_id_str"];
             e["desc"]["orig_dy_id"] = e["desc"]["orig_dy_id_str"];
