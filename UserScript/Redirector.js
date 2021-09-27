@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.29
+// @version         0.1.30
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -50,6 +50,8 @@
 // SankakuComplex
 // @match         *://chan.sankakucomplex.com/*
 // SouthPlus
+// @match         *://bbs.imoutolove.me/read.php*
+// @match         *://bbs.imoutolove.me/simple/index.php*
 // @match         *://*.soul-plus.net/*
 // @match         *://*.south-plus.net/*
 // @match         *://*.south-plus.org/*
@@ -57,6 +59,7 @@
 // @match         *://*.level-plus.net/*
 // @match         *://*.white-plus.net/*
 // @match         *://*.summer-plus.net/*
+// @match         *://*.snow-plus.net/*
 // @match         *://*.spring-plus.net/*
 // Others
 // @match         *://link.zhihu.com/?target=*
@@ -192,7 +195,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    },
+    }
   };
 
   /**
@@ -356,7 +359,7 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
@@ -420,10 +423,10 @@
         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
         {
           headers: {
-            "content-type": "application/x-www-form-urlencoded",
+            "content-type": "application/x-www-form-urlencoded"
           },
           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST",
+          method: "POST"
         }
       )
         .then(resp => {
@@ -823,7 +826,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2],
+          format: matched[2]
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -900,7 +903,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2"),
+        src.replace(regex, "$1large/$2")
       ]);
     }
   }
@@ -1039,11 +1042,63 @@
 
   // SouthPlus
   else if (
-    /(spring|summer|white|north|south|soul|level)-plus\.net$/i.test(hostname) ||
+    /(spring|summer|white|north|south|soul|level|snow)-plus\.net$/i.test(
+      hostname
+    ) ||
     hostname.endsWith("south-plus.org")
   ) {
     window.location.hostname = "bbs.imoutolove.me";
     return;
+  } else if (hostname === "bbs.imoutolove.me") {
+    return document.addEventListener("DOMContentLoaded", () => {
+      document
+        .querySelectorAll(".quote.jumbotron>.btn.btn-danger")
+        .forEach(button => {
+          let url = button
+            .getAttribute("onclick")
+            .replace(/location\.href='(.+)'/, "$1");
+          // Get comment ID
+          let post_id = button.closest("div").id;
+          // Prevent page from redirecting when clicking button
+          button.removeAttribute("onclick");
+          button.addEventListener("click", e => {
+            let btn = e.target;
+            btn.setAttribute("value", "正在购买，请稍等");
+            try {
+              fetch(url, {
+                credentials: "include",
+                mode: "no-cors"
+              })
+                .then(resp => resp.text())
+                .then(text => {
+                  if (text.indexOf("操作完成") === -1) {
+                    alert("购买失败！");
+                  }
+                  fetch(document.URL, {
+                    credentials: "include",
+                    mode: "no-cors"
+                  })
+                    .then(resp => resp.text())
+                    .then(html => {
+                      let dummy = document.createElement("html");
+                      dummy.innerHTML = html;
+                      let purchased = dummy.querySelector("#" + post_id);
+                      let notPurchased = document.querySelector("#" + post_id);
+                      notPurchased.parentNode.replaceChild(
+                        purchased,
+                        notPurchased
+                      );
+                      dummy = null;
+                      btn.remove();
+                    });
+                });
+            } catch (error) {
+              alert(`发送请求出错，购买失败！\n${error}`);
+              console.log("Request Failed", error);
+            }
+          });
+        });
+    });
   }
 
   // SauceNAO
@@ -1216,7 +1271,7 @@
                   tweet:
                     resp.data.threaded_conversation_with_injections.instructions[0].entries.filter(
                       i => i.entryId == `tweet-${matched[1]}`
-                    )[0],
+                    )[0]
                 };
               },
               false
@@ -1272,7 +1327,7 @@
           });
         });
         observer.observe(document.body, { childList: true, subtree: true });
-      },
+      }
     };
     addVideoLink.init();
   }
