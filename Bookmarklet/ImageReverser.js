@@ -54,20 +54,23 @@ javascript: ({
     },
     Baidu: {
       d: "https://image.baidu.com",
-      p:
-        "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image="
+      p: "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image="
     },
     Bing: {
       d: "https://www.bing.com",
       p: "/images/searchbyimage?cbir=sbi&imgurl="
     },
     KarmaDecay: {
-      d: "http://karmadecay.com",
-      p: "/search?kdtoolver=m2&q="
+      d: "https://karmadecay.com",
+      p: "/search?q="
+    },
+    IQDB: {
+      d: "http://iqdb.org",
+      p: "/?url="
     },
     WAIT: {
       d: "https://trace.moe",
-      p: "/?url="
+      p: "/?auto&url="
     }
   }
 }.init());

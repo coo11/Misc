@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.30
+// @version         0.1.34
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -81,8 +81,8 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @match         *://*.wikipedia.org/*
-// @match         *://*.wikimedia.org/*
+// @match         *://docs.qq.com/sheet/*
+// @match         *://docs.qq.com/doc/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
 // @match         *://exhentai.org/*
@@ -446,14 +446,6 @@
     }
   }
 
-  // Use Timeless skin instead of Vector
-  else if (/\.wiki(p|m)edia\.org$/.test(hostname)) {
-    if (hostname.startsWith("upload.wikimedia")) return;
-    const queries = getQueries(src, true);
-    if ("useskin" in queries) return;
-    else return redirect(addQueries(src, { useskin: "timeless" }));
-  }
-
   // Close Safe Search & Show Image Direct Link
   else if (/www\.google\./.test(hostname) && /tbs=sbi(:|%3A)/.test(src)) {
     if (src.indexOf("safe=off") === -1) {
@@ -507,7 +499,7 @@
               tr.appendChild(newTd);
             }
           });
-      } else if (src.indexOf("hentai.org/g/") > -1) {
+      } else if (pathname.startsWith("/g/")) {
         document
           .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
           .forEach(a => {
@@ -515,10 +507,42 @@
               a.setAttribute("target", "_blank");
             }
           });
+        document.querySelectorAll("#cdiv div.c3").forEach(el => {
+          let a = el.closest("div.c1").previousSibling;
+          if (a && a.name) {
+            el.innerHTML += ` &nbsp; <a href="#${a.name}">#</a>`;
+          }
+        });
       } else if (src.indexOf("hentai.org/s/") > -1) {
         const galleryUrl = document.querySelector("div.sb > a").href,
           h1 = document.querySelector("h1");
-        h1.outerHTML = `<a href="${galleryUrl}" style="text-decoration:none;">${h1.outerHTML}</a>`;
+        h1.outerHTML = `<a href="${galleryUrl}" target="_blank" style="text-decoration:none;">${h1.outerHTML}</a>`;
+        let img = document.getElementById("img"),
+          a = img.parentNode,
+          i3 = document.getElementById("i3");
+        i3.style.cssText = "text-align: center; position: relative;";
+        i3.append(img);
+        a.removeAttribute("href");
+        let ap = a.cloneNode(),
+          apCss =
+            "width: 50%; height: 70%; position: absolute; left: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/p.png),auto;",
+          aCss =
+            "width: 50%; height: 70%; position: absolute; right: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/n.png),auto;";
+        ap.onclick = document.querySelector("a#prev").onclick;
+        a.style.cssText = aCss;
+        ap.style.cssText = apCss;
+        i3.prepend(ap);
+        let hookedFn = apply_json_state;
+        apply_json_state = function (a) {
+          let apOnClikck = a.n.match(/prev.*?(return.*?)"/)[1];
+          a.i3 = a.i3
+            .replace(/href.*?"/, "")
+            .replace(
+              /(^.*?onclick.*?\)")(.*?>)(<img.*?\/>)(.*?$)/,
+              `<a onclick="${apOnClikck}" style="${apCss}">$4$1 style="${aCss}"$2$4$3`
+            );
+          hookedFn(a);
+        };
       } else {
         // Open Gallery in New Tab
         [].forEach.call(document.getElementsByClassName("itg"), table => {
@@ -600,6 +624,18 @@
       } catch (e) {
         console.log(e);
       }
+      document.querySelectorAll("a.comment-copy-link").forEach(a => {
+        a.className = "real-comment-copy-link";
+        a.lastChild.textContent = " Copy URL";
+        a.onclick = function (e) {
+          e.preventDefault();
+          let url = new URL(location);
+          url.search = "";
+          url.hash = this.closest("article").id;
+          navigator.clipboard.writeText(url.href);
+          Danbooru.notice(`Copied comment ${url.hash} to clipboard.`);
+        };
+      });
       return;
     });
   }
@@ -775,6 +811,59 @@
       return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/2000"));
     }
     return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/0"));
+  }
+
+  // Tencent Docs
+  else if (hostname === "docs.qq.com" && /\/(sheet|doc)\/.+/.test(pathname)) {
+    let type = RegExp.$1,
+      idToWatch,
+      path;
+    if (type === "sheet") {
+      idToWatch = "pc-header-toolbar";
+      path = "div.left-container";
+    } else if (type === "doc") {
+      idToWatch = "tdocs-titlebar";
+      path = "div#titlebar-left-container";
+    }
+    path += " > div.dui-trigger.dui-tooltip.dui-tooltip-wrapper:first-child";
+    document.addEventListener("DOMContentLoaded", () => {
+      let observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          const added = mutation.addedNodes;
+          if (added.length) {
+            added.forEach(e => {
+              if (e.id === idToWatch) {
+                document.querySelector(path).addEventListener(
+                  "mouseenter",
+                  () => {
+                    setTimeout(() => {
+                      let el = document.querySelector(
+                        "body > div.dui-tooltip-container.dui-tooltip-container-visible > div"
+                      );
+                      if (el && el.innerText === "返回首页") {
+                        try {
+                          el.innerText = `返回首页\n创建日期：${new Date(
+                            clientVars.createdDate
+                          ).toLocaleString()}\n修改日期：${new Date(
+                            clientVars.lastModifyTime
+                          ).toLocaleString()}`;
+                          el.style.textAlign = "left";
+                        } catch (e) {
+                          console.log(e);
+                        }
+                      }
+                    }, 500);
+                  },
+                  false
+                );
+                observer.disconnect();
+              }
+            });
+          }
+        });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
   }
 
   // Pixiv
@@ -995,48 +1084,44 @@
     );
   } else if (hostname === "www.reddit.com") {
     return document.addEventListener("DOMContentLoaded", () => {
-      let bodyList = document.querySelector("body"),
-        observer = new MutationObserver(mutations => {
-          mutations.forEach(mutation => {
-            const added = mutation.addedNodes;
-            if (added.length) {
-              added.forEach(e => {
-                if (e.nodeType === 1) {
-                  const userA = e.querySelector('div > a[href^="/user/"]');
-                  if (
-                    userA /* this element sometimes appears too late to overwrite added element */
-                  ) {
-                    const threadA = userA.parentElement.nextElementSibling;
-                    if (threadA && threadA.hasAttribute("data-click-id")) {
-                      const a = threadA.cloneNode();
-                      a.href = threadA.href.replace(
-                        /^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/,
-                        "https://redd.it/$1"
-                      );
-                      threadA.parentElement.insertAdjacentElement(
-                        "beforeend",
-                        a
-                      );
-                      a.innerText = "[Short Link]";
-                      a.addEventListener(
-                        "click",
-                        function (e) {
-                          e.preventDefault();
-                          if (a.innerText === "[Copied!]") return;
-                          GM_setClipboard(a.href);
-                          a.innerText = "[Copied!]";
-                          wait(2000).then(() => (a.innerText = "[Short Link]"));
-                        },
-                        false
-                      );
-                    }
+      let observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          const added = mutation.addedNodes;
+          if (added.length) {
+            added.forEach(e => {
+              if (e.nodeType === 1) {
+                const userA = e.querySelector('div > a[href^="/user/"]');
+                if (
+                  userA /* this element sometimes appears too late to overwrite added element */
+                ) {
+                  const threadA = userA.parentElement.nextElementSibling;
+                  if (threadA && threadA.hasAttribute("data-click-id")) {
+                    const a = threadA.cloneNode();
+                    a.href = threadA.href.replace(
+                      /^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/,
+                      "https://redd.it/$1"
+                    );
+                    threadA.parentElement.insertAdjacentElement("beforeend", a);
+                    a.innerText = "[Short Link]";
+                    a.addEventListener(
+                      "click",
+                      function (e) {
+                        e.preventDefault();
+                        if (a.innerText === "[Copied!]") return;
+                        GM_setClipboard(a.href);
+                        a.innerText = "[Copied!]";
+                        wait(2000).then(() => (a.innerText = "[Short Link]"));
+                      },
+                      false
+                    );
                   }
                 }
-              });
-            }
-          });
+              }
+            });
+          }
         });
-      observer.observe(bodyList, { childList: true, subtree: true });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
     });
   }
 
