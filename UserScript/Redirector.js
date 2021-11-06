@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.34
+// @version         0.1.35
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -83,6 +83,7 @@
 // @match         *://weibo.com/*
 // @match         *://docs.qq.com/sheet/*
 // @match         *://docs.qq.com/doc/*
+// @match         *://www.bilibili.com/video/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
 // @match         *://exhentai.org/*
@@ -94,9 +95,11 @@
 // @match         *://sonohara.donmai.us/*
 // @match         *://safebooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
+// @match         *://www.ptt.cc/bbs/*
 // ----OtherEnd-----
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
+// @grant             GM_notification
 // ==/UserScript==
 
 /**
@@ -513,7 +516,7 @@
             el.innerHTML += ` &nbsp; <a href="#${a.name}">#</a>`;
           }
         });
-      } else if (src.indexOf("hentai.org/s/") > -1) {
+      } else if (pathname.startsWith("/s/")) {
         const galleryUrl = document.querySelector("div.sb > a").href,
           h1 = document.querySelector("h1");
         h1.outerHTML = `<a href="${galleryUrl}" target="_blank" style="text-decoration:none;">${h1.outerHTML}</a>`;
@@ -655,6 +658,22 @@
         return;
       } else return;
     } else return;
+  }
+
+  // ptt
+  else if (hostname === "www.ptt.cc") {
+    return document.addEventListener("DOMContentLoaded", () => {
+      let a = document.querySelector("a.small.right");
+      if (a) {
+        let a1 = a.cloneNode();
+        a1.innerText = "在 PTTWEB 中打开";
+        let url = new URL(location.href);
+        url.host = "www.pttweb.cc";
+        a1.href = url.href;
+        a.parentNode.insertAdjacentElement("beforeend", a1);
+      }
+      return;
+    });
   }
 
   // Weibo
@@ -864,6 +883,111 @@
       });
       observer.observe(document.body, { childList: true, subtree: true });
     });
+  }
+
+  // Bilibili Video
+  else if (hostname === "www.bilibili.com") {
+    if (/\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
+      //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
+      const table = [
+        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
+      ];
+      const s = [11, 10, 3, 8, 4, 6];
+      const xor = 177451812;
+      const add = 8728348608;
+      const av2bv = av => {
+        let num = NaN;
+        if (Object.prototype.toString.call(av) === "[object Number]") {
+          num = av;
+        } else if (Object.prototype.toString.call(av) === "[object String]") {
+          num = parseInt(av.replace(/[^0-9]/gu, ""));
+        }
+        if (isNaN(num) || num <= 0) {
+          // 网页版直接输出这个结果了
+          return;
+        }
+
+        num = (num ^ xor) + add;
+        let result = [..."BV1  4 1 7  "];
+        let i = 0;
+        while (i < 6) {
+          // 这里改写差点犯了运算符优先级的坑
+          // 果然 Python 也不是特别熟练
+          // 说起来 ** 按照传统语法应该写成 Math.pow()，但是我个人更喜欢 ** 一些
+          result[s[i]] = table[Math.floor(num / 58 ** i) % 58];
+          i += 1;
+        }
+        return result.join("");
+      };
+      const bv2av = bv => {
+        let str = "";
+        if (bv.length === 12) {
+          str = bv;
+        } else if (bv.length === 10) {
+          str = `BV${bv}`;
+          // 根据官方 API，BV 号开头的 BV1 其实可以省略
+          // 不过单独省略个 B 又不行（
+        } else if (bv.length === 9) {
+          str = `BV1${bv}`;
+        } else return;
+        if (
+          !str.match(
+            /[Bb][Vv][fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF]{10}/gu
+          )
+        )
+          return;
+
+        let result = 0;
+        let i = 0;
+        while (i < 6) {
+          result += table.indexOf(str[s[i]]) * 58 ** i;
+          i += 1;
+        }
+        return `av${(result - add) ^ xor}`;
+      };
+      ////////////////////////////////////////////
+      function getLink(targetType = "av") {
+        if (/\/video\/((av|BV|bv)\w+)/.test(location.pathname)) {
+          let type = RegExp.$2,
+            id = RegExp.$1;
+          let u = new URL(location.href),
+            p = u.searchParams.get("p"),
+            t = u.searchParams.get("t");
+          let newId = type === "av" ? av2bv(id) : bv2av(id);
+          if (!newId) return;
+          else {
+            let newl = new URL("https://b23.tv");
+            p && newl.searchParams.set("p", p);
+            t && newl.searchParams.set("t", t);
+            if (targetType === type.toLowerCase())
+              newl.pathname = location.pathname
+                .replace("/video", "")
+                .replace(/\/$/, "");
+            else newl.pathname = "/" + newId;
+            return newl.href;
+          }
+        }
+      }
+      function notify(targetType) {
+        let link = getLink(targetType);
+        let title = `复制 ${targetType.toUpperCase()} 短链接`;
+        if (link) {
+          GM_setClipboard(link);
+          GM_notification({
+            title,
+            text: "已复制：" + link,
+            timeout: 2000
+          });
+        } else
+          GM_notification({
+            title,
+            text: "无法获取短链接",
+            timeout: 2000
+          });
+      }
+      GM_registerMenuCommand("复制 AV 短链接", () => notify("av"));
+      GM_registerMenuCommand("复制 BV 短链接", () => notify("bv"));
+    }
   }
 
   // Pixiv
