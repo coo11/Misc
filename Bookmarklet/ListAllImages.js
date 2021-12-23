@@ -15,7 +15,7 @@
       desc = "From CSS";
     } else {
       url = image.src;
-      desc = image.height + " * " + image.width;
+      desc = image.width + "×" + image.height;
     }
     return `<tr><td style="text-align:center;"><img src="${url}"style="max-width:320px;box-shadow:5px 5px 5px #BBB;"><p><code>${desc}</code></p></td><td class="src" style="word-break:break-all"><code>${url}</code></td></tr>`;
   };

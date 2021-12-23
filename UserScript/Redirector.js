@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.35
+// @version         0.1.37
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -615,7 +615,28 @@
   // Auto expand blacklisted for Danbooru
   else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
-      try {
+      if (pathname.startsWith("/posts/")) {
+        let image = document.querySelector("picture > img#image");
+        image && dragElement(image);
+        document.querySelector("div#a-show")?.addEventListener("click", e => {
+          if (e.target.classList.contains("image-view-original-link")) {
+            document
+              .querySelector("picture > img#image")
+              .classList.remove("fit-width");
+          }
+        });
+        const size = document.querySelector(
+          "#post-info-size > a:last-child"
+        ).previousSibling;
+        size.data = size.data.replace("x", "×");
+        const time = document.querySelector("#post-info-date time"),
+          title = time.innerText;
+        if (!/(?:minutes?|hours?|(^|\D)\d days?) ago$/.test(title)) {
+          time.innerText = time.title;
+          time.title = title;
+        }
+      }
+      /* try {
         const disable = document.getElementById("disable-all-blacklists"),
           enable = document.getElementById("re-enable-all-blacklists");
         if (
@@ -638,7 +659,7 @@
           navigator.clipboard.writeText(url.href);
           Danbooru.notice(`Copied comment ${url.hash} to clipboard.`);
         };
-      });
+      }); */
       return;
     });
   }
@@ -1299,6 +1320,13 @@
                       );
                       dummy = null;
                       btn.remove();
+                      if (window.history && copyurl) {
+                        window.history.pushState(
+                          {},
+                          document.title,
+                          copyurl + post_id.split("_")[1]
+                        );
+                      }
                     });
                 });
             } catch (error) {
@@ -1539,5 +1567,62 @@
       }
     };
     addVideoLink.init();
+  }
+
+  function dragElement(el) {
+    let prevPos = [];
+
+    const current = (x, y) => {
+      const windowOffset = [
+        window.pageXOffset ||
+          document.documentElement.scrollLeft ||
+          document.body.scrollLeft,
+        window.pageYOffset ||
+          document.documentElement.scrollTop ||
+          document.body.scrollTop
+      ];
+      const offset = [
+        windowOffset[0] + prevPos[0] - x,
+        windowOffset[1] + prevPos[1] - y
+      ];
+      prevPos[0] = x;
+      prevPos[1] = y;
+      return offset;
+    };
+
+    el.addEventListener("dragstart", () => false);
+
+    return el.addEventListener("mousedown", e => {
+      if (e.which !== 1) return;
+
+      e.preventDefault();
+      const pageScroller = function (e) {
+        const scroll = current(e.clientX, e.clientY);
+        window.scrollTo(scroll[0], scroll[1]);
+        el.setAttribute("data-drag-element", "1");
+        return false;
+      };
+
+      const unsetAttr = () => el.removeAttribute("data-drag-element");
+
+      el.style.cursor = "grabbing";
+      prevPos = [e.clientX, e.clientY];
+
+      document.addEventListener("mousemove", pageScroller);
+
+      document.addEventListener(
+        "mouseup",
+        () => {
+          document.removeEventListener("mousemove", pageScroller);
+          setTimeout(unsetAttr, 0);
+          el.style.cursor = "auto";
+          return false;
+        },
+        {
+          once: true
+        }
+      );
+      return false;
+    });
   }
 })();
