@@ -10,7 +10,7 @@ GOTO PREPARE
        https://github.com/ludovicchabant/Chrome-Search-Engine-Sync
        https://superuser.com/questions/280694/
    
-   Others：
+   Others:
        https://github.com/AveYo/Compressed2TXT
        https://stackoverflow.com/a/38371342/14168341
 
