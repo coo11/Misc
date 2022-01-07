@@ -1,8 +1,8 @@
-@ECHO OFF & TITLE Chromium Search Engines ^& Bookmarks Helper v0.3 & REM SETLOCAL ENABLEEXTENSIONS
+@ECHO OFF & TITLE Chrome Search Engines ^& Bookmarks Helper v0.3 & REM SETLOCAL ENABLEEXTENSIONS
 MODE CON lines=14 cols=56 & COLOR 0A
 GOTO PREPARE
 ======================================================================
-   Chromium Search Engines & Bookmarks Helper v0.3
+   Chrome Search Engines & Bookmarks Helper v0.3
    
    A semi-automatic bookmarks & search engines management script
    
