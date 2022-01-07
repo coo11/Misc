@@ -81,8 +81,6 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @match         *://docs.qq.com/sheet/*
-// @match         *://docs.qq.com/doc/*
 // @match         *://www.bilibili.com/video/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
@@ -528,9 +526,9 @@
         a.removeAttribute("href");
         let ap = a.cloneNode(),
           apCss =
-            "width: 50%; height: 70%; position: absolute; left: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/p.png),auto;",
+            "width: 42%; height: 70%; position: absolute; left: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/p.png),auto;",
           aCss =
-            "width: 50%; height: 70%; position: absolute; right: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/n.png),auto;";
+            "width: 42%; height: 70%; position: absolute; right: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/n.png),auto;";
         ap.onclick = document.querySelector("a#prev").onclick;
         a.style.cssText = aCss;
         ap.style.cssText = apCss;
@@ -612,12 +610,15 @@
     });
   }
 
-  // Auto expand blacklisted for Danbooru
+  // Danbooru Ehance
   else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
       if (pathname.startsWith("/posts/")) {
         let image = document.querySelector("picture > img#image");
-        image && dragElement(image);
+        if(image) {
+          dragElement(image)
+          image.style.paddingRight = '10px';
+        }
         document.querySelector("div#a-show")?.addEventListener("click", e => {
           if (e.target.classList.contains("image-view-original-link")) {
             document
@@ -636,18 +637,7 @@
           time.title = title;
         }
       }
-      /* try {
-        const disable = document.getElementById("disable-all-blacklists"),
-          enable = document.getElementById("re-enable-all-blacklists");
-        if (
-          disable.style.display !== "none" &&
-          enable.style.display === "none"
-        ) {
-          disable.click();
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      /* 
       document.querySelectorAll("a.comment-copy-link").forEach(a => {
         a.className = "real-comment-copy-link";
         a.lastChild.textContent = " Copy URL";
@@ -851,59 +841,6 @@
       return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/2000"));
     }
     return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/0"));
-  }
-
-  // Tencent Docs
-  else if (hostname === "docs.qq.com" && /\/(sheet|doc)\/.+/.test(pathname)) {
-    let type = RegExp.$1,
-      idToWatch,
-      path;
-    if (type === "sheet") {
-      idToWatch = "pc-header-toolbar";
-      path = "div.left-container";
-    } else if (type === "doc") {
-      idToWatch = "tdocs-titlebar";
-      path = "div#titlebar-left-container";
-    }
-    path += " > div.dui-trigger.dui-tooltip.dui-tooltip-wrapper:first-child";
-    document.addEventListener("DOMContentLoaded", () => {
-      let observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          const added = mutation.addedNodes;
-          if (added.length) {
-            added.forEach(e => {
-              if (e.id === idToWatch) {
-                document.querySelector(path).addEventListener(
-                  "mouseenter",
-                  () => {
-                    setTimeout(() => {
-                      let el = document.querySelector(
-                        "body > div.dui-tooltip-container.dui-tooltip-container-visible > div"
-                      );
-                      if (el && el.innerText === "返回首页") {
-                        try {
-                          el.innerText = `返回首页\n创建日期：${new Date(
-                            clientVars.createdDate
-                          ).toLocaleString()}\n修改日期：${new Date(
-                            clientVars.lastModifyTime
-                          ).toLocaleString()}`;
-                          el.style.textAlign = "left";
-                        } catch (e) {
-                          console.log(e);
-                        }
-                      }
-                    }, 500);
-                  },
-                  false
-                );
-                observer.disconnect();
-              }
-            });
-          }
-        });
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-    });
   }
 
   // Bilibili Video
@@ -1371,7 +1308,7 @@
             if (desc.indexOf("E-Hentai") > -1) {
               const sha1 = src.match(/[0-9A-z]{40}/i);
               if (sha1) {
-                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&fs_exp=on&f_shash=${sha1[0]}`;
+                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&fs_exp=on&f_sft=on&f_shash=${sha1[0]}`;
                 miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
               }
             } else if (desc.indexOf("nhentai") > -1) {
@@ -1593,7 +1530,12 @@
     el.addEventListener("dragstart", () => false);
 
     return el.addEventListener("mousedown", e => {
-      if (e.which !== 1) return;
+      if (
+        e.button !== 0 ||
+        e.altKey /* conflict with CB saving image fn */ ||
+        e.ctrlKey
+      )
+        return;
 
       e.preventDefault();
       const pageScroller = function (e) {
