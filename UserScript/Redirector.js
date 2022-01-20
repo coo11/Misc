@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.37
+// @version         0.1.38
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -452,19 +452,6 @@
     if (src.indexOf("safe=off") === -1) {
       return redirect(addQueries(src, { safe: "off" }));
     }
-    return document.addEventListener("DOMContentLoaded", () => {
-      document
-        .querySelectorAll("div.g > div:last-child a > g-img")
-        .forEach(g => {
-          let a = g.parentElement;
-          a.setAttribute("target", "_blank");
-          const obj = getQueries(a.href, true);
-          if ("imgurl" in obj) {
-            a.href = obj.imgurl;
-          }
-        });
-      return;
-    });
   }
 
   // Add Read Status To E-Hentai
@@ -613,11 +600,14 @@
   // Danbooru Ehance
   else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
+      document
+        .querySelectorAll("a.post-preview-link")
+        .forEach(a => (a.draggable = true));
       if (pathname.startsWith("/posts/")) {
         let image = document.querySelector("picture > img#image");
-        if(image) {
-          dragElement(image)
-          image.style.paddingRight = '10px';
+        if (image) {
+          dragElement(image);
+          image.style.paddingRight = "10px";
         }
         document.querySelector("div#a-show")?.addEventListener("click", e => {
           if (e.target.classList.contains("image-view-original-link")) {

@@ -17,7 +17,7 @@
       url = image.src;
       desc = image.width + "×" + image.height;
     }
-    return `<tr><td style="text-align:center;"><img src="${url}"style="max-width:320px;box-shadow:5px 5px 5px #BBB;"><p><code>${desc}</code></p></td><td class="src" style="word-break:break-all"><code>${url}</code></td></tr>`;
+    return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td><code>${url}</code></td></tr>`;
   };
   let images = new Set(),
     content = "";
@@ -49,7 +49,7 @@
     let win = window.open("", "_blank"),
       doc = win.document;
     doc.write(
-      `<table width=100% border=1 cellpadding=10><caption>${images.size} Image(s) Found</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>`
+      `<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; }</style><table cellpadding=10><caption>${images.size} Image(s) Found</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>`
     );
     doc.title = document.title;
     doc.close();
