@@ -186,8 +186,10 @@ IF "%~1"=="Bookmarks" ECHO If file "Bookmarks" not found, you can tell me where 
 ECHO.
 SET "FILETER=Data Base^|Web Data"
 IF "%~1"=="Bookmarks" SET "FILETER=JSON^|Bookmarks^|Data Base^|Web Data"
-SET "DIALOG=powershell -sta "Add-Type -AssemblyName System.windows.forms^|Out-Null;$f=New-Object System.Windows.Forms.OpenFileDialog;$f.InitialDirectory='%DEFAULTDIR%';$f.title='Select %~1';$f.showHelp=$false;$f.AcceptFiles=$false;$f.Filter='%FILETER%';$f.ShowDialog()^|Out-Null;$f.FileName""
+SET "DIALOG=powershell -nop -sta "Add-Type -AssemblyName System.windows.forms^|Out-Null;$f=New-Object System.Windows.Forms.OpenFileDialog;$f.InitialDirectory='%DEFAULTDIR%';$f.title='Select %~1';$f.showHelp=$false;$f.Filter='%FILETER%';$f.Multiselect=$false;$f.ShowDialog()^|Out-Null;$f.FileName;""
+MODE CON cols=150 && REM Important: Small buffer size might cause wrong FOR /F output
 FOR /F "delims=" %%I IN ('%DIALOG%') DO SET "RES=%%~dpI"
+MODE CON cols=56
 IF DEFINED RES IF NOT "%RES%"==" " SET "TPATH=%RES%" & SET "TFILE=%RES%Web Data"
 EXIT/B 0
 
