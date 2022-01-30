@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.38
+// @version         0.1.39
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -894,27 +894,51 @@
         return `av${(result - add) ^ xor}`;
       };
       ////////////////////////////////////////////
-      function getLink(targetType = "av") {
-        if (/\/video\/((av|BV|bv)\w+)/.test(location.pathname)) {
-          let type = RegExp.$2,
-            id = RegExp.$1;
-          let u = new URL(location.href),
-            p = u.searchParams.get("p"),
-            t = u.searchParams.get("t");
-          let newId = type === "av" ? av2bv(id) : bv2av(id);
-          if (!newId) return;
-          else {
-            let newl = new URL("https://b23.tv");
-            p && newl.searchParams.set("p", p);
-            t && newl.searchParams.set("t", t);
-            if (targetType === type.toLowerCase())
-              newl.pathname = location.pathname
-                .replace("/video", "")
-                .replace(/\/$/, "");
-            else newl.pathname = "/" + newId;
-            return newl.href;
-          }
+      function getInfoFromPathname() {
+        if (/\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
+          return {
+            type: RegExp.$1 === "av" ? "aid" : "bvid",
+            id: RegExp.$2
+          };
         }
+        return {};
+      }
+      function getLink(targetType = "av") {
+        let { type, id } = getInfoFromPathname();
+        if (!type) return;
+        let u = new URL(location.href),
+          p = u.searchParams.get("p"),
+          t = u.searchParams.get("t");
+        let newId = type === "av" ? av2bv(id) : bv2av(id);
+        if (!newId) return;
+        else {
+          let newl = new URL("https://b23.tv");
+          p && newl.searchParams.set("p", p);
+          t && newl.searchParams.set("t", t);
+          if (targetType === type.toLowerCase())
+            newl.pathname = location.pathname
+              .replace("/video", "")
+              .replace(/\/$/, "");
+          else newl.pathname = "/" + newId;
+          return newl.href;
+        }
+      }
+      function getVideoCover() {
+        let { type, id } = getInfoFromPathname();
+        if (!type) return;
+        fetch(`https://api.bilibili.com/x/web-interface/view?${type}=${id}`)
+          .then(resp => {
+            if (resp && resp.status == 200) {
+              return resp.json();
+            }
+          })
+          .then(resp => {
+            if (resp) {
+              let pic = resp.data.pic;
+              if (pic) window.open(pic);
+            }
+          });
+        return;
       }
       function notify(targetType) {
         let link = getLink(targetType);
@@ -935,6 +959,7 @@
       }
       GM_registerMenuCommand("复制 AV 短链接", () => notify("av"));
       GM_registerMenuCommand("复制 BV 短链接", () => notify("bv"));
+      GM_registerMenuCommand("查看视频封面", getVideoCover);
     }
   }
 
