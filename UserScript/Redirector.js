@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.39
+// @version         0.1.41
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -77,11 +77,13 @@
 // ----RewriteURLEnd------
 //
 // ----OtherStart----
+// @match         *://tieba.baidu.com/mo/q/posts*
 // @match         *://m.weibo.cn/*
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
 // @match         *://www.bilibili.com/video/*
+// @match         *://www.bilibili.com/s/video/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
 // @match         *://exhentai.org/*
@@ -746,7 +748,16 @@
   }
 
   // Baidu
-  else if (
+  else if (hostname === "tieba.baidu.com") {
+    if (pathname === "/mo/q/posts") {
+      let url = new URL(src);
+      if (url.searchParams.has("tid")) {
+        location.href =
+          "https://tieba.baidu.com/p/" + url.searchParams.get("tid");
+      }
+      return;
+    }
+  } else if (
     hostname === "imgsrc.baidu.com" ||
     hostname === "tiebapic.baidu.com" ||
     hostname === "imgsa.baidu.com" ||
@@ -835,7 +846,7 @@
 
   // Bilibili Video
   else if (hostname === "www.bilibili.com") {
-    if (/\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
+    if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
       //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
       const table = [
         ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
@@ -895,9 +906,9 @@
       };
       ////////////////////////////////////////////
       function getInfoFromPathname() {
-        if (/\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
+        if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
           return {
-            type: RegExp.$1 === "av" ? "aid" : "bvid",
+            type: RegExp.$1 === "av" ? "av" : "bv",
             id: RegExp.$2
           };
         }
@@ -917,7 +928,7 @@
           t && newl.searchParams.set("t", t);
           if (targetType === type.toLowerCase())
             newl.pathname = location.pathname
-              .replace("/video", "")
+              .replace(/(\/s)?\/video/, "")
               .replace(/\/$/, "");
           else newl.pathname = "/" + newId;
           return newl.href;
@@ -926,6 +937,7 @@
       function getVideoCover() {
         let { type, id } = getInfoFromPathname();
         if (!type) return;
+        type = type === "av" ? "aid" : "bvid";
         fetch(`https://api.bilibili.com/x/web-interface/view?${type}=${id}`)
           .then(resp => {
             if (resp && resp.status == 200) {
@@ -1233,60 +1245,92 @@
     return;
   } else if (hostname === "bbs.imoutolove.me") {
     return document.addEventListener("DOMContentLoaded", () => {
-      document
-        .querySelectorAll(".quote.jumbotron>.btn.btn-danger")
-        .forEach(button => {
-          let url = button
-            .getAttribute("onclick")
-            .replace(/location\.href='(.+)'/, "$1");
-          // Get comment ID
-          let post_id = button.closest("div").id;
-          // Prevent page from redirecting when clicking button
-          button.removeAttribute("onclick");
-          button.addEventListener("click", e => {
-            let btn = e.target;
-            btn.setAttribute("value", "正在购买，请稍等");
-            try {
-              fetch(url, {
-                credentials: "include",
-                mode: "no-cors"
-              })
-                .then(resp => resp.text())
-                .then(text => {
-                  if (text.indexOf("操作完成") === -1) {
-                    alert("购买失败！");
-                  }
-                  fetch(document.URL, {
-                    credentials: "include",
-                    mode: "no-cors"
-                  })
-                    .then(resp => resp.text())
-                    .then(html => {
-                      let dummy = document.createElement("html");
-                      dummy.innerHTML = html;
-                      let purchased = dummy.querySelector("#" + post_id);
-                      let notPurchased = document.querySelector("#" + post_id);
-                      notPurchased.parentNode.replaceChild(
-                        purchased,
-                        notPurchased
-                      );
-                      dummy = null;
-                      btn.remove();
-                      if (window.history && copyurl) {
-                        window.history.pushState(
-                          {},
-                          document.title,
-                          copyurl + post_id.split("_")[1]
-                        );
-                      }
-                    });
-                });
-            } catch (error) {
-              alert(`发送请求出错，购买失败！\n${error}`);
-              console.log("Request Failed", error);
+      if (location.pathname === "/read.php") {
+        let newUrl = new URL("https:" + copyurl);
+        newUrl.search = "?tid=" + newUrl.searchParams.get("tid");
+        fetch(newUrl.href)
+          .then(resp => {
+            if (resp && resp.status === 200) return resp.text();
+          })
+          .then(resp => {
+            if (resp) {
+              let opUid = resp.match(/uid-(\d+).*?只看GF/)?.[1];
+              if (opUid) {
+                const customStyle = document.createElement("style");
+                customStyle.innerText =
+                  ".op { border: 1px solid #1484cd; border-radius: 3px; line-height: 1; width: auto; font-size: 12px; padding: 1px 3px; color: #1484cd; display: inline-flex; }";
+                document.head.appendChild(customStyle);
+                const opEl = document.createElement("div");
+                opEl.classList.add("op");
+                opEl.textContent = "OP";
+                document
+                  .querySelectorAll(".r_two > div[align='center'] > a")
+                  .forEach(a => {
+                    if (a.href.endsWith(`-${opUid}.html`)) {
+                      a.appendChild(document.createTextNode(" "));
+                      a.insertAdjacentElement("afterend", opEl.cloneNode(true));
+                    }
+                  });
+              }
             }
           });
-        });
+        document
+          .querySelectorAll(".quote.jumbotron>.btn.btn-danger")
+          .forEach(button => {
+            let url = button
+              .getAttribute("onclick")
+              .replace(/location\.href='(.+)'/, "$1");
+            // Get comment ID
+            let post_id = button.closest("div").id;
+            // Prevent page from redirecting when clicking button
+            button.removeAttribute("onclick");
+            button.addEventListener("click", e => {
+              let btn = e.target;
+              btn.setAttribute("value", "正在购买，请稍等");
+              try {
+                fetch(url, {
+                  credentials: "include",
+                  mode: "no-cors"
+                })
+                  .then(resp => resp.text())
+                  .then(text => {
+                    if (text.indexOf("操作完成") === -1) {
+                      alert("购买失败！");
+                    }
+                    fetch(document.URL, {
+                      credentials: "include",
+                      mode: "no-cors"
+                    })
+                      .then(resp => resp.text())
+                      .then(html => {
+                        let dummy = document.createElement("html");
+                        dummy.innerHTML = html;
+                        let purchased = dummy.querySelector("#" + post_id);
+                        let notPurchased = document.querySelector(
+                          "#" + post_id
+                        );
+                        notPurchased.parentNode.replaceChild(
+                          purchased,
+                          notPurchased
+                        );
+                        dummy = null;
+                        btn.remove();
+                        if (window.history && copyurl) {
+                          window.history.pushState(
+                            {},
+                            document.title,
+                            copyurl + post_id.split("_")[1]
+                          );
+                        }
+                      });
+                  });
+              } catch (error) {
+                alert(`发送请求出错，购买失败！\n${error}`);
+                console.log("Request Failed", error);
+              }
+            });
+          });
+      }
     });
   }
 
@@ -1443,7 +1487,7 @@
         let proxied = window.XMLHttpRequest.prototype.open,
           that = this;
         window.XMLHttpRequest.prototype.open = function (method, url) {
-          const matched = url.match(
+          let matched = url.match(
             /\/i\/api\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
           );
           if (matched && !that.added && that.tid) {
@@ -1466,6 +1510,36 @@
               false
             );
           }
+          // Independent part: Show deleted tweets id ↓↓↓
+          matched = url.match(/\/i\/api\/graphql\/.*?\/Bookmarks\?/);
+          if (matched) {
+            this.addEventListener(
+              "readystatechange",
+              function () {
+                if (this.readyState != XMLHttpRequest.DONE) {
+                  return;
+                }
+                let resp = this.response;
+                resp = typeof resp === "string" ? JSON.parse(resp) : resp;
+                let entries =
+                  resp.data.bookmark_timeline.timeline?.instructions?.[0]
+                    ?.entries;
+                if (!entries) return;
+                entries.forEach(t => {
+                  let res = t.content?.itemContent?.tweet_results?.result;
+                  if (res && res.__typename === "TweetTombstone") {
+                    res.tombstone.text.text += " " + t.entryId.split("-")[1];
+                  }
+                });
+                resp.data.bookmark_timeline.timeline.instructions[0].entries =
+                  entries;
+                Object.defineProperty(this, "responseText", { writable: true });
+                this.responseText = JSON.stringify(resp);
+              },
+              false
+            );
+          }
+          // Independent part: Show deleted tweets id ↑↑↑
           return proxied.apply(this, [].slice.call(arguments));
         };
       },

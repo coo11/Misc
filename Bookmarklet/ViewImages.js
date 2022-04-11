@@ -1,41 +1,61 @@
 (() => {
-  const pesudos = [
-    null,
-    ":active",
-    ":checked",
-    ":focus",
-    ":hover",
-    ":visited",
-    "::after",
-    "::before"
-  ];
-  const parseImg = image => {
-    if (typeof image === "string") {
-      url = image;
-      desc = "From CSS";
-    } else {
-      url = image.src;
-      desc = image.width + "×" + image.height;
-    }
-    return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td><code>${url}</code></td></tr>`;
-  };
   let images = new Set(),
     content = "";
+  const parseImg = (image, isSrc = true) => {
+    let url, desc;
+    if (typeof image === "string") {
+      url = image.replace(
+        /\\?"/g,
+        "%2522"
+      ); /* In console, there must be "\%22" https://t.me/iv?url=.... */
+      desc = "From CSS";
+    } else if (image.tagName === "svg") {
+      let src = new XMLSerializer().serializeToString(image);
+      if (src && !images.has(src)) {
+        images.add(src);
+        url = encodeURI(
+          "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(src)))
+        );
+        let rect = image.getBoundingClientRect();
+        desc = `Inline SVG: ${rect.width}×${rect.height}`;
+      } else return "";
+    } else if (image.tagName === "IMG") {
+      /* encodeURI: https://web.telegram.org/z/#.... */
+      url = encodeURI(decodeURI(image[isSrc ? "src" : "currentSrc"]));
+      desc = image.width + "×" + image.height;
+      desc += isSrc ? "" : " (currentSrc)";
+    }
+    let codeUrl =
+      url /* https://developer.android.com/studio/command-line/adb */
+        .replace(/&/g, "&amp;")
+        .replace(/>/g, "&gt;")
+        .replace(/</g, "&lt;")
+        .replace(/"/g, "&quot;");
+    return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td><code>${codeUrl}</code></td></tr>`;
+  };
   document.querySelectorAll("*").forEach(element => {
     if (element.tagName === "IMG") {
-      let src = element.src;
+      let src = element.src,
+        curSrc = element.currentSrc;
+      /* currentSrc: apps.apple.com/app/id; src: www.instagram.com/p */
       if (src && !images.has(src)) {
         images.add(src);
         content += parseImg(element);
       }
+      if (curSrc && curSrc !== src && !images.has(curSrc)) {
+        images.add(curSrc);
+        content += parseImg(element, false);
+      }
+    } else if (element.tagName === "svg") {
+      content += parseImg(element);
     } else {
-      pesudos.forEach(pesudo => {
-        let i = 0,
-          regex = /url\((['"]?)(.*?)\1\)/,
-          style = getComputedStyle(element, pesudo),
-          props = ["background-image", "background", "content"];
-        while (i < 3 && !regex.test(style.getPropertyValue(props[i]))) i++;
-        if (i < 3) {
+      let regex = /url\((['"]?)(.*?)\1\)/;
+      [null, "::after", "::before"].forEach(pseudo => {
+        let style = getComputedStyle(element, pseudo);
+        if (
+          regex.test(style.getPropertyValue("background-image")) ||
+          regex.test(style.getPropertyValue("content"))
+        ) {
           let url = RegExp.$2;
           if (!images.has(url)) {
             images.add(url);
