@@ -56,6 +56,7 @@
 // @match         *://*.south-plus.net/*
 // @match         *://*.south-plus.org/*
 // @match         *://*.north-plus.net/*
+// @match         *://*.east-plus.net/*
 // @match         *://*.level-plus.net/*
 // @match         *://*.white-plus.net/*
 // @match         *://*.summer-plus.net/*
@@ -1236,7 +1237,7 @@
 
   // SouthPlus
   else if (
-    /(spring|summer|white|north|south|soul|level|snow)-plus\.net$/i.test(
+    /(spring|summer|white|north|south|east|soul|level|snow)-plus\.net$/i.test(
       hostname
     ) ||
     hostname.endsWith("south-plus.org")
