@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.41
+// @version         0.1.42
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -97,6 +97,7 @@
 // @match         *://safebooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
 // @match         *://www.ptt.cc/bbs/*
+// @match         *://webcache.googleusercontent.com/search*
 // ----OtherEnd-----
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
@@ -296,6 +297,29 @@
         } else return;
       });
     } else window.location.replace(newSrc);
+  }
+
+  function scriptTagModify(cb) {
+    // https://stackoverflow.com/a/11577730
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", src, false);
+    xhr.send(null);
+    let content = xhr.responseText,
+      doc = document.implementation.createHTMLDocument(
+        "" + (document.title || "")
+      );
+
+    doc.open();
+    doc.write(content);
+    doc.close();
+
+    let scripts = doc.getElementsByTagName("script");
+    [].forEach.call(scripts, cb);
+
+    document.replaceChild(
+      document.importNode(doc.documentElement, true),
+      document.documentElement
+    );
   }
 
   // These universal links need pretreatment.
@@ -678,6 +702,20 @@
       }
       return;
     });
+  }
+
+  // Google Web Cache
+  else if (hostname === "webcache.googleusercontent.com") {
+    if (src.indexOf(".zhihu.com") > -1) {
+      scriptTagModify(script => {
+        if (script.src.indexOf("heifetz/vendor") > -1) script.removeAttribute("src");
+      });
+      document.querySelectorAll("img").forEach(img => {
+        if (img.getAttribute("data-actualsrc")) {
+          img.src = img.getAttribute("data-actualsrc");
+        }
+      });
+    }
   }
 
   // Weibo
@@ -1492,6 +1530,7 @@
             /\/i\/api\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
           );
           if (matched && !that.added && that.tid) {
+            let id = matched[1];
             this.addEventListener(
               "readystatechange",
               function () {
@@ -1501,10 +1540,10 @@
                 let resp = this.response;
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
                 that.resp = {
-                  id: matched[1],
+                  id,
                   tweet:
-                    resp.data.threaded_conversation_with_injections.instructions[0].entries.filter(
-                      i => i.entryId == `tweet-${matched[1]}`
+                    resp.data.threaded_conversation_with_injections_v2.instructions[0].entries.filter(
+                      i => i.entryId == `tweet-${id}`
                     )[0]
                 };
               },
