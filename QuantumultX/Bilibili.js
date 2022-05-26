@@ -158,26 +158,6 @@
         console.log(`动态去广告出现异常：${e}`);
       }
       break;
-    /**
-     * ^https?://api\.bilibili\.com/x/share/click url script-response-body THIS_FILE_URL
-     */
-    case /api\.bilibili\.com\/x\/share\/click/.test(url):
-      try {
-        let reqBody = $request.body;
-        console.log(JSON.stringify($request))
-        if (/oid=(\d+)/.test(reqBody)) {
-          console.log(11111111111111111)
-          let obj = JSON.parse(body);
-          obj.data.content =
-            `https://b23.tv/${RegExp.$1}\n` + obj.data.content;
-          console.log(obj)
-          console.log(22222222222222222)
-          body = JSON.stringify(obj);
-        }
-      } catch (e) {
-        console.log(`处理分享数据出现异常：${e}`);
-      }
-      break;
     default:
       console.log("触发意外的请求处理，请确认脚本或复写配置正常。");
       break;
