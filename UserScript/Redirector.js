@@ -434,8 +434,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-              ? weiboFn.mid2id(input)
-              : weiboFn.id2mid(input),
+            ? weiboFn.mid2id(input)
+            : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -577,7 +577,7 @@
           if (text) {
             window.open(
               "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-                encodeURIComponent(text),
+              encodeURIComponent(text),
               "_blank"
             );
           }
@@ -757,9 +757,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-            "$1"
-          )
+          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+          "$1"
+        )
     );
   }
 
@@ -1641,11 +1641,11 @@
     const current = (x, y) => {
       const windowOffset = [
         window.pageXOffset ||
-          document.documentElement.scrollLeft ||
-          document.body.scrollLeft,
+        document.documentElement.scrollLeft ||
+        document.body.scrollLeft,
         window.pageYOffset ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop
+        document.documentElement.scrollTop ||
+        document.body.scrollTop
       ];
       const offset = [
         windowOffset[0] + prevPos[0] - x,

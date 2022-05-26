@@ -168,11 +168,11 @@
           let obj = JSON.parse(body);
           obj.data.content =
             `https://b23.tv/${RegExp.$1}\n` + obj.data.content;
-          
+
           body = JSON.stringify(obj);
         }
       } catch (e) {
-        console.log(`移除追踪数据出现异常：${e}`);
+        console.log(`处理分享数据出现异常：${e}`);
       }
       break;
     default:
