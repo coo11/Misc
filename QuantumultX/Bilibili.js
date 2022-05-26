@@ -166,8 +166,9 @@
         let reqBody = $request.body;
         if (/oid=(\d+)/.test(reqBody)) {
           let obj = JSON.parse(body);
-          body.data.content =
-            `https://b23.tv/${RegExp.$1}\n` + body.data.content;
+          obj.data.content =
+            `https://b23.tv/${RegExp.$1}\n` + obj.data.content;
+          
           body = JSON.stringify(obj);
         }
       } catch (e) {
