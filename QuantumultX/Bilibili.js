@@ -164,7 +164,7 @@
     case /api\.bilibili\.com\/x\/share\/click/.test(url):
       try {
         let reqBody = $request.body;
-        console.log(reqBody)
+        console.log(JSON.stringify($request))
         if (/oid=(\d+)/.test(reqBody)) {
           console.log(11111111111111111)
           let obj = JSON.parse(body);
