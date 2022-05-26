@@ -164,11 +164,14 @@
     case /api\.bilibili\.com\/x\/share\/click/.test(url):
       try {
         let reqBody = $request.body;
+        console.log(reqBody)
         if (/oid=(\d+)/.test(reqBody)) {
+          console.log(11111111111111111)
           let obj = JSON.parse(body);
           obj.data.content =
             `https://b23.tv/${RegExp.$1}\n` + obj.data.content;
-
+          console.log(obj)
+          console.log(22222222222222222)
           body = JSON.stringify(obj);
         }
       } catch (e) {
