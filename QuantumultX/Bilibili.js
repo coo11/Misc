@@ -69,7 +69,7 @@
           // 消息
           top: new Set([176]),
           // 102 开始为概念版 ID
-          bottom: new Set([177, 179, 181, 102, 103, 104, 105, 106]),
+          bottom: new Set([177, 179, 181, 102, 103, 104, 105, 106])
         };
         let obj = JSON.parse(body);
         for (let i in classes) {
@@ -89,7 +89,7 @@
     case /\/\/app\.bilibili\.com\/x\/v2\/account\/mine/.test(url):
       try {
         const itemList = new Set([
-          396, 397, 398, 399, 171, 401, 404, 406, 514, 407, 410,
+          396, 397, 398, 399, 171, 401, 404, 406, 514, 407, 410
         ]);
         // "离线缓存", "历史记录", "我的收藏", "稍后再看", "创作首页", "看视频免流量", "我的钱包", "直播中心", "反馈论坛", "联系客服", "设置"
         let obj = JSON.parse(body);
@@ -156,6 +156,22 @@
         body = JSON.stringify(obj);
       } catch (e) {
         console.log(`动态去广告出现异常：${e}`);
+      }
+      break;
+    /**
+     * ^https?://api\.bilibili\.com/x/share/click url script-response-body THIS_FILE_URL
+     */
+    case /api\.bilibili\.com\/x\/share\/click/.test(url):
+      try {
+        let reqBody = $request.body;
+        if (/oid=(\d+)/.test(reqBody)) {
+          let obj = JSON.parse(body);
+          body.data.content =
+            `https://b23.tv/${RegExp.$1}\n` + body.data.content;
+          body = JSON.stringify(obj);
+        }
+      } catch (e) {
+        console.log(`移除追踪数据出现异常：${e}`);
       }
       break;
     default:
