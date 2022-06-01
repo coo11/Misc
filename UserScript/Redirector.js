@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.42
+// @version         0.1.43
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
 // @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
 // @run-at         document-start
 // ----EnhanceStart----
+// @match         *://*.tsdm39.net/*
 // @match         *://saucenao.com/search.php*
 // @match         *://*.twitter.com/*
 // ----EnhanceEnd------
@@ -43,6 +44,8 @@
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
 // @match         *://preview.redd.it/*
 // @match         *://www.reddit.com/*
+// Apple Music, iTunes
+// @match         *://*.mzstatic.com/*
 // TODO: Tumblr
 // ----GetOriginalSrcEnd------
 //
@@ -434,8 +437,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-            ? weiboFn.mid2id(input)
-            : weiboFn.id2mid(input),
+              ? weiboFn.mid2id(input)
+              : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -577,7 +580,7 @@
           if (text) {
             window.open(
               "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-              encodeURIComponent(text),
+                encodeURIComponent(text),
               "_blank"
             );
           }
@@ -708,7 +711,8 @@
   else if (hostname === "webcache.googleusercontent.com") {
     if (src.indexOf(".zhihu.com") > -1) {
       scriptTagModify(script => {
-        if (script.src.indexOf("heifetz/vendor") > -1) script.removeAttribute("src");
+        if (script.src.indexOf("heifetz/vendor") > -1)
+          script.removeAttribute("src");
       });
       document.querySelectorAll("img").forEach(img => {
         if (img.getAttribute("data-actualsrc")) {
@@ -757,9 +761,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-          "$1"
-        )
+            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+            "$1"
+          )
     );
   }
 
@@ -886,6 +890,22 @@
   // Bilibili Video
   else if (hostname === "www.bilibili.com") {
     if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
+      document.addEventListener("DOMContentLoaded", () => {
+        // Remove redundant element
+        document.querySelector("#reco_list").style.display = "none";
+        document.querySelector("#right-bottom-banner").style.display = "none";
+        // TODO: https://www.bilibili.com/blackboard/newplayer.html?autoplay=0&&musth5=1aid=...&page=...&cid=...
+        document
+          .querySelector("video")
+          .addEventListener(
+            "play",
+            () =>
+              document
+                .querySelector("div.bilibili-player-video-btn-widescreen")
+                .click(),
+            { once: true }
+          );
+      });
       //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
       const table = [
         ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
@@ -1273,6 +1293,38 @@
     });
   }
 
+  // Apple Music, iTunes
+  else if (hostname.endsWith(".mzstatic.com")) {
+    if (
+      /is\d(-ssl)?\.mzstatic\.com/.test(hostname) &&
+      src.indexOf("/image/thumb/") > -1
+    ) {
+      if (src.endsWith("1200x1200.jpg")) return;
+      newSrc = src.replace(
+        /\/[0-9]*x[0-9]*[a-z]*(?:-[0-9]+)?(\.[^/.]*)$/,
+        "/999999999x0w-999$1"
+      );
+      if (/\.png(?:[?#].*)?$/i.test(newSrc)) {
+        let matched = src.match(
+          /\/([^/]+\/+v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/[^/]+)\//
+        );
+        if (matched) {
+          return redirect("https://a1.mzstatic.com/us/r1000/063/" + matched[1]);
+        }
+      }
+      return redirect(addExts(newSrc, ["png", "jpg"]));
+    }
+    if (/^[as][0-9]+\./.test(hostname)) {
+      return redirect([
+        src.replace(
+          /(\/v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/+)[^/]+(?:[?#].*)?$/,
+          "$1source"
+        ),
+        src
+      ]);
+    }
+  }
+
   // SouthPlus
   else if (
     /(spring|summer|white|north|south|east|soul|level|snow)-plus\.net$/i.test(
@@ -1370,6 +1422,28 @@
             });
           });
       }
+    });
+  }
+
+  // TSDM 天使动漫
+  else if (/\btsdm39\.net$/.test(hostname)) {
+    if (
+      pathname.indexOf(".php") === -1 ||
+      pathname.indexOf("mobile=yes") > -1 ||
+      pathname.startsWith("/archiver")
+    )
+      return;
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("maintop").remove();
+      document.querySelector("div.hdc.cl").remove();
+      document.getElementById("mainbottom").remove();
+      document.querySelector("#hd > .wp").style.padding = "10px 0";
+      document.getElementById("ts_sidebar_base").remove();
+      document.getElementById("tsdmbgpic").remove();
+      document.querySelectorAll("div.qdsmile").forEach(e => e.remove());
+      document.querySelectorAll("div.pls").forEach(e => {
+        e.style.backgroundImage = "";
+      });
     });
   }
 
@@ -1641,11 +1715,11 @@
     const current = (x, y) => {
       const windowOffset = [
         window.pageXOffset ||
-        document.documentElement.scrollLeft ||
-        document.body.scrollLeft,
+          document.documentElement.scrollLeft ||
+          document.body.scrollLeft,
         window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop
+          document.documentElement.scrollTop ||
+          document.body.scrollTop
       ];
       const offset = [
         windowOffset[0] + prevPos[0] - x,
