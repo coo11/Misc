@@ -39,13 +39,11 @@
       if (!text) return;
       try {
         // 'btoa' support ASCII only
-        select(
-          decodeURIComponent(
-            escape(win.atob(text.replace(/_/g, "/").replace(/-/g, "+")))
-          )
-        );
+        text = win.atob(text.replace(/_/g, "/").replace(/-/g, "+"));
+        select(decodeURIComponent(escape(text)));
       } catch (e) {
-        win.alert(e.message);
+        if (e.name === "URIError") select(text);
+        else win.alert(e.message);
         return;
       }
     },

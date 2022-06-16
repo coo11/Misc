@@ -43,7 +43,7 @@
 // @match         *://s3.amazonaws.com/media.pinterest.com/*
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
 // @match         *://preview.redd.it/*
-// @match         *://www.reddit.com/*
+// @match         *://www.reddit.com/r/*
 // Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // TODO: Tumblr
@@ -1251,46 +1251,12 @@
       )
     );
   } else if (hostname === "www.reddit.com") {
-    return document.addEventListener("DOMContentLoaded", () => {
-      let observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          const added = mutation.addedNodes;
-          if (added.length) {
-            added.forEach(e => {
-              if (e.nodeType === 1) {
-                const userA = e.querySelector('div > a[href^="/user/"]');
-                if (
-                  userA /* this element sometimes appears too late to overwrite added element */
-                ) {
-                  const threadA = userA.parentElement.nextElementSibling;
-                  if (threadA && threadA.hasAttribute("data-click-id")) {
-                    const a = threadA.cloneNode();
-                    a.href = threadA.href.replace(
-                      /^https?:\/\/www\.reddit\.com\/r\/\w+\/comments\/(\w+)\/.*/,
-                      "https://redd.it/$1"
-                    );
-                    threadA.parentElement.insertAdjacentElement("beforeend", a);
-                    a.innerText = "[Short Link]";
-                    a.addEventListener(
-                      "click",
-                      function (e) {
-                        e.preventDefault();
-                        if (a.innerText === "[Copied!]") return;
-                        GM_setClipboard(a.href);
-                        a.innerText = "[Copied!]";
-                        wait(2000).then(() => (a.innerText = "[Short Link]"));
-                      },
-                      false
-                    );
-                  }
-                }
-              }
-            });
-          }
-        });
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-    });
+    let regex = /\/r\/.*?\/comments\/(\w+)/;
+    if (regex.test(pathname)) {
+      GM_registerMenuCommand("Copy post shortlink", () =>
+        GM_setClipboard(`https://redd.it/${regex.exec(pathname)[1]}`)
+      );
+    }
   }
 
   // Apple Music, iTunes
