@@ -26,10 +26,13 @@
               items.push(item);
             }
           } else if (
-            !("ad_info" in item) &&
+            !("ad_info" in item) && item.card_goto.indexOf("ad") === -1 &&
             (item.card_type === "small_cover_v2" ||
               item.card_type === "large_cover_v1")
           ) {
+            if (item.uri.includes("bilibili://story")) {
+              item.uri = item.uri.replace("bilibili://story", "bilibili://video");
+            }
             items.push(item);
           }
         }
@@ -97,6 +100,10 @@
           const items = obj.data.sections_v2[i].items.filter(e =>
             itemList.has(e.id)
           );
+          obj.data.sections_v2[i].button = {};
+          delete obj.data.sections_v2[i].be_up_title;
+          delete obj.data.sections_v2[i].tip_icon;
+          delete obj.data.sections_v2[i].tip_title;
           obj.data.sections_v2[i].items = items;
         }
         body = JSON.stringify(obj);
@@ -124,10 +131,12 @@
     case /api\.bilibili\.com\/pgc\/page\/bangumi/.test(url):
       try {
         let obj = JSON.parse(body);
-        for (let card of obj.data.cards) {
-          delete card["extra"];
-        }
-        delete obj.data.attentions;
+        obj.result.modules.forEach((module) => {
+          // 头部banner
+          if (module.style.startsWith("banner")) {
+            module.items = module.items.filter((i) => !(i.source_content && i.source_content.ad_content));
+          }
+        });
         body = JSON.stringify(obj);
       } catch (e) {
         console.log(`追番去广告出现异常：${e}`);

@@ -1,6 +1,6 @@
 /**
  * CDN:
- *   https://gh.coo11.workers.dev/raw.githubusercontent.com/coo11/Misc/master/QuantumultX/GEOLocationQuery.js
+ *   https://raw.githubusercontent.com/coo11/Misc/master/QuantumultX/GEOLocationQuery.js
  * Reference:
  *   https://raw.githubusercontent.com/crossutility/Quantumult-X/master/sample-location-with-script.js
  *   https://raw.githubusercontent.com/KOP-XIAO/QuantumultX/master/Scripts/IP_API.js

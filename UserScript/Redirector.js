@@ -1,20 +1,21 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.43
+// @version         0.1.45
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
 // @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
 // @run-at         document-start
-// ----EnhanceStart----
+// @ ----EnhanceStart----
 // @match         *://*.tsdm39.net/*
 // @match         *://saucenao.com/search.php*
 // @match         *://*.twitter.com/*
-// ----EnhanceEnd------
-//
-// ----GetOriginalSrcStart----
-// Weibo, Zhihu, Bilibili, Alibaba, Baidu, Douban, NGA, Tencent
+// @match         *://www.nicovideo.jp/watch/sm*
+// @ ----EnhanceEnd------
+// @
+// @ ----GetOriginalSrcStart----
+// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
@@ -24,10 +25,9 @@
 // @match         *://tiebapic.baidu.com/*
 // @match         *://*.himg.baidu.com/*
 // @match         *://*.hiphotos.baidu.com/*
-// @match         *://*.doubanio.com/*
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
-// Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
+// @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
@@ -44,15 +44,15 @@
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
 // @match         *://preview.redd.it/*
 // @match         *://www.reddit.com/r/*
-// Apple Music, iTunes
+// @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
-// TODO: Tumblr
-// ----GetOriginalSrcEnd------
-//
-// ----RewriteURLStart----
-// SankakuComplex
+// @ TODO: Tumblr
+// @ ----GetOriginalSrcEnd------
+// @
+// @ ----RewriteURLStart----
+// @ SankakuComplex
 // @match         *://chan.sankakucomplex.com/*
-// SouthPlus
+// @ SouthPlus
 // @match         *://bbs.imoutolove.me/read.php*
 // @match         *://bbs.imoutolove.me/simple/index.php*
 // @match         *://*.soul-plus.net/*
@@ -65,7 +65,7 @@
 // @match         *://*.summer-plus.net/*
 // @match         *://*.snow-plus.net/*
 // @match         *://*.spring-plus.net/*
-// Others
+// @ Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://link.csdn.net/?target=*
 // @match         *://www.oschina.net/action/GoToLink?url=*
@@ -78,9 +78,9 @@
 // @match         *://t.cn/*
 // @match         *://sinaurl.cn/*
 // @match         *://weibo.cn/sinaurl?toasturl=*
-// ----RewriteURLEnd------
-//
-// ----OtherStart----
+// @ ----RewriteURLEnd------
+// @
+// @ ----OtherStart----
 // @match         *://tieba.baidu.com/mo/q/posts*
 // @match         *://m.weibo.cn/*
 // @match         *://video.h5.weibo.cn/1034:*
@@ -101,7 +101,7 @@
 // @match         *://*.dbsearch.net/*
 // @match         *://www.ptt.cc/bbs/*
 // @match         *://webcache.googleusercontent.com/search*
-// ----OtherEnd-----
+// @ ----OtherEnd-----
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
 // @grant             GM_notification
@@ -437,8 +437,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-              ? weiboFn.mid2id(input)
-              : weiboFn.id2mid(input),
+            ? weiboFn.mid2id(input)
+            : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -550,8 +550,8 @@
         a.style.cssText = aCss;
         ap.style.cssText = apCss;
         i3.prepend(ap);
-        let hookedFn = apply_json_state;
-        apply_json_state = function (a) {
+        let hookedFn = unsafeWindow.apply_json_state;
+        unsafeWindow.apply_json_state = function (a) {
           let apOnClikck = a.n.match(/prev.*?(return.*?)"/)[1];
           a.i3 = a.i3
             .replace(/href.*?"/, "")
@@ -580,7 +580,7 @@
           if (text) {
             window.open(
               "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-                encodeURIComponent(text),
+              encodeURIComponent(text),
               "_blank"
             );
           }
@@ -657,19 +657,19 @@
           time.title = title;
         }
       }
-      /* 
-      document.querySelectorAll("a.comment-copy-link").forEach(a => {
-        a.className = "real-comment-copy-link";
-        a.lastChild.textContent = " Copy URL";
-        a.onclick = function (e) {
-          e.preventDefault();
-          let url = new URL(location);
-          url.search = "";
-          url.hash = this.closest("article").id;
-          navigator.clipboard.writeText(url.href);
-          Danbooru.notice(`Copied comment ${url.hash} to clipboard.`);
-        };
-      }); */
+      /*
+    document.querySelectorAll("a.comment-copy-link").forEach(a => {
+      a.className = "real-comment-copy-link";
+      a.lastChild.textContent = " Copy URL";
+      a.onclick = function (e) {
+        e.preventDefault();
+        let url = new URL(location);
+        url.search = "";
+        url.hash = this.closest("article").id;
+        navigator.clipboard.writeText(url.href);
+        Danbooru.notice(`Copied comment ${url.hash} to clipboard.`);
+      };
+    }); */
       return;
     });
   }
@@ -711,8 +711,9 @@
   else if (hostname === "webcache.googleusercontent.com") {
     if (src.indexOf(".zhihu.com") > -1) {
       scriptTagModify(script => {
-        if (script.src.indexOf("heifetz/vendor") > -1)
+        if (script.src.indexOf("heifetz/vendor") > -1) {
           script.removeAttribute("src");
+        }
       });
       document.querySelectorAll("img").forEach(img => {
         if (img.getAttribute("data-actualsrc")) {
@@ -761,9 +762,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-            "$1"
-          )
+          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+          "$1"
+        )
     );
   }
 
@@ -826,47 +827,6 @@
     return redirect(
       src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/")
     );
-  }
-
-  // Douban
-  else if (
-    hostname.endsWith(".doubanio.com") &&
-    hostname.match(/^img[0-9]*\./)
-  ) {
-    newSrc = src.replace(/\/img\/+trailer\/+small\/+/, "/img/trailer/medium/");
-    if (newSrc !== src) {
-      return redirect(newSrc);
-    }
-
-    newSrc = src
-      .replace(/\/[a-z]+(\/public\/[a-f0-9]+\.[^/.]*)$/, "/raw$1")
-      .replace(/\/(?:small|medium)\//, "/large/")
-      .replace(/\/[a-z]pic\//, "/opic/")
-      .replace(
-        /\/+img\/+([^/]*)\/+[^/]*\/+([0-9]+[^/]*)(?:[?#].*)?$/,
-        "/pview/$1/raw/public/p$2"
-      );
-    if (newSrc !== src) {
-      return redirect([newSrc, src]);
-    }
-
-    newSrc = src.replace(/\/view\/+subject\/+[a-z]+\/+/, "/view/subject/raw/");
-    // Both of the following urls have the same content
-    //   https://img3.doubanio.com/view/subject/raw/public/s4580920.webp
-    //   https://img3.doubanio.com/view/subject/raw/public/s4580920.jpg
-    if (newSrc !== src) {
-      return redirect(newSrc);
-    }
-
-    if (src.match(/\/+view\/+([^/]*)\/+[^/]*\/+/)) {
-      newSrc = src.replace(/\/+view\/+([^/]*)\/+[^/]*\/+/, "/pview/$1/raw/");
-      if (newSrc !== src) {
-        return redirect(
-          addExts(newSrc.replace(/\.webp(?:[?#].*)?$/, ".jpg"), ["jpg", "png"])
-        );
-      }
-    }
-    return;
   }
 
   // NGA
@@ -952,8 +912,9 @@
           !str.match(
             /[Bb][Vv][fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF]{10}/gu
           )
-        )
+        ) {
           return;
+        }
 
         let result = 0;
         let i = 0;
@@ -985,11 +946,11 @@
           let newl = new URL("https://b23.tv");
           p && newl.searchParams.set("p", p);
           t && newl.searchParams.set("t", t);
-          if (targetType === type.toLowerCase())
+          if (targetType === type.toLowerCase()) {
             newl.pathname = location.pathname
               .replace(/(\/s)?\/video/, "")
               .replace(/\/$/, "");
-          else newl.pathname = "/" + newId;
+          } else newl.pathname = "/" + newId;
           return newl.href;
         }
       }
@@ -1021,12 +982,13 @@
             text: "已复制：" + link,
             timeout: 2000
           });
-        } else
+        } else {
           GM_notification({
             title,
             text: "无法获取短链接",
             timeout: 2000
           });
+        }
       }
       GM_registerMenuCommand("复制 AV 短链接", () => notify("av"));
       GM_registerMenuCommand("复制 BV 短链接", () => notify("bv"));
@@ -1303,7 +1265,7 @@
   } else if (hostname === "bbs.imoutolove.me") {
     return document.addEventListener("DOMContentLoaded", () => {
       if (location.pathname === "/read.php") {
-        let newUrl = new URL("https:" + copyurl);
+        let newUrl = new URL("https:" + unsafeWindow.copyurl);
         newUrl.search = "?tid=" + newUrl.searchParams.get("tid");
         fetch(newUrl.href)
           .then(resp => {
@@ -1372,11 +1334,11 @@
                         );
                         dummy = null;
                         btn.remove();
-                        if (window.history && copyurl) {
+                        if (window.history && unsafeWindow.copyurl) {
                           window.history.pushState(
                             {},
                             document.title,
-                            copyurl + post_id.split("_")[1]
+                            unsafeWindow.copyurl + post_id.split("_")[1]
                           );
                         }
                       });
@@ -1397,16 +1359,13 @@
       pathname.indexOf(".php") === -1 ||
       pathname.indexOf("mobile=yes") > -1 ||
       pathname.startsWith("/archiver")
-    )
+    ) {
       return;
+    }
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("maintop").remove();
-      document.querySelector("div.hdc.cl").remove();
-      document.getElementById("mainbottom").remove();
-      document.querySelector("#hd > .wp").style.padding = "10px 0";
-      document.getElementById("ts_sidebar_base").remove();
-      document.getElementById("tsdmbgpic").remove();
-      document.querySelectorAll("div.qdsmile").forEach(e => e.remove());
+      document.getElementById("ts_sidebar_base")?.remove();
+      document.getElementById("tsdmbgpic")?.remove();
+      document.querySelectorAll("div.qdsmile")?.forEach(e => e.remove());
       document.querySelectorAll("div.pls").forEach(e => {
         e.style.backgroundImage = "";
       });
@@ -1675,17 +1634,46 @@
     addVideoLink.init();
   }
 
+  // Niconico Video Cover
+  else if (hostname === "www.nicovideo.jp") {
+    const getCoverUrl = async (id, htmlStr, t = 0) => {
+      let coverUrlRegExp = new RegExp(
+        `https[^"]+\\/${id}\\/${id}\\.\\d+\\.original[^"]+`
+      );
+      let coverUrl = htmlStr.match(coverUrlRegExp)?.[0];
+      if (!coverUrl) {
+        if (t) return;
+        let req = await fetch(`https://www.nicovideo.jp/watch/sm${id}`);
+        if (req.status === 200) {
+          return getCoverUrl(
+            id,
+            (await req.text()).replace(/&quot;/g, '"').replace(/\\\//g, "/"),
+            ++t
+          );
+        }
+      }
+      return coverUrl;
+    };
+    GM_registerMenuCommand("View Video Cover", async () => {
+      let smId = location.pathname.match(/sm(\d+)/)?.[1];
+      if (smId) {
+        let coverUrl = await getCoverUrl(smId, document.head.outerHTML);
+        coverUrl && window.open(coverUrl, "_blank");
+      }
+    });
+  }
+
   function dragElement(el) {
     let prevPos = [];
 
     const current = (x, y) => {
       const windowOffset = [
         window.pageXOffset ||
-          document.documentElement.scrollLeft ||
-          document.body.scrollLeft,
+        document.documentElement.scrollLeft ||
+        document.body.scrollLeft,
         window.pageYOffset ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop
+        document.documentElement.scrollTop ||
+        document.body.scrollTop
       ];
       const offset = [
         windowOffset[0] + prevPos[0] - x,
@@ -1703,8 +1691,9 @@
         e.button !== 0 ||
         e.altKey /* conflict with CB saving image fn */ ||
         e.ctrlKey
-      )
+      ) {
         return;
+      }
 
       e.preventDefault();
       const pageScroller = function (e) {
