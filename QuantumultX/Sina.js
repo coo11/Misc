@@ -18,6 +18,8 @@
       $done({ body });
       break;
     case /^https?:\/\/m\.weibo\.cn\/(?:status|detial)\/(\w+)/.test(url): {
+      let weiboId = RegExp.$1;
+      if (!weiboId) $done();
       const weiboFn = {
         alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
         mid2id(mid) {
@@ -51,8 +53,6 @@
           return out;
         }
       };
-      let weiboId = RegExp.$1;
-      if (!weiboId) $done();
       if (!/^\d+$/.test(weiboId)) weiboId = weiboFn.mid2id(weiboId);
       body = body.replace("<head>", `<head><meta name="apple-itunes-app" content="app-id=1215210046, app-argument='weibointernational://detail?weiboid='${weiboId}">`);
       $done({ body });
