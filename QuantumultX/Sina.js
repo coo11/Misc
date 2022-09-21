@@ -17,7 +17,7 @@
       body = body.replace(/c_c_a">/, `$&<a href="javascript:navigator.share({title: 'Weibo Share', url: 'https://m.weibo.cn/status/${RegExp.$1}'})" class="m-btn-orange" style="line-height: 0.5rem; border-radius: 2px; padding: 0px 8px; float: right; margin: 0.12rem 0; font-size: 0.24rem;">\u4e0d\u6295\u8bc9\uff0c\u4ec5\u5206\u4eab</a>`);
       $done({ body });
       break;
-    case /^https?:\/\/m\.weibo\.cn\/(?:status|detial)\/(\w+)/.test(url): {
+    case /^https?:\/\/m\.weibo\.cn\/(?:status|detail)\/(\w+)/.test(url): {
       let weiboId = RegExp.$1;
       if (!weiboId) $done();
       const weiboFn = {
@@ -54,7 +54,7 @@
         }
       };
       if (!/^\d+$/.test(weiboId)) weiboId = weiboFn.mid2id(weiboId);
-      body = body.replace("<head>", `<head><meta name="apple-itunes-app" content="app-id=1215210046, app-argument='weibointernational://detail?weiboid='${weiboId}">`);
+      body = body.replace("<head>", `<head><meta name="apple-itunes-app" content="app-id=1215210046, app-argument='weibointernational://detail?weiboid=${weiboId}'">`);
       $done({ body });
       break;
     }
