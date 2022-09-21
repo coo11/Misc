@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.45
+// @version         0.1.47
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -46,6 +46,9 @@
 // @match         *://www.reddit.com/r/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
+// @ Web Archive
+// @match         *://*.us.archive.org/*
+// @match         *://coverartarchive.org/*
 // @ TODO: Tumblr
 // @ ----GetOriginalSrcEnd------
 // @
@@ -378,6 +381,11 @@
       const div = document.querySelector("div.desc");
       if (div && div.innerText.startsWith("http")) {
         return redirect(div.innerText);
+      } else {
+        fetch(location.href).then(resp => {
+          let target = resp?.headers?.get('Location')
+          if (target) return redirect(target);
+        })
       }
     });
     return;
@@ -589,8 +597,89 @@
         // Add Status
         const customStyle = document.createElement("style");
         customStyle.innerText =
-          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; }";
+          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; } "
+          + ".glink { max-width: 1200px !important; display: inline-block; position: relative; padding-right: 4px; } "
+          + "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } "
+          + ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }"
+          + "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }"
+        const pageMode = document.querySelector("#dms select").selectedIndex;
+        { // Add bouncing animation for title
+          if (pageMode < 3) {
+            const hookedFn = unsafeWindow.show_image_pane;
+            unsafeWindow.show_image_pane = function (a) {
+              const tr = document.querySelector('div#ic' + a).parentNode.parentNode.closest("tr");
+              const container = tr.querySelector("td.glname");
+              const text = tr.querySelector("div.glink");
+              if (container.clientWidth < text.scrollWidth && !text.classList.contains("bouncing")) text.classList.add("bouncing");
+              else if (container.clientWidth >= text.scrollWidth && text.classList.contains("bouncing")) text.classList.remove("bouncing");
+              hookedFn(a);
+            }
+          }
+        }
         document.head.appendChild(customStyle);
+        { // Show translator meta: Not good if use Extended or Thumbnail mode.
+          let needCheckedGalleries = {};
+          let translateRegex = /\s*\[[^\[]*?(:?汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻).*?\]\s*/;
+          let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
+          let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
+          const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
+          let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
+          document.querySelectorAll('div.glink').forEach(e => {
+            let jpTitle = e.innerText;
+            let matched = jpTitle.match(translateRegex)?.[0];
+            if (matched) {
+              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor(matched);
+              return;
+            }
+            matched = jpTitle.match(translateRegexIrregular)?.[0];
+            if (matched) {
+              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor("[中文]", "#EF5FA7");
+              return;
+            }
+            matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
+            if (matched) {
+              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
+              return;
+            }
+            matched = jpTitle.match(cnTsGalleriesRegex)?.[0];
+            if (matched) {
+              e.innerHTML = e.innerHTML.replace(matched, " ").trim();
+              needCheckedGalleries[e.parentNode.href] = e;
+              return;
+            };
+            if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
+              e.innerHTML = e.innerHTML.trim();
+              needCheckedGalleries[e.parentNode.href] = e;
+            }
+          })
+          let gidList = Object.keys(needCheckedGalleries).map(url => url.split('/').splice(4, 2));
+          if (gidList.length === 0) return;
+          let groupedList = [];
+          gidList.forEach((gt, n) => {
+            let g = parseInt(n / 25);
+            if (groupedList[g]) groupedList[g].push(gt);
+            else groupedList[g] = [gt];
+          })
+          for (let group of groupedList) {
+            fetch("https://api.e-hentai.org/api.php", {
+              method: "POST",
+              body: JSON.stringify({
+                "method": "gdata",
+                "gidlist": group
+              })
+            }).then(resp => resp.json()).then(json => {
+              json?.gmetadata?.forEach(({ gid, token, title }) => {
+                let e = needCheckedGalleries[`https://${hostname}/g/${gid}/${token}/`];
+                let matched = title.match(translateRegex)?.[0];
+                if (matched) {
+                  e.innerHTML += addColor(matched);
+                  return;
+                }
+                /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
+              })
+            })
+          }
+        }
         return;
       }
     });
@@ -648,8 +737,11 @@
         });
         const size = document.querySelector(
           "#post-info-size > a:last-child"
-        ).previousSibling;
-        size.data = size.data.replace("x", "×");
+        );
+        size.previousSibling.data = size.previousSibling.data.replace("x", "×");
+        const md5 = size.previousElementSibling?.href?.split(/\/|\./).reverse()?.[1]
+        document.querySelector("#post-info-id").insertAdjacentHTML('beforeend', ` » <a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://chan.sankakucomplex.com/?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>`)
+        document.head.insertAdjacentHTML('beforeend', `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>a{font-weight:bold;} #post-info-id>a {border:var(--booru-border);border-radius:3px;} #post-info-id>a:hover{filter:opacity(50%);}</style>`)
         const time = document.querySelector("#post-info-date time"),
           title = time.innerText;
         if (!/(?:minutes?|hours?|(^|\D)\d days?) ago$/.test(title)) {
@@ -1251,6 +1343,16 @@
         src
       ]);
     }
+  }
+
+  // Web Archive
+  else if (hostname.endsWith(".archive.org") && /^ia[0-9]*\./.test(hostname)) {
+    newSrc = src.replace(/(\/items\/+mbid-[-0-9a-f]+\/+mbid-[-0-9a-f]+)_(?:thumb[0-9]+|itemimage)(\.[^/.]*)(?:[?#].*)?$/, "$1$2");
+    if (newSrc !== src) {
+      return redirect(addExts(newSrc, ["png", "jpg"]));
+    }
+  } else if (hostname === "coverartarchive.org") {
+    return redirect(src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2"));
   }
 
   // SouthPlus
