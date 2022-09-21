@@ -54,7 +54,7 @@
         }
       };
       if (!/^\d+$/.test(weiboId)) weiboId = weiboFn.mid2id(weiboId);
-      body = body.replace("<head>", `<head><meta name="apple-itunes-app" content="app-id=1215210046, app-argument='weibointernational://detail?weiboid=${weiboId}'">`);
+      body = body.replace("<head>", `<head><meta name="apple-itunes-app" content="app-id=1215210046, app-argument=weibointernational://detail?weiboid=${weiboId}">`);
       $done({ body });
       break;
     }
