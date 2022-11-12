@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.47
+// @version         0.1.49
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -206,7 +206,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    }
+    },
   };
 
   /**
@@ -328,6 +328,15 @@
     );
   }
 
+  function parseCookie(str) {
+    const output = {};
+    str.split(/\s*;\s*/).forEach(pair => {
+      pair = pair.split(/\s*=\s*/);
+      output[pair[0]] = pair.splice(1).join("=");
+    });
+    return output;
+  }
+
   // These universal links need pretreatment.
   if (
     // Steam
@@ -383,9 +392,9 @@
         return redirect(div.innerText);
       } else {
         fetch(location.href).then(resp => {
-          let target = resp?.headers?.get('Location')
+          let target = resp?.headers?.get("Location");
           if (target) return redirect(target);
-        })
+        });
       }
     });
     return;
@@ -398,7 +407,7 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
@@ -445,8 +454,8 @@
           }
           const isEncoded = /\D/.test(input);
           const output = isEncoded
-            ? weiboFn.mid2id(input)
-            : weiboFn.id2mid(input),
+              ? weiboFn.mid2id(input)
+              : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -462,10 +471,10 @@
         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
         {
           headers: {
-            "content-type": "application/x-www-form-urlencoded"
+            "content-type": "application/x-www-form-urlencoded",
           },
           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST"
+          method: "POST",
         }
       )
         .then(resp => {
@@ -526,6 +535,7 @@
             }
           });
       } else if (pathname.startsWith("/g/")) {
+        // Add Comment URL hash
         document
           .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
           .forEach(a => {
@@ -569,7 +579,8 @@
             );
           hookedFn(a);
         };
-      } else {
+      } else if (/^\/(mpv\/|torrents\.php|upld\/|mytags)/.test(pathname));
+      else {
         // Open Gallery in New Tab
         [].forEach.call(document.getElementsByClassName("itg"), table => {
           table
@@ -578,106 +589,147 @@
         });
         // Add Search in South Plus
         const inputArea = document.getElementById("f_search");
-        if (!inputArea) return;
-        inputArea.size = 40;
-        const input = document.createElement("input");
-        input.type = "button";
-        input.value = "South Plus";
-        input.onclick = () => {
-          const text = inputArea.value;
-          if (text) {
-            window.open(
-              "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-              encodeURIComponent(text),
-              "_blank"
-            );
-          }
-        };
-        inputArea.parentNode.appendChild(input);
+        if (inputArea) {
+          inputArea.style.width = "400px";
+          const input = document.createElement("input");
+          input.type = "button";
+          input.value = "South Plus";
+          input.onclick = () => {
+            const text = inputArea.value;
+            if (text) {
+              window.open(
+                "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
+                  encodeURIComponent(text),
+                "_blank"
+              );
+            }
+          };
+          inputArea.parentNode.appendChild(input);
+        }
         // Add Status
         const customStyle = document.createElement("style");
         customStyle.innerText =
-          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; } "
-          + ".glink { max-width: 1200px !important; display: inline-block; position: relative; padding-right: 4px; } "
-          + "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } "
-          + ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }"
-          + "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }"
-        const pageMode = document.querySelector("#dms select").selectedIndex;
-        { // Add bouncing animation for title
-          if (pageMode < 3) {
-            const hookedFn = unsafeWindow.show_image_pane;
-            unsafeWindow.show_image_pane = function (a) {
-              const tr = document.querySelector('div#ic' + a).parentNode.parentNode.closest("tr");
-              const container = tr.querySelector("td.glname");
-              const text = tr.querySelector("div.glink");
-              if (container.clientWidth < text.scrollWidth && !text.classList.contains("bouncing")) text.classList.add("bouncing");
-              else if (container.clientWidth >= text.scrollWidth && text.classList.contains("bouncing")) text.classList.remove("bouncing");
-              hookedFn(a);
-            }
-          }
+          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; } " +
+          ".glink { max-width: 1200px !important; display: inline-block; position: relative; padding-right: 4px; } " +
+          "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } " +
+          ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }" +
+          "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }";
+        const pageMode =
+          document.querySelector("#dms select")?.selectedIndex ||
+          document.querySelector("div.searchnav select")?.selectedIndex;
+        // Add bouncing animation for title
+        if (pageMode < 3) {
+          const hookedFn = unsafeWindow.show_image_pane;
+          unsafeWindow.show_image_pane = function (a) {
+            const tr = document
+              .querySelector("div#ic" + a)
+              .parentNode.parentNode.closest("tr");
+            const container = tr.querySelector("td.glname");
+            const text = tr.querySelector("div.glink");
+            if (
+              container.clientWidth < text.scrollWidth &&
+              !text.classList.contains("bouncing")
+            )
+              text.classList.add("bouncing");
+            else if (
+              container.clientWidth >= text.scrollWidth &&
+              text.classList.contains("bouncing")
+            )
+              text.classList.remove("bouncing");
+            hookedFn(a);
+          };
         }
         document.head.appendChild(customStyle);
-        { // Show translator meta: Not good if use Extended or Thumbnail mode.
+        {
+          // Show translator meta: Not good if use Extended or Thumbnail mode.
           let needCheckedGalleries = {};
-          let translateRegex = /\s*\[[^\[]*?(:?汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻).*?\]\s*/;
-          let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
+          let translateRegex =
+            /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
+          let translateRegexIrregular =
+            /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
           let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
-          const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
-          let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
-          document.querySelectorAll('div.glink').forEach(e => {
+          const defaultColor =
+            hostname === "e-hentai.org" ? "blueviolet" : "cyan";
+          let addColor = (text, color = defaultColor) =>
+            `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
+          document.querySelectorAll("div.glink").forEach(e => {
             let jpTitle = e.innerText;
+            jpTitle = jpTitle.replace(/］/g, "]").replace(/［/g, "[");
             let matched = jpTitle.match(translateRegex)?.[0];
             if (matched) {
-              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor(matched);
-              return;
-            }
-            matched = jpTitle.match(translateRegexIrregular)?.[0];
-            if (matched) {
-              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor("[中文]", "#EF5FA7");
-              return;
-            }
-            matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
-            if (matched) {
-              e.innerHTML = e.innerHTML.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
+              e.innerHTML =
+                jpTitle.replace(matched, " ").trim() + addColor(matched);
               return;
             }
             matched = jpTitle.match(cnTsGalleriesRegex)?.[0];
             if (matched) {
-              e.innerHTML = e.innerHTML.replace(matched, " ").trim();
+              e.innerHTML = jpTitle.replace(matched, " ").trim();
               needCheckedGalleries[e.parentNode.href] = e;
               return;
-            };
-            if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
+            }
+            matched = jpTitle.match(translateRegexIrregular)?.[0];
+            if (matched) {
+              e.innerHTML =
+                jpTitle.replace(matched, " ").trim() +
+                addColor("[中文]", "#EF5FA7");
+              return;
+            }
+            matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
+            if (matched) {
+              e.innerHTML =
+                jpTitle.replace(matched, " ").trim() +
+                addColor(matched, "#EF5FA7");
+              return;
+            }
+            if (
+              e.nextElementSibling?.querySelector(
+                "div.gt[title='language:chinese']"
+              )
+            ) {
               e.innerHTML = e.innerHTML.trim();
               needCheckedGalleries[e.parentNode.href] = e;
             }
-          })
-          let gidList = Object.keys(needCheckedGalleries).map(url => url.split('/').splice(4, 2));
+          });
+          let gidList = Object.keys(needCheckedGalleries).map(url =>
+            url.split("/").splice(4, 2)
+          );
           if (gidList.length === 0) return;
           let groupedList = [];
           gidList.forEach((gt, n) => {
             let g = parseInt(n / 25);
             if (groupedList[g]) groupedList[g].push(gt);
             else groupedList[g] = [gt];
-          })
+          });
+          let cookie = parseCookie(document.cookie),
+            hash = cookie.ipb_pass_hash;
+          if (!hash) {
+            console.warn("NO IPB_PASS_HASH FOUND.");
+            return;
+          }
           for (let group of groupedList) {
-            fetch("https://api.e-hentai.org/api.php", {
+            fetch("https://api.coo11.workers.dev/ehapi", {
               method: "POST",
+              headers: { Authorization: `Basic ${btoa(hash)}` },
               body: JSON.stringify({
-                "method": "gdata",
-                "gidlist": group
-              })
-            }).then(resp => resp.json()).then(json => {
-              json?.gmetadata?.forEach(({ gid, token, title }) => {
-                let e = needCheckedGalleries[`https://${hostname}/g/${gid}/${token}/`];
-                let matched = title.match(translateRegex)?.[0];
-                if (matched) {
-                  e.innerHTML += addColor(matched);
-                  return;
-                }
-                /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
-              })
+                method: "gdata",
+                gidlist: group,
+              }),
             })
+              .then(resp => resp.json())
+              .then(json => {
+                json?.gmetadata?.forEach(({ gid, token, title }) => {
+                  let e =
+                    needCheckedGalleries[
+                      `https://${hostname}/g/${gid}/${token}/`
+                    ];
+                  let matched = title.match(translateRegex)?.[0];
+                  if (matched) {
+                    e.innerHTML += addColor(matched);
+                    return;
+                  }
+                  /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
+                });
+              });
           }
         }
         return;
@@ -692,7 +744,7 @@
       script.type = "text/javascript";
       script.text =
         '(()=>{const e=document.createElement("iframe");document.body.appendChild(e),window.open=e.contentWindow.open,document.body.removeChild(e)})();';
-      document.body.insertAdjacentElement("afterend", script);
+      document.body.insertAdjacentElement("beforeend", script);
       return;
     });
   }
@@ -735,13 +787,21 @@
               .classList.remove("fit-width");
           }
         });
-        const size = document.querySelector(
-          "#post-info-size > a:last-child"
-        );
+        const size = document.querySelector("#post-info-size > a:last-child");
         size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-        const md5 = size.previousElementSibling?.href?.split(/\/|\./).reverse()?.[1]
-        document.querySelector("#post-info-id").insertAdjacentHTML('beforeend', ` » <a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://chan.sankakucomplex.com/?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>`)
-        document.head.insertAdjacentHTML('beforeend', `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>a{font-weight:bold;} #post-info-id>a {border:var(--booru-border);border-radius:3px;} #post-info-id>a:hover{filter:opacity(50%);}</style>`)
+        const md5 = size.previousElementSibling?.href
+          ?.split(/\/|\./)
+          .reverse()?.[1];
+        document
+          .querySelector("#post-info-id")
+          .insertAdjacentHTML(
+            "beforeend",
+            ` » <a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>`
+          );
+        document.head.insertAdjacentHTML(
+          "beforeend",
+          `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>a{font-weight:bold;} #post-info-id>a {border:var(--booru-border);border-radius:3px;} #post-info-id>a:hover{filter:opacity(50%);}</style>`
+        );
         const time = document.querySelector("#post-info-date time"),
           title = time.innerText;
         if (!/(?:minutes?|hours?|(^|\D)\d days?) ago$/.test(title)) {
@@ -854,9 +914,9 @@
       src.indexOf("videoshot") > -1 // No Check
         ? src
         : src.replace(
-          /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-          "$1"
-        )
+            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
+            "$1"
+          )
     );
   }
 
@@ -960,7 +1020,7 @@
       });
       //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
       const table = [
-        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
+        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF",
       ];
       const s = [11, 10, 3, 8, 4, 6];
       const xor = 177451812;
@@ -1021,7 +1081,7 @@
         if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
           return {
             type: RegExp.$1 === "av" ? "av" : "bv",
-            id: RegExp.$2
+            id: RegExp.$2,
           };
         }
         return {};
@@ -1072,13 +1132,13 @@
           GM_notification({
             title,
             text: "已复制：" + link,
-            timeout: 2000
+            timeout: 2000,
           });
         } else {
           GM_notification({
             title,
             text: "无法获取短链接",
-            timeout: 2000
+            timeout: 2000,
           });
         }
       }
@@ -1137,7 +1197,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2]
+          format: matched[2],
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -1214,7 +1274,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2")
+        src.replace(regex, "$1large/$2"),
       ]);
     }
   }
@@ -1340,19 +1400,24 @@
           /(\/v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/+)[^/]+(?:[?#].*)?$/,
           "$1source"
         ),
-        src
+        src,
       ]);
     }
   }
 
   // Web Archive
   else if (hostname.endsWith(".archive.org") && /^ia[0-9]*\./.test(hostname)) {
-    newSrc = src.replace(/(\/items\/+mbid-[-0-9a-f]+\/+mbid-[-0-9a-f]+)_(?:thumb[0-9]+|itemimage)(\.[^/.]*)(?:[?#].*)?$/, "$1$2");
+    newSrc = src.replace(
+      /(\/items\/+mbid-[-0-9a-f]+\/+mbid-[-0-9a-f]+)_(?:thumb[0-9]+|itemimage)(\.[^/.]*)(?:[?#].*)?$/,
+      "$1$2"
+    );
     if (newSrc !== src) {
       return redirect(addExts(newSrc, ["png", "jpg"]));
     }
   } else if (hostname === "coverartarchive.org") {
-    return redirect(src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2"));
+    return redirect(
+      src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2")
+    );
   }
 
   // SouthPlus
@@ -1411,7 +1476,7 @@
               try {
                 fetch(url, {
                   credentials: "include",
-                  mode: "no-cors"
+                  mode: "no-cors",
                 })
                   .then(resp => resp.text())
                   .then(text => {
@@ -1420,7 +1485,7 @@
                     }
                     fetch(document.URL, {
                       credentials: "include",
-                      mode: "no-cors"
+                      mode: "no-cors",
                     })
                       .then(resp => resp.text())
                       .then(html => {
@@ -1492,14 +1557,16 @@
         .forEach(e => {
           let img = e.querySelector(".resultimage img"),
             desc = img.title,
-            src = img.src,
-            isNeedShow = /hentai/i.test(desc),
+            isSourceFromHentai = /hentai/i.test(desc),
+            isSourceFromKemono = /Kemono/i.test(desc),
             content = e.querySelector(".resultcontentcolumn"),
+            titleUrl = e.querySelector(".resulttitle a")?.href,
             miscinfo = e.querySelector(".resultmiscinfo");
           e.querySelectorAll("a:not([href*='saucenao.com'])").forEach(a =>
             a.setAttribute("target", "_blank")
           );
-          if (content && isNeedShow) {
+          if (isSourceFromHentai && content) {
+            let src = img.src;
             desc = desc.replace(/.*?#\d+:\s/, "");
             content.innerHTML =
               content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") +
@@ -1516,6 +1583,45 @@
                 const href = `https://nhentai.net/g/${id[1]}/`;
                 miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/nhentai.ico" width="16" height="16" border="0" alt=""></a><br>`;
               }
+            }
+          }
+          if (isSourceFromKemono && titleUrl) {
+            const miscInfoA = miscinfo.querySelector("a");
+            let uid, pid, site;
+            switch (true) {
+              case titleUrl.indexOf("fanbox") > -1:
+                {
+                  site = "fanbox";
+                  let matched =
+                    titleUrl?.match(/creator\/(\d+)\/post\/(\d+)/) || [];
+                  uid = matched[1];
+                  pid = matched[2];
+                }
+                break;
+              case titleUrl.indexOf("fantia") > -1:
+                {
+                  site = "fantia";
+                  pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
+                  uid = content
+                    .querySelector("a")
+                    ?.href?.match(/fanclubs\/(\d+)/)?.[1];
+                }
+                break;
+              case titleUrl.indexOf("patreon") > -1:
+                {
+                  site = "patreon";
+                  pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
+                  uid = content
+                    .querySelector("a")
+                    ?.href?.match(/user\?u=(\d+)/)?.[1];
+                }
+                break;
+              default:
+                console.warn(desc);
+                break;
+            }
+            if (uid && pid && miscInfoA) {
+              miscInfoA.href = `https://kemono.party/${site}/user/${uid}/post/${pid}`;
             }
           }
         });
@@ -1584,42 +1690,48 @@
         if (id && id === _id) {
           // Elements to add
           let div = target.parentElement;
-          if (div.querySelector("#LinkAdded")) return;
-          let dot = div.children[div.childElementCount - 2].cloneNode(true),
-            a = div.lastChild.cloneNode(true);
-          a.id = "LinkAdded";
-          a.target = "_blank";
-          a.innerText = "下载视频";
-          // Video url to add
-          let url;
+          if (div.querySelector(".LinkAdded")) return;
+          let dot = div.children[div.childElementCount - 2],
+            a = div.lastChild;
+          // Video url to add, maybe more than 1: https://twitter.com/n_atsuna74cos/status/1581517853957574656
+          let info = [];
           try {
-            let info,
-              { extended_entities, card } =
-                tweet.content.itemContent.tweet_results.result.legacy;
+            let { extended_entities, card } =
+              tweet.content.itemContent.tweet_results.result.legacy;
             if (extended_entities) {
-              info = extended_entities.media[0].video_info.variants;
+              info = extended_entities.media
+                .filter(i => i.type === "video" || i.type === "animated_gif")
+                .map(i => i.video_info.variants);
             } else if (card) {
+              // Maybe only show 1 video in cart type tweet
               info = JSON.parse(
                 card.binding_values.unified_card.string_value
               ).media_entities;
               const keyName = Object.keys(info)[0];
-              info = info[keyName].video_info.variants;
+              info = [info[keyName].video_info.variants];
             } else {
               console.log("No source found in API response.");
               return;
             }
-            url = info
-              .filter(i => i.content_type === "video/mp4")
-              .sort((a, b) => b.bitrate - a.bitrate)[0].url;
-            console.log(url);
           } catch (e) {
             console.log(e);
             return;
           }
           // Add
-          a.href = url;
-          div.appendChild(dot);
-          div.appendChild(a);
+          info.forEach((meta, i) => {
+            let url = meta
+                .filter(i => i.content_type === "video/mp4")
+                .sort((a, b) => b.bitrate - a.bitrate)[0].url,
+              newDot = dot.cloneNode(true),
+              newA = a.cloneNode(true);
+            newA.classList.add("LinkAdded");
+            newA.target = "_blank";
+            newA.innerText = `下载视频${i + 1}`;
+            newA.href = url;
+            div.appendChild(newDot);
+            div.appendChild(newA);
+            if (!info[1]) newA.innerText = "下载视频";
+          });
           this.added = true;
         } else return;
       },
@@ -1645,7 +1757,7 @@
                   tweet:
                     resp.data.threaded_conversation_with_injections_v2.instructions[0].entries.filter(
                       i => i.entryId == `tweet-${id}`
-                    )[0]
+                    )[0],
                 };
               },
               false
@@ -1731,7 +1843,7 @@
           });
         });
         observer.observe(document.body, { childList: true, subtree: true });
-      }
+      },
     };
     addVideoLink.init();
   }
@@ -1771,15 +1883,15 @@
     const current = (x, y) => {
       const windowOffset = [
         window.pageXOffset ||
-        document.documentElement.scrollLeft ||
-        document.body.scrollLeft,
+          document.documentElement.scrollLeft ||
+          document.body.scrollLeft,
         window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop
+          document.documentElement.scrollTop ||
+          document.body.scrollTop,
       ];
       const offset = [
         windowOffset[0] + prevPos[0] - x,
-        windowOffset[1] + prevPos[1] - y
+        windowOffset[1] + prevPos[1] - y,
       ];
       prevPos[0] = x;
       prevPos[1] = y;
@@ -1821,7 +1933,7 @@
           return false;
         },
         {
-          once: true
+          once: true,
         }
       );
       return false;
