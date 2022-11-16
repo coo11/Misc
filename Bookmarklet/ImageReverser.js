@@ -30,47 +30,47 @@ javascript: ({
       event.stopPropagation(); // 阻止捕获和冒泡事件传播
       const engine = div.children[0].value;
       const { d, p } = this.engines[engine];
-      const prefix = engine === "Baidu" ? p : d + p;
+      const prefix = engine === "Baidu" || engine === "Google" ? p : d + p;
       window.open(prefix + encodeURIComponent(element.src), "_blank");
     }
     document.body.removeChild(div);
   },
   engines: {
     Google: {
-      d: "https://image.google.com",
-      p: "/searchbyimage?image_url="
+      d: "https://images.google.com",
+      p: "https://lens.google.com/uploadbyurl?url=",
     },
     Yandex: {
       d: "https://yandex.com/images",
-      p: "/search?rpt=imageview&url="
+      p: "/search?rpt=imageview&url=",
     },
     sauceNAO: {
       d: "https://saucenao.com",
-      p: "/search.php?db=999&url="
+      p: "/search.php?db=999&url=",
     },
     ASCII2D: {
       d: "https://ascii2d.net",
-      p: "/search/url/"
+      p: "/search/url/",
     },
     Baidu: {
       d: "https://image.baidu.com",
-      p: "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image="
+      p: "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image=",
     },
     Bing: {
       d: "https://www.bing.com",
-      p: "/images/searchbyimage?cbir=sbi&imgurl="
+      p: "/images/searchbyimage?cbir=sbi&imgurl=",
     },
     KarmaDecay: {
       d: "https://karmadecay.com",
-      p: "/search?q="
+      p: "/search?q=",
     },
     IQDB: {
       d: "http://iqdb.org",
-      p: "/?url="
+      p: "/?url=",
     },
     WAIT: {
       d: "https://trace.moe",
-      p: "/?auto&url="
-    }
-  }
+      p: "/?auto&url=",
+    },
+  },
 }.init());

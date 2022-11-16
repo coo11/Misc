@@ -1549,9 +1549,15 @@
           location.href = "/";
         }, 3000);
       }
-      document
-        .querySelectorAll("div#yourimageretrylinks > a")
-        .forEach(a => a.setAttribute("target", "_blank"));
+      document.querySelectorAll("div#yourimageretrylinks > a").forEach(a => {
+        if (a.children[0].title === "Search Google") {
+          a.href = a.href.replace(
+            /^.*?=/,
+            "https://lens.google.com/uploadbyurl?url="
+          );
+        }
+        a.setAttribute("target", "_blank");
+      });
       document
         .querySelectorAll("div:not(#result-hidden-notification).result")
         .forEach(e => {
@@ -1696,8 +1702,9 @@
           // Video url to add, maybe more than 1: https://twitter.com/n_atsuna74cos/status/1581517853957574656
           let info = [];
           try {
+            let result = tweet.content.itemContent.tweet_results.result;
             let { extended_entities, card } =
-              tweet.content.itemContent.tweet_results.result.legacy;
+              result?.legacy || result?.tweet?.legacy; // https://twitter.com/MAPPA_Info/status/1591393136475246592
             if (extended_entities) {
               info = extended_entities.media
                 .filter(i => i.type === "video" || i.type === "animated_gif")

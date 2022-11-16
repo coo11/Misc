@@ -21,7 +21,7 @@ addEventListener("fetch", event => {
 });
 
 async function handleRequest(request) {
-  const { pathname } = new URL(request.url);
+  const { pathname, searchParams } = new URL(request.url);
   switch (true) {
     case pathname === "/ehapi":
       return await ehCorsBypass(request);
@@ -29,6 +29,8 @@ async function handleRequest(request) {
       return randomNaviBg();
     case pathname.startsWith("/img/tg/"):
       return await tgTempImage(pathname.slice(8), request);
+    case pathname.startsWith("/img/search"):
+      return await googleImgSearchFix(searchParams.get("url"), request);
     default:
       return http400();
   }
@@ -110,6 +112,27 @@ async function tgTempImage(cmd, req) {
       },
       body = await resp.arrayBuffer();
     return new Response(body, init);
+  }
+  return http400();
+}
+
+async function googleImgSearchFix(imageUrl) {
+  if (!imageUrl) return http400();
+  let prefix = "https://lens.google.com/uploadbyurl?url=",
+    ua =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+    lensReq = await fetch(
+      `${prefix}${encodeURIComponent(imageUrl)}&st=${new Date().getTime()}`,
+      { headers: { "user-agent": ua } }
+    );
+  if (lensReq.status == 200) {
+    let content = await lensReq.text(),
+      searchUrl = content
+        ?.match(
+          /https:\/\/www\.google\.com\/search\?tbs\\u003dsbi:.*?(?=")/
+        )?.[0]
+        ?.replace("\\u003d", "=");
+    if (searchUrl) return Response.redirect(searchUrl);
   }
   return http400();
 }
