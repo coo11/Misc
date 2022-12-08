@@ -1158,10 +1158,14 @@
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
         "$1$2"
       )
-      .replace(/\/c\/[0-9]+x[0-9]+(?:_[0-9]+)?(?:_[a-z]+[0-9]+){0,2}\//, "/")
+      .replace(
+        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z]+\d+){0,2}|ic\d+:\d+:\d+)\//,
+        "/"
+      )
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
       .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2")
       .replace(/(\/[0-9]+_)square[0-9]+(\.[^/.]*)$/, "$1ugoira0$2");
+    //https://i.pximg.net/c/ic5120:1075:6400/img-original/img/2022/11/27/13/56/44/103137994_p0.jpg
     //https://i.pximg.net/c/384x280_80_a2_g2/img-master/img/2018/12/30/23/23/32/72389353_p0_master1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/img-master/img/2015/12/27/23/24/55/54282140_square1200.jpg
@@ -1699,7 +1703,8 @@
           if (div.querySelector(".LinkAdded")) return;
           let dot = div.children[div.childElementCount - 2],
             a = div.lastChild;
-          // Video url to add, maybe more than 1: https://twitter.com/n_atsuna74cos/status/1581517853957574656
+          // Video url to add, maybe more than 1 or mixed with photo:
+          // https://twitter.com/Miss_stlouis3/status/1590343016530972673
           let info = [];
           try {
             let result = tweet.content.itemContent.tweet_results.result;
@@ -1808,7 +1813,9 @@
         if (this.updating && !id) return;
         this.updating = true;
         for (let i = 0; i < times; i++) {
-          const target = document.querySelector(`a[href*="${id}"]`);
+          const target = document.querySelector(
+            `div[dir=auto] a[href*="${id}"]`
+          );
           if (target) {
             const article = target.closest("article");
             if (article && article.querySelector("video")) {

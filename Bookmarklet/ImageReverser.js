@@ -38,7 +38,7 @@ javascript: ({
   engines: {
     Google: {
       d: "https://images.google.com",
-      p: "https://lens.google.com/uploadbyurl?url=",
+      p: "https://www.google.com/searchbyimage?client=ie&image_url=",
     },
     Yandex: {
       d: "https://yandex.com/images",
