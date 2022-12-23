@@ -31,7 +31,10 @@
         .replace(/>/g, "&gt;")
         .replace(/</g, "&lt;")
         .replace(/"/g, "&quot;");
-    return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td><code>${codeUrl}</code></td></tr>`;
+    if (codeUrl.length > 1600)
+      codeUrl = `<details><summary><code>Collapsed because of too many characters (${codeUrl.length})</code></summary><code>${codeUrl}</code></details>`;
+    else codeUrl = `<code>${codeUrl}</code>`;
+    return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td>${codeUrl}</td></tr>`;
   };
   document.querySelectorAll("*").forEach(element => {
     if (element.tagName === "IMG") {
@@ -69,7 +72,7 @@
     let win = window.open("", "_blank"),
       doc = win.document;
     doc.write(
-      `<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; }</style><table cellpadding=10><caption>${images.size} Image(s) Found</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>`
+      `<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style><table cellpadding=10><caption>${images.size} Image(s) Found</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>`
     );
     doc.title = document.title;
     doc.close();

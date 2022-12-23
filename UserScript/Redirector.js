@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.49
+// @version         0.1.50
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -20,11 +20,6 @@
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
 // @match         *://*.alicdn.com/*
-// @match         *://imgsa.baidu.com/*
-// @match         *://imgsrc.baidu.com/*
-// @match         *://tiebapic.baidu.com/*
-// @match         *://*.himg.baidu.com/*
-// @match         *://*.hiphotos.baidu.com/*
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
 // @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
@@ -780,12 +775,22 @@
           dragElement(image);
           image.style.paddingRight = "10px";
         }
+        /* let postOptions = document.querySelector("section#post-options ul");
+        postOptions.insertAdjacentHTML(
+          "afterbegin",
+          '<li class="post-option-rotate"><a class="image-rotate" href="#image" >Rotate 0°</a></li>'
+        ); */
         document.querySelector("div#a-show")?.addEventListener("click", e => {
           if (e.target.classList.contains("image-view-original-link")) {
             document
               .querySelector("picture > img#image")
               .classList.remove("fit-width");
-          }
+          } /* else if (e.target.classList.contains("image-rotate")) {
+            let deg = image.style.rotate.slice(0, -3) || 0;
+            deg = deg === "270" ? 0 : Number(deg) + 90;
+            image.style.rotate = deg ? deg + "deg" : "";
+            e.target.innerText = `Rotate ${deg}°`;
+          } */
         });
         const size = document.querySelector("#post-info-size > a:last-child");
         size.previousSibling.data = size.previousSibling.data.replace("x", "×");
@@ -807,6 +812,10 @@
         if (!/(?:minutes?|hours?|(^|\D)\d days?) ago$/.test(title)) {
           time.innerText = time.title;
           time.title = title;
+        }
+        const status = document.querySelector("#post-info-status");
+        if (status.innerText.endsWith("Pending")) {
+          status.innerHTML = `${status.innerText}&nbsp;<a target="_blank" href="/post_disapprovals?commit=Search&search%5Border%5D=id_desc&search%5Bpost_tags_match%5D=md5%3A${md5}">»</a>`;
         }
       }
       /*
@@ -953,32 +962,6 @@
       }
       return;
     }
-  } else if (
-    hostname === "imgsrc.baidu.com" ||
-    hostname === "tiebapic.baidu.com" ||
-    hostname === "imgsa.baidu.com" ||
-    hostname.endsWith(".hiphotos.baidu.com")
-  ) {
-    newSrc = decodeURIComponent(
-      src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1")
-    );
-    if (newSrc !== src) {
-      return redirect(newSrc);
-    }
-    newSrc = src
-      .replace("/abpic/item/", "/pic/item/")
-      .replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
-    return redirect(newSrc);
-  } else if (hostname.endsWith("himg.baidu.com")) {
-    // http://tb.himg.baidu.com/sys/portrait/item/57cf0859
-    // http://tb.himg.baidu.com/sys/portraitn/item/57cf0859
-    // http://tb.himg.baidu.com/sys/portraitm/item/57cf0859
-    // http://tb.himg.baidu.com/sys/portraitl/item/57cf0859
-    // http://tb.himg.baidu.com/sys/original/item/57cf0859
-    // http://himg.baidu.com/sys/original/item/57cf4b616e6748796559656f6e0859
-    return redirect(
-      src.replace(/\/sys\/[^/]*\/item\//, "/sys/portraitl/item/")
-    );
   }
 
   // NGA
@@ -1699,10 +1682,13 @@
           { id: _id, tweet } = this.resp;
         if (id && id === _id) {
           // Elements to add
-          let div = target.parentElement;
+          let div = target.closest("div");
           if (div.querySelector(".LinkAdded")) return;
-          let dot = div.children[div.childElementCount - 2],
-            a = div.lastChild;
+          let clonedA = () => {
+            let a = target.closest("a").cloneNode(true);
+            a.children[0].remove();
+            return a;
+          };
           // Video url to add, maybe more than 1 or mixed with photo:
           // https://twitter.com/Miss_stlouis3/status/1590343016530972673
           let info = [];
@@ -1734,13 +1720,12 @@
             let url = meta
                 .filter(i => i.content_type === "video/mp4")
                 .sort((a, b) => b.bitrate - a.bitrate)[0].url,
-              newDot = dot.cloneNode(true),
-              newA = a.cloneNode(true);
+              newA = clonedA();
             newA.classList.add("LinkAdded");
             newA.target = "_blank";
             newA.innerText = `下载视频${i + 1}`;
             newA.href = url;
-            div.appendChild(newDot);
+            div.appendChild(document.createTextNode(" · "));
             div.appendChild(newA);
             if (!info[1]) newA.innerText = "下载视频";
           });
@@ -1813,9 +1798,7 @@
         if (this.updating && !id) return;
         this.updating = true;
         for (let i = 0; i < times; i++) {
-          const target = document.querySelector(
-            `div[dir=auto] a[href*="${id}"]`
-          );
+          const target = document.querySelector(`a[href*="${id}"] > time`);
           if (target) {
             const article = target.closest("article");
             if (article && article.querySelector("video")) {

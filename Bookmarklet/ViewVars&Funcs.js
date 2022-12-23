@@ -2,7 +2,11 @@
   const newWin = open(),
     newDoc = newWin.document,
     parse = str =>
-      str.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;");
+      str
+        .replace(/&/g, "&amp;")
+        .replace(/>/g, "&gt;")
+        .replace(/</g, "&lt;")
+        .replace(/"/g, "&quot;");
   newDoc.open();
   newDoc.write(
     "<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; word-break: break-all; } td:nth-child(2) { word-break: keep-all; text-align: center; } th:nth-child(3) { width: 80%; } .re { color: green; } .er { color: red; } .ar { color: purple; } pre { white-space: pre-wrap; }</style><table><thead><tr><th>Variable</th><th>Type</th><th>Value as string</th></tr></thead>"
