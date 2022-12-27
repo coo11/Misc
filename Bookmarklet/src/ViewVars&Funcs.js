@@ -9,7 +9,7 @@
         .replace(/"/g, "&quot;");
   newDoc.open();
   newDoc.write(
-    '<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; word-break: break-all; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } td:nth-child(2) { word-break: keep-all; text-align: center; } td:nth-child(3) { width: 80%; } .re { color: green; } .er { color: red; } .ar { color: purple; } pre { white-space: pre-wrap; }</style><table><tbody><tr><th>Variable</th><th>Type</th><th>Value as string</th></tr>'
+    '<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; word-break: break-all; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } td:nth-child(2) { word-break: keep-all; text-align: center; } td:nth-child(3) { width: 80%; } .re { color: green; } .er { color: red; } .ar { color: purple; } pre { white-space: pre-wrap; }</style><table onclick=""><tbody><tr><th>Variable</th><th>Type</th><th>Value as string</th></tr>'
   );
   for (let i in window) {
     if (i in newWin) continue;
