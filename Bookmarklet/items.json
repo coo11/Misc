@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Baigoogledu",
+    "src": "src/Baigoogledu.js",
+    "view": "",
+    "desc": "Quickly switch search engines between Google and Baidu for iOS Safari.",
+    "hasMinified": false
+  },
+  {
+    "name": "CalibreMetaHelper",
+    "src": "src/CalibreMetaHelper.js",
+    "view": "",
+    "desc": "Help me generate Calibre metadata about artists' SNS info.",
+    "hasMinified": false
+  },
+  {
+    "name": "Celery",
+    "src": "https://raw.githubusercontent.com/yulanggong/celery/5a3d26259af3c23536b9144ef04a5b1a0f75078a/celery.js",
+    "view": "https://github.com/yulanggong/celery/blob/master/celery.js",
+    "desc": "A bookmarklet that unblock right-click menu and copy restrictions.",
+    "hasMinified": false
+  },
+  {
+    "name": "DOMCapture",
+    "src": "src/DOMCapture.js",
+    "view": "",
+    "desc": "A DOM nodes capture script. You can capture a screenshot with custom pixel ratio, but mostly you would get failed because of CORS issue.",
+    "hasMinified": false
+  },
+  {
+    "name": "ImageReverser",
+    "src": "src/ImageReverser.js",
+    "view": "",
+    "desc": "Click the image for reverse search.",
+    "hasMinified": false
+  },
+  {
+    "name": "Taggify",
+    "src": "src/Taggify.js",
+    "view": "https://github.com/secretGeek/html_wysiwyg/",
+    "desc": "Make HTML tags visable in current page.",
+    "hasMinified": false
+  },
+  {
+    "name": "TextConvert",
+    "src": "src/TextConvert.js",
+    "view": "",
+    "desc": "A simple string processing tool set.",
+    "hasMinified": false
+  },
+  {
+    "name": "ViewImages",
+    "src": "src/ViewImages.js",
+    "view": "",
+    "desc": "List all images.",
+    "hasMinified": false
+  },
+  {
+    "name": "ViewSource",
+    "src": "src/ViewSource.js",
+    "view": "",
+    "desc": "View web page's source code. Powered by highlight.js.",
+    "hasMinified": false
+  },
+  {
+    "name": "ViewSourceChart",
+    "src": "https://pastebin.com/raw/etRgu8rr",
+    "view": "http://viewsourcechart.com/getthebookmarklet.html#tab",
+    "desc": "View web page's source code in a intuitive chart.",
+    "hasMinified": true
+  },
+  {
+    "name": "ViewVars&Funcs",
+    "src": "src/ViewVars&Funcs.js",
+    "view": "",
+    "desc": "List all global variables and functions.",
+    "hasMinified": false
+  }
+]

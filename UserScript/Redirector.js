@@ -1737,7 +1737,7 @@
           that = this;
         window.XMLHttpRequest.prototype.open = function (method, url) {
           let matched = url.match(
-            /\/i\/api\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
+            /\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
           );
           if (matched && !that.added && that.tid) {
             let id = matched[1];

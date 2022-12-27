@@ -1,2 +1,3 @@
-*/Deprecated_*.*
-*/Dev_*
+**/Dist/
+**/node_modules/
+**/package-lock.json

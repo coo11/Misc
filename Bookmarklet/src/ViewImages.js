@@ -1,6 +1,12 @@
 (() => {
   let images = new Set(),
     content = "";
+  globalThis.hasCSP = true;
+  let s = document.createElement("script");
+  s.textContent = "globalThis.hasCSP = false;";
+  document.body.appendChild(s);
+  s.remove();
+  let csp = globalThis.hasCSP;
   const parseImg = (image, isSrc = true) => {
     let url, desc;
     if (typeof image === "string") {
@@ -9,6 +15,7 @@
         "%2522"
       ); /* In console, there must be "\%22" https://t.me/iv?url=.... */
       desc = "From CSS";
+      if (!csp) desc += ": ";
     } else if (image.tagName === "svg") {
       let src = new XMLSerializer().serializeToString(image);
       if (src && !images.has(src)) {
@@ -16,14 +23,17 @@
         url = encodeURI(
           "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(src)))
         );
-        let rect = image.getBoundingClientRect();
-        desc = `Inline SVG: ${rect.width}×${rect.height}`;
+        desc = "Inline SVG: ";
+        if (csp) {
+          let rect = image.getBoundingClientRect();
+          desc += `${rect.width}×${rect.height}`;
+        }
       } else return "";
     } else if (image.tagName === "IMG") {
       /* encodeURI: https://web.telegram.org/z/#.... */
       url = encodeURI(decodeURI(image[isSrc ? "src" : "currentSrc"]));
-      desc = image.width + "×" + image.height;
-      desc += isSrc ? "" : " (currentSrc)";
+      desc = isSrc ? "" : "currentSrc: ";
+      if (csp) desc += `${image.naturalWidth}×${image.naturalHeight}`;
     }
     let codeUrl =
       url /* https://developer.android.com/studio/command-line/adb */
@@ -31,7 +41,7 @@
         .replace(/>/g, "&gt;")
         .replace(/</g, "&lt;")
         .replace(/"/g, "&quot;");
-    if (codeUrl.length > 1600)
+    if (codeUrl.length > 3200)
       codeUrl = `<details><summary><code>Collapsed because of too many characters (${codeUrl.length})</code></summary><code>${codeUrl}</code></details>`;
     else codeUrl = `<code>${codeUrl}</code>`;
     return `<tr><td><img src="${url}"><p><code>${desc}</code></p></td><td>${codeUrl}</td></tr>`;
@@ -70,9 +80,18 @@
   });
   if (content) {
     let win = window.open("", "_blank"),
-      doc = win.document;
+      doc = win.document,
+      cap =
+        images.size +
+        " Image(s) Found" +
+        (csp
+          ? ' <span style="color:red;">(CSP Detected, size accuracy is less reliable)</span>'
+          : ""),
+      script = csp
+        ? ""
+        : '<script>document.querySelectorAll("img").forEach(e=>e.nextElementSibling.children[0].insertAdjacentText("beforeEnd",e.naturalWidth+"×"+e.naturalHeight));</script>';
     doc.write(
-      `<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style><table cellpadding=10><caption>${images.size} Image(s) Found</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>`
+      `<style>table,td,th { border: 1px solid #ccc; border-collapse: collapse; } table { width: 100%; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style><table cellpadding=10><caption>${cap}</caption><tr><th>Image</th><th>URL</th></tr>${content}</table>${script}`
     );
     doc.title = document.title;
     doc.close();
