@@ -70,7 +70,7 @@ function suffix() {
     let a =
       elem.parentElement.previousElementSibling.previousElementSibling
         .children[0];
-    copy(decodeURIComponent(a.href));
+    copy(a.href);
     ic.remove("i-copy");
     ic.add("i-tick");
     setTimeout(() => {
@@ -123,8 +123,13 @@ function template(uri, name, desc, view, is3rd) {
     }
     scriptContent = scriptContent.trim().replace(/^javascript:/i, "");
     if (!item.hasMinified) scriptContent = UglifyJS.minify(scriptContent).code;
+    scriptContent = scriptContent
+      .replace(/&/g, "&amp;")
+      .replace(/>/g, "&gt;")
+      .replace(/</g, "&lt;")
+      .replace(/"/g, "&quot;");
     content += template(
-      "javascript:" + encodeURIComponent(scriptContent),
+      "javascript:" + scriptContent,
       item.name,
       item.desc,
       view,

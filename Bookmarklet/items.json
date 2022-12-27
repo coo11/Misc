@@ -28,6 +28,13 @@
     "hasMinified": false
   },
   {
+    "name": "Eruda",
+    "src": "src/Eruda.js",
+    "view": "https://github.com/liriliri/eruda",
+    "desc": "Console for mobile browsers.",
+    "hasMinified": true
+  },
+  {
     "name": "ImageReverser",
     "src": "src/ImageReverser.js",
     "view": "",
