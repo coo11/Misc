@@ -3,7 +3,7 @@ const CleanCSS = require("clean-css");
 const fs = require("fs");
 const axios = require("axios");
 
-let SOURCE_LOC = "https://github.com/coo11/Misc/Bookmarklet/";
+let SOURCE_LOC = "https://github.com/coo11/Misc/tree/master/Bookmarklet/";
 
 function prefix(css) {
   return `<!DOCTYPE html>
@@ -40,7 +40,7 @@ function suffix() {
   </table>
 </div>
 <footer class="mt-4">
-  <a href="https://github.com/coo11/Misc/Bookmarklet" target="_blank"
+  <a href="https://github.com/coo11/Misc/tree/master/Bookmarklet" target="_blank"
     >Github</a
   >
 </footer>

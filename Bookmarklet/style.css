@@ -96,6 +96,7 @@ td:nth-child(1) a.f3:after {
 td:nth-child(2) {
   white-space: normal;
   min-width: 200px;
+  max-width: 600px;
 }
 
 td:nth-child(3) {
