@@ -11,6 +11,7 @@ function prefix(css) {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>My Bookmarklets</title>
       <style>
 ${css}
       </style>
@@ -21,7 +22,7 @@ ${css}
         <p>
           This is a bookmarklets checklist I used. You can drag the item link to bookmarks toolbar or copy and save it as a bookmark.
           <br/>
-          Items end with * is wrote by other people. Thank them for saving my time.
+          Items ending with * is wrote by other people. Thank them for saving my time.
         </p>
         <table>
           <thead>
