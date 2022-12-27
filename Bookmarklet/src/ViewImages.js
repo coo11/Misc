@@ -106,7 +106,7 @@
         ? ""
         : '<script>function load(e){e.nextElementSibling.children[0].insertAdjacentText("beforeEnd",e.naturalWidth+"×"+e.naturalHeight)}</script>');
     doc.write(
-      `<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; } caption { margin-bottom: 0.5em; } thead tr { border-bottom: 2px solid #5b5c79; } tbody tr { border-bottom: 1px solid #d1d1da; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style>${script}<table cellpadding=10><caption class="mvis">${cap}</caption><tr><th>Image</th><th>URL</th></tr><tbody onclick="">${content}</tbody></table>`
+      `<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; } caption { margin-bottom: 0.5em; } tbody tr { border-bottom: 1px solid #d1d1da; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style>${script}<table onclick="" cellpadding=10><caption class="mvis">${cap}</caption><tbody><tr><th>Image</th><th>URL</th></tr>${content}</tbody></table>`
     );
     doc.title = document.title;
     doc.close();
