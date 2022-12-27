@@ -35,6 +35,13 @@
     "hasMinified": false
   },
   {
+    "name": "InvertColor",
+    "src": "https://gist.githubusercontent.com/malkafly/d548cdf45c7e11ae63964fcb40054ace/raw/e7ce95de1b66fa42f4b366c8bb94707e11f630d9/invert.js",
+    "view": "https://gist.github.com/malkafly/d548cdf45c7e11ae63964fcb40054ace",
+    "desc": "",
+    "hasMinified": false
+  },
+  {
     "name": "Taggify",
     "src": "src/Taggify.js",
     "view": "https://github.com/secretGeek/html_wysiwyg/",

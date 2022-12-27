@@ -19,7 +19,7 @@ ${css}
       <div id="page" class="mt-4">
         <h1>My Bookmarklets</h1>
         <p>
-          This is a bookmarklets checklist I used. You can drag the item link to bookmark bar or copy and save it as a bookmark.
+          This is a bookmarklets checklist I used. You can drag the item link to bookmarks toolbar or copy and save it as a bookmark.
           <br/>
           Items end with * is wrote by other people. Thank them for saving my time.
         </p>
