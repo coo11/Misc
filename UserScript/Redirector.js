@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.50
+// @version         0.1.51
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -22,7 +22,7 @@
 // @match         *://*.alicdn.com/*
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
-// @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit
+// @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit, Discord
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
@@ -39,6 +39,8 @@
 // @match         *://media.pinterest.com.s3.amazonaws.com/*
 // @match         *://preview.redd.it/*
 // @match         *://www.reddit.com/r/*
+// @match         *://*.discordapp.net/*
+// @match         *://*.discordapp.com/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // @ Web Archive
@@ -1356,6 +1358,47 @@
     if (regex.test(pathname)) {
       GM_registerMenuCommand("Copy post shortlink", () =>
         GM_setClipboard(`https://redd.it/${regex.exec(pathname)[1]}`)
+      );
+    }
+  }
+
+  // Discord
+  else if (/\bdiscordapp\b/.test(hostname)) {
+    if (
+      (hostname === "media.discordapp.net" && /\/attachments\//.test(src)) ||
+      hostname === "images.discordapp.net"
+    ) {
+      return redirect(src.replace(/\?.*$/, ""))
+    }
+    if (hostname === "cdn.discordapp.com") {
+      return redirect(
+        src
+          .replace(/(\/emojis\/+[0-9]+\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096")
+          .replace(
+            /(\/[-a-z]+\/+[0-9]{5,}\/+(?:users\/+[0-9]+\/+avatars\/+)?[^/]+\.[^/.?#]+)(?:[?#].*)?$/,
+            "$1?size=4096"
+          )
+      );
+    }
+    if (hostname === "media.discordapp.net") {
+      return redirect(
+        src.replace(
+          /(\/stickers\/+[0-9]{5,}\.[^/.?#]+)(?:[?#].*)?$/,
+          "$1?size=4096"
+        )
+      );
+    }
+    if (
+      hostname.endsWith("discordapp.net") &&
+      hostname.match(/images-ext-[0-9]*\.discordapp\.net/)
+    ) {
+      return redirect(
+        decodeURIComponent(
+          src.replace(
+            /.*\/external\/[^/]*\/(?:([^/]*)\/)?(https?)\/(.*?)(?:\?[^/]*)?$/,
+            "$2://$3$1"
+          )
+        )
       );
     }
   }
