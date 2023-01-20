@@ -43,7 +43,8 @@
       } else return "";
     } else if (image.tagName === "IMG") {
       /* encodeURI: https://web.telegram.org/z/#.... */
-      url = encodeURI(decodeURI(image[isSrc ? "src" : "currentSrc"]));
+      url = image[isSrc ? "src" : "currentSrc"];
+      /* url = encodeURI(decodeURI(image[isSrc ? "src" : "currentSrc"])); */
       desc = isSrc ? "" : "currentSrc: ";
       if (csp) desc += `${image.naturalWidth}×${image.naturalHeight}`;
     }
