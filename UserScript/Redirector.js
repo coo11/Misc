@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.51
+// @version         0.1.52
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -65,6 +65,7 @@
 // @match         *://*.summer-plus.net/*
 // @match         *://*.snow-plus.net/*
 // @match         *://*.spring-plus.net/*
+// @match         *://*.blue-plus.net/*
 // @ Others
 // @match         *://link.zhihu.com/?target=*
 // @match         *://link.csdn.net/?target=*
@@ -645,6 +646,7 @@
           let translateRegexIrregular =
             /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
           let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
+          let aiRegex=/\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
           const defaultColor =
             hostname === "e-hentai.org" ? "blueviolet" : "cyan";
           let addColor = (text, color = defaultColor) =>
@@ -676,6 +678,13 @@
               e.innerHTML =
                 jpTitle.replace(matched, " ").trim() +
                 addColor(matched, "#EF5FA7");
+              return;
+            }
+            matched = jpTitle.match(aiRegex)?.[0];
+            if (matched) {
+              e.innerHTML =
+                jpTitle.replace(matched, " ").trim() +
+                addColor("[AI Generated]", "#FF0000");
               return;
             }
             if (
@@ -1452,7 +1461,7 @@
 
   // SouthPlus
   else if (
-    /(spring|summer|white|north|south|east|soul|level|snow)-plus\.net$/i.test(
+    /\b(spring|summer|white|north|south|east|soul|level|snow|blue)-plus\.net$/i.test(
       hostname
     ) ||
     hostname.endsWith("south-plus.org")
