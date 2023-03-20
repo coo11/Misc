@@ -413,28 +413,11 @@
     switch (i) {
       case 0:
       case 1:
-        return fetch(
-          `https://m.weibo.cn/statuses/show?id=${matched[i === 0 ? 2 : 1]}`
-        )
-          .then(resp => {
-            if (resp && resp.status == 200) {
-              return resp.json();
-            }
-          })
-          .then(resp => {
-            let mid, uid;
-            if (resp) {
-              const info = resp.data;
-              mid = weiboFn.id2mid(info.mid);
-              uid = info.user.id;
-            } else if (i === 0 && /^\d+$/.test(matched[1])) {
-              uid = matched[1];
-              mid = weiboFn.id2mid(matched[2]);
-            }
-            GM_registerMenuCommand("Open Base62 URL", () =>
-              window.open(`https://weibo.com/${uid}/${mid}`)
-            );
-          });
+        return GM_registerMenuCommand("Open Base62 URL", () =>
+          window.open(
+            `https://weibo.com/${unsafeWindow.$render_data.status.user.id}/${unsafeWindow.$render_data.status.bid}`
+          )
+        );
       case 2:
       case 3:
         return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
@@ -533,6 +516,12 @@
             }
           });
       } else if (pathname.startsWith("/g/")) {
+        // Add Double Click to Open in New Tab
+        document.querySelectorAll("#taglist div > a").forEach(e => {
+          e.addEventListener("dblclick", event => {
+            window.open(event.target.href, "_blank");
+          });
+        });
         // Add Comment URL hash
         document
           .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
@@ -646,7 +635,8 @@
           let translateRegexIrregular =
             /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
           let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
-          let aiRegex=/\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
+          let aiRegex =
+            /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
           const defaultColor =
             hostname === "e-hentai.org" ? "blueviolet" : "cyan";
           let addColor = (text, color = defaultColor) =>
@@ -1377,7 +1367,7 @@
       (hostname === "media.discordapp.net" && /\/attachments\//.test(src)) ||
       hostname === "images.discordapp.net"
     ) {
-      return redirect(src.replace(/\?.*$/, ""))
+      return redirect(src.replace(/\?.*$/, ""));
     }
     if (hostname === "cdn.discordapp.com") {
       return redirect(
