@@ -55,6 +55,7 @@
 // @ NGA
 // @match         *://nga.178.com/*
 // @match         *://ngabbs.com/*
+// @match         *://g.nga.cn/*
 // @ SouthPlus
 // @match         *://bbs.imoutolove.me/read.php*
 // @match         *://bbs.imoutolove.me/simple/index.php*
@@ -1453,7 +1454,11 @@
   }
 
   // NGA
-  else if (hostname === "nga.178.com" || hostname === "ngabbs.com") {
+  else if (
+    hostname === "nga.178.com" ||
+    hostname === "ngabbs.com" ||
+    hostname === "g.nga.cn"
+  ) {
     window.location.hostname = "bbs.nga.cn";
     return;
   }
