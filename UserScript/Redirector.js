@@ -52,6 +52,9 @@
 // @ ----RewriteURLStart----
 // @ SankakuComplex
 // @match         *://chan.sankakucomplex.com/*
+// @ NGA
+// @match         *://nga.178.com/*
+// @match         *://ngabbs.com/*
 // @ SouthPlus
 // @match         *://bbs.imoutolove.me/read.php*
 // @match         *://bbs.imoutolove.me/simple/index.php*
@@ -1447,6 +1450,12 @@
     return redirect(
       src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2")
     );
+  }
+
+  // NGA
+  else if (hostname === "nga.178.com" || hostname === "ngabbs.com") {
+    window.location.hostname = "bbs.nga.cn";
+    return;
   }
 
   // SouthPlus
