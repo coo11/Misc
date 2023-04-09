@@ -13,11 +13,11 @@
           pwd = newUrl.searchParams.get("pwd");
         if (!hash) throw new Error("Hash not found");
         if (!pwd) throw new Error("Pwd not found");
-        $notify(
-          "百度网盘微信小程序",
-          "分享链接提取成功",
-          `https://pan.baidu.com/s/${hash}?pwd=${pwd}`
-        );
+        newUrl = `https://pan.baidu.com/s/${hash}?pwd=${pwd}`;
+        $notify("百度网盘微信小程序", "分享链接获取成功", newUrl, {
+          "open-url": newUrl,
+          "media-url": "https://help.baidu.com/resources/images/icon/baiduyun_65.png",
+        });
       } catch (e) {
         console.log(`百度网盘微信小程序提取分享链接失败：${e}`);
       }
