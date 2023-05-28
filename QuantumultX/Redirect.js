@@ -1,9 +1,9 @@
 (() => {
   let url = $request.url,
-    headers = $response.headers;
+    headers = $request.headers;
   switch (true) {
     /**
-     * ^https://d\.bilibili\.com/download_app\.html\?.*?preUrl= url script-request-header THIS_FILE_URL
+     * ^https://d\.bilibili\.com/download_app\.html\?.*?preUrl= url script-response-header THIS_FILE_URL
      */
     case /preUrl=/.test(url): {
       url = new URL(url);
