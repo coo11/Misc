@@ -1,5 +1,6 @@
 (() => {
-  let url = $request.url;
+  let url = $request.url,
+    headers = $response.headers;
   switch (true) {
     /**
      * ^https://d\.bilibili\.com/download_app\.html\?.*?preUrl= url script-request-header THIS_FILE_URL
