@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Redirector
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.52
+// @version         0.1.55
 // @description         My first user script
 // @author         coo11
 // @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
@@ -100,11 +100,7 @@
 // @match         *://*.nhentai.net/*
 // @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
-// @match         *://hijiribe.donmai.us/*
-// @match         *://sonohara.donmai.us/*
-// @match         *://safebooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
-// @match         *://www.ptt.cc/bbs/*
 // @match         *://webcache.googleusercontent.com/search*
 // @ ----OtherEnd-----
 // @grant             GM_setClipboard
@@ -780,22 +776,12 @@
           dragElement(image);
           image.style.paddingRight = "10px";
         }
-        /* let postOptions = document.querySelector("section#post-options ul");
-        postOptions.insertAdjacentHTML(
-          "afterbegin",
-          '<li class="post-option-rotate"><a class="image-rotate" href="#image" >Rotate 0°</a></li>'
-        ); */
         document.querySelector("div#a-show")?.addEventListener("click", e => {
           if (e.target.classList.contains("image-view-original-link")) {
             document
               .querySelector("picture > img#image")
               .classList.remove("fit-width");
-          } /* else if (e.target.classList.contains("image-rotate")) {
-            let deg = image.style.rotate.slice(0, -3) || 0;
-            deg = deg === "270" ? 0 : Number(deg) + 90;
-            image.style.rotate = deg ? deg + "deg" : "";
-            e.target.innerText = `Rotate ${deg}°`;
-          } */
+          }
         });
         const size = document.querySelector("#post-info-size > a:last-child");
         size.previousSibling.data = size.previousSibling.data.replace("x", "×");
@@ -806,11 +792,11 @@
           .querySelector("#post-info-id")
           .insertAdjacentHTML(
             "beforeend",
-            ` » <a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>`
+            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a></div>`
           );
         document.head.insertAdjacentHTML(
           "beforeend",
-          `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>a{font-weight:bold;} #post-info-id>a {border:var(--booru-border);border-radius:3px;} #post-info-id>a:hover{filter:opacity(50%);}</style>`
+          `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>div{display:none;} #post-info-id:hover>div{display:inline-block;} #post-info-id a{font-weight:bold;} #post-info-id a {border:var(--booru-border);border-radius:3px;} #post-info-id a:hover{filter:opacity(50%);}</style>`
         );
         const time = document.querySelector("#post-info-date time"),
           title = time.innerText;
@@ -818,24 +804,162 @@
           time.innerText = time.title;
           time.title = title;
         }
-        const status = document.querySelector("#post-info-status");
-        if (status.innerText.endsWith("Pending")) {
-          status.innerHTML = `${status.innerText}&nbsp;<a target="_blank" href="/post_disapprovals?commit=Search&search%5Border%5D=id_desc&search%5Bpost_tags_match%5D=md5%3A${md5}">»</a>`;
-        }
+      } else if (
+        pathname.startsWith("/media_assets/") ||
+        pathname.startsWith("/uploads/")
+      ) {
+        const mediaAssetPanzoom = {
+          isDashed: false,
+          get media() {
+            return document.querySelector(".media-asset-image");
+          },
+          init() {
+            this.mediaInit();
+            this.loadScript();
+          },
+          initCheck() {
+            return (
+              document
+                .querySelector(".media-asset-component")
+                ?.getAttribute("data-dynamic-height-initialized") === "true" &&
+              ((this.media?.tagName === "VIDEO" &&
+                this.media.readyState === 4) ||
+                (this.media?.tagName === "IMG" &&
+                  this.media.complete === true &&
+                  this.media.naturalHeight !== 0))
+            );
+          },
+          loadScript() {
+            let script = unsafeWindow.document.createElement("script");
+            script.src = "//unpkg.com/panzoom@9.4.3/dist/panzoom.min.js";
+            unsafeWindow.document.head.appendChild(script);
+            script.onload = () => {
+              if (this.initCheck && !this.isDashed) {
+                this.isDashed = true;
+                return this.dash();
+              }
+            };
+          },
+          mediaInit() {
+            const initDelay = setInterval(() => {
+              if (this.initCheck && unsafeWindow.panzoom) {
+                clearInterval(initDelay);
+                if (!this.isDashed) {
+                  this.isDashed = true;
+                  return this.dash();
+                }
+              }
+            });
+          },
+          dash() {
+            this.media.replaceWith(this.media.cloneNode());
+            this.attrWidth = Number(this.media.getAttribute("width"));
+            this.container = document.querySelector(".media-asset-container");
+
+            let zoomLE = document.querySelector(".media-asset-zoom-level");
+            zoomLE.replaceWith(zoomLE.cloneNode());
+            this.zoomLE = document.querySelector(".media-asset-zoom-level");
+
+            this.container.style.width = "100%";
+            this.container.style.height = "100%";
+            this.zoomLE.style.zIndex = "1";
+            this.media.style.maxHeight = "100%";
+            this.curContainerWidth = this.containerWidth;
+
+            this.media.classList.remove("cursor-zoom-in", "cursor-zoom-out");
+            const that = this;
+            this.panzoom = unsafeWindow.panzoom(this.media, {
+              zoomDoubleClickSpeed: 1,
+              onDoubleClick: function (e) {
+                let nextLevel =
+                  that.zoomLevelQueue.filter(
+                    l => l - that.zoomLevel > 0.001 && l > that.zoomLevel
+                  )?.[0] || that.zoomLevelQueue[0];
+                let { offsetX, offsetY } = e;
+                if (e.target.tagName !== "DIV") {
+                  let { x, y } = that.panzoom.getTransform();
+                  offsetX += x;
+                  offsetY += y;
+                }
+                if (that.zoomLevel === 3) that.panzoom.zoomAbs(offsetX, offsetY, 0);
+                else {
+                  let newScale = (that.attrWidth * nextLevel) / that.baseWidth;
+                  that.panzoom.zoomAbs(offsetX, offsetY, newScale);
+                }
+                return false;
+              },
+            });
+
+            this.panzoom.on("zoom", () => {
+              this.updateZoom();
+              if (this.curContainerWidth != this.containerWidth) {
+                this.curContainerWidth = this.containerWidth;
+                this.updateScaleRange();
+              }
+            });
+            this.panzoom.on("zoomend", () => {
+              if (that.zoomLevel <= that.baseLevel) {
+                that.moveToCenter();
+              }
+            });
+
+            new ResizeObserver(() => {
+              this.updateZoom();
+              this.moveToCenter();
+              this.updateScaleRange();
+            }).observe(this.media);
+          },
+          get containerWidth() {
+            return this.container.clientWidth;
+          },
+          get baseWidth() {
+            return Math.min(this.containerWidth, this.media.width);
+          },
+          get baseLevel() {
+            return this.baseWidth / this.attrWidth;
+          },
+          get zoomLevelQueue() {
+            let arr = [0.25, 0.5, 1, 2, 3, this.baseLevel];
+            arr.forEach((s, i) => {
+              if (Math.abs(this.baseLevel - s) < 0.001) {
+                arr[i] = this.baseLevel;
+                return;
+              } else if (this.baseLevel < s) {
+                return arr.splice(i, 0, this.baseLevel);
+              } else if (this.baseLevel > 3) return arr.push(this.baseLevel);
+            });
+            return arr;
+          },
+          get zoomLevel() {
+            return (
+              (this.baseWidth * this.panzoom.getTransform().scale) /
+              this.attrWidth
+            );
+          },
+          updateZoom() {
+            this.zoomLE.classList.remove("hidden");
+            this.zoomLE.innerText = `${Math.round(100 * this.zoomLevel)}%`;
+          },
+          moveToCenter() {
+            this.panzoom.smoothMoveTo(
+              this.containerWidth / 2 -
+                (this.baseWidth * this.panzoom.getTransform().scale) / 2,
+              this.container.clientHeight / 2 -
+                (((this.baseWidth * this.media.getAttribute("height")) /
+                  this.attrWidth) *
+                  this.panzoom.getTransform().scale) /
+                  2
+            );
+          },
+          updateScaleRange() {
+            this.panzoom.setMaxZoom((this.attrWidth * 3) / this.baseWidth);
+            this.panzoom.setMinZoom(
+              Math.min(this.attrWidth / 4 / this.baseWidth, 1)
+            );
+          },
+        };
+        mediaAssetPanzoom.init();
       }
-      /*
-    document.querySelectorAll("a.comment-copy-link").forEach(a => {
-      a.className = "real-comment-copy-link";
-      a.lastChild.textContent = " Copy URL";
-      a.onclick = function (e) {
-        e.preventDefault();
-        let url = new URL(location);
-        url.search = "";
-        url.hash = this.closest("article").id;
-        navigator.clipboard.writeText(url.href);
-        Danbooru.notice(`Copied comment ${url.hash} to clipboard.`);
-      };
-    }); */
       return;
     });
   }
@@ -855,22 +979,6 @@
         return;
       } else return;
     } else return;
-  }
-
-  // ptt
-  else if (hostname === "www.ptt.cc") {
-    return document.addEventListener("DOMContentLoaded", () => {
-      let a = document.querySelector("a.small.right");
-      if (a) {
-        let a1 = a.cloneNode();
-        a1.innerText = "在 PTTWEB 中打开";
-        let url = new URL(location.href);
-        url.host = "www.pttweb.cc";
-        a1.href = url.href;
-        a.parentNode.insertAdjacentElement("beforeend", a1);
-      }
-      return;
-    });
   }
 
   // Google Web Cache
