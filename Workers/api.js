@@ -1,5 +1,4 @@
-const botToken = BOT_TOKEN;
-const ehAuthHash = EH_HASH;
+const ehAuthHash = globalThis.EH_HASH;
 const PREFLIGHT_INIT = {
   status: 200,
   statusText: "OK",
@@ -23,17 +22,35 @@ addEventListener("fetch", event => {
 async function handleRequest(request) {
   const { pathname, searchParams } = new URL(request.url);
   switch (true) {
+    case pathname === "/favicon.ico":
+      return new Response(
+        Uint8Array.from(
+          atob(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+          ),
+          c => c.charCodeAt(0)
+        ),
+        { status: 200, headers: { "Content-Type": "image/png" } }
+      );
+    case pathname === "/test":
+      return await testResult(request);
     case pathname === "/ehapi":
       return await ehCorsBypass(request);
     case pathname === "/navi/bg":
       return randomNaviBg();
-    case pathname.startsWith("/img/tg/"):
-      return await tgTempImage(pathname.slice(8), request);
     case pathname.startsWith("/img/search"):
       return await googleImgSearchFix(searchParams.get("url"), request);
+    case pathname.startsWith("/sogotts"):
+      return await sogoTts(searchParams.get("text"), request);
     default:
       return http400();
   }
+}
+
+async function testResult(req) {
+  const headers = new Headers();
+  headers.set("content-type", "text/plain");
+  return new Response(JSON.stringify(req), { status: 200, headers });
 }
 
 async function ehCorsBypass(req) {
@@ -41,7 +58,7 @@ async function ehCorsBypass(req) {
     return new Response(null, PREFLIGHT_INIT);
   }
   const hash = req.headers.get("Authorization");
-  if (!hash || !hash.endsWith(EH_HASH)) return http403();
+  if (!hash || !hash.endsWith(ehAuthHash)) return http403();
   const resp = await fetch("https://api.e-hentai.org/api.php", {
     method: req.method,
     body: req.body,
@@ -68,6 +85,7 @@ function randomNaviBg() {
     //"https://m.360buyimg.com/babel/jfs/t1/77110/20/20946/2349377/62f4436cE094e35a0/91bcf58f45a0be2c.png", // PLAY IT STRAIGHT
     //"https://m.360buyimg.com/babel/jfs/t1/180168/15/29962/1108570/6365853aE361c32b1/8e2c7b72b093896e.jpg", // 勝利の女神：NIKKE トライアングルの 3 人
     "https://m.360buyimg.com/babel/jfs/t1/91102/5/30971/2786697/6365888cEd5167378/335c146148ff28e8.jpg", // 勝利の女神：NIKKE
+    "https://i0.wp.com/p.sda1.dev/12/45e316048148e5313b9f99d5db256762/1.jpg", // RABBIT 小隊
   ];
   const n = images.length,
     url = images[Math.round(Math.random() * (n - 1))];
@@ -76,44 +94,8 @@ function randomNaviBg() {
   headers.set("access-control-allow-origin", "*");
   return new Response(null, {
     status: 302,
-    redirect: "follow",
     headers,
   });
-}
-
-async function tgTempImage(cmd, req) {
-  if (cmd && cmd === "save" && req.method === "POST") {
-    const { path, id, type } = await req.json();
-    if (path && id && type) {
-      await IMGTG.put(id, JSON.stringify({ path, type }), {
-        expirationTtl: 3600,
-      });
-      return new Response("Saved", { status: 200 });
-    } else return new Response("Parameter Error", { status: 400 });
-  }
-  // https://api.coo11.workers.dev/src/tg/xxxxxxxx
-  if (cmd && req.method === "GET") {
-    let id = cmd,
-      { path, type } = (await IMGTG.get(id, { type: "json" })) || {};
-    if (!path) return new Response("File not found", { status: 404 });
-    const resp = await fetch(
-        `https://api.telegram.org/file/bot${botToken}/${path}`
-      ),
-      newHeaders = new Headers(resp.headers);
-    newHeaders.set("Content-Type", type);
-    newHeaders.set(
-      "content-disposition",
-      `inline; filename=${path.split("/")[1]}`
-    );
-    let init = {
-        headers: newHeaders,
-        status: resp.status,
-        statusText: resp.statusText,
-      },
-      body = await resp.arrayBuffer();
-    return new Response(body, init);
-  }
-  return http400();
 }
 
 async function googleImgSearchFix(imageUrl) {
@@ -133,6 +115,33 @@ async function googleImgSearchFix(imageUrl) {
         )?.[0]
         ?.replace("\\u003d", "=");
     if (searchUrl) return Response.redirect(searchUrl);
+  }
+  return http400();
+}
+
+async function sogoTts(text, req) {
+  if (text && req.method === "GET") {
+    const resp = await fetch(
+        `https://fanyi.sogou.com/reventondc/synthesis?speed=1&lang=zh-CHS&from=telegram&speaker=2%200:04%20/%200:05&text=${encodeURIComponent(
+          text
+        )}`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+          },
+        }
+      ),
+      newHeaders = new Headers(resp.headers);
+    newHeaders.set("content-type", "audio/mpeg");
+    newHeaders.set("content-disposition", "inline");
+    let init = {
+        headers: newHeaders,
+        status: resp.status,
+        statusText: resp.statusText,
+      },
+      body = await resp.arrayBuffer();
+    return new Response(body, init);
   }
   return http400();
 }

@@ -14,7 +14,7 @@
           .join("");
       div.id = id;
       // prettier-ignore
-      div.innerHTML = `<span>使用</span><select>${options}</select><a>搜索</a><style>#${id}{background-color:rgba(20,20,20,.4);position:fixed;z-index:calc(9e999);left:0;top:0;padding:2px 2px 2px 0;border-radius:.25em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}#${id} :not(style){display:inline-block;font-family:Verdana,Helvetica,sans-serif;font-size:clamp(16px,2vmax,2vh);float:none;line-height:initial;color:#fff;margin:2px;text-align:center;text-decoration:none;vertical-align:middle;user-select:none;-webkit-user-select:none}#${id}>:not(style):not(span){border:1px solid rgba(20,20,20,.4);border-radius:.2em;background-color:rgba(50,50,50,.4)}#${id}>select{width:fit-content;height:fit-content;box-shadow:0 0 2px 0 #bbb inset;outline:0;padding:initial}#${id}>a{padding:0 4px}#${id}>a:focus,#${id}>a:hover{background-color:rgba(150,150,150,.4)}</style>`;
+      div.innerHTML = `<span>使用</span><select>${options}</select><a>搜索</a><style>#${id}{background-color:rgba(20,20,20,.4);position:fixed;z-index:calc(9e999);left:0;top:0;padding:2px 2px 2px 0;border-radius:.25em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}#${id} :not(style){display:inline-block;font-family:Verdana,Helvetica,sans-serif;font-size:clamp(16px,2vmax,2vh);float:none;line-height:initial;color:#fff;margin:2px;text-align:center;text-decoration:none;vertical-align:middle;user-select:none;-webkit-user-select:none}#${id}>:not(style):not(span){border:1px solid rgba(20,20,20,.4);border-radius:.2em;background-color:rgba(50,50,50,.4)}#${id}>select{width:fit-content;height:fit-content;box-shadow:0 0 2px 0 #bbb inset;outline:0;padding:initial;-webkit-appearance:auto}#${id}>a{padding:0 4px}#${id}>a:focus,#${id}>a:hover{background-color:rgba(150,150,150,.4)}</style>`;
       document.body.appendChild(div);
       document.addEventListener("click", this, true);
       div.children[2].onclick = () => {
@@ -45,7 +45,7 @@
   engines: {
     Google: {
       d: "https://images.google.com",
-      p: "https://www.google.com/searchbyimage?client=ie&image_url=",
+      p: "https://www.google.com/searchbyimage?client=Chrome&image_url=",
     },
     Yandex: {
       d: "https://yandex.com/images",

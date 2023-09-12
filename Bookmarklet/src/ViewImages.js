@@ -61,6 +61,14 @@
       csp ? "" : 'onload="load(this)" '
     }src="${url}"><p><code>${desc}</code></p></td><td>${codeUrl}</td></tr>`;
   };
+  const getComputedUrl = (elmStyle, prop, e) => {
+    const regex = /url\((['"]?)(.*?)\1\)/;
+    const url = elmStyle.getPropertyValue(prop).match(regex)?.[2];
+    if (url && !images.has(url)) {
+      images.add(url);
+      content += parseImg(url);
+    }
+  };
   document.querySelectorAll("*").forEach(element => {
     if (element.tagName === "IMG") {
       let src = element.src,
@@ -77,19 +85,11 @@
     } else if (element.tagName === "svg") {
       content += parseImg(element);
     } else {
-      let regex = /url\((['"]?)(.*?)\1\)/;
       [null, "::after", "::before"].forEach(pseudo => {
         let style = getComputedStyle(element, pseudo);
-        if (
-          regex.test(style.getPropertyValue("background-image")) ||
-          regex.test(style.getPropertyValue("content"))
-        ) {
-          let url = RegExp.$2;
-          if (!images.has(url)) {
-            images.add(url);
-            content += parseImg(url);
-          }
-        }
+        getComputedUrl(style, "background-image");
+        getComputedUrl(style, "border-image-source");
+        getComputedUrl(style, "content");
       });
     }
   });
@@ -110,7 +110,7 @@
       viewerjs =
         '<link href="https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.css" rel="stylesheet"><script src="https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.js"></script><script>const gallery=new Viewer(document.getElementsByTagName("tbody")[0],{navbar:false,toolbar:{rotateLeft:"large",rotateRight:"large",flipHorizontal:"large",flipVertical:"large"}});</script>';
     doc.write(
-      `<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; } caption { margin-bottom: 0.5em; } tbody tr { border-bottom: 1px solid #d1d1da; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } tbody img { max-width:320px; box-shadow:5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style>${script}<table onclick="" cellpadding=10><caption class="mvis">${cap}</caption><tbody><tr><th>Image</th><th>URL</th></tr>${content}</tbody></table>`
+      `<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; } caption { margin-bottom: 0.5em; } tbody tr { border-bottom: 1px solid #d1d1da; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } tr img { max-width:320px; box-shadow:5px 5px 5px #BBB; } tr:hover img { max-width:320px; box-shadow:-5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style>${script}<table onclick="" cellpadding=10><caption class="mvis">${cap}</caption><tbody><tr><th>Image</th><th>URL</th></tr>${content}</tbody></table>`
     );
     if (!csp) doc.write(viewerjs);
     doc.title = document.title;

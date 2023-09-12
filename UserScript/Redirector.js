@@ -1,27 +1,34 @@
 // ==UserScript==
-// @name         Redirector
+// @name         Excalibur
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.55
-// @description         My first user script
+// @version         0.1.61
+// @description         Start taking over the world!
 // @author         coo11
-// @icon         https://greasyfork.org/packs/media/images/blacklogo16-5421a97c75656cecbe2befcec0778a96.png
-// @icon64         https://greasyfork.org/packs/media/images/blacklogo96-b2384000fca45aa17e45eb417cbcbb59.png
+// @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
 // @run-at         document-start
 // @ ----EnhanceStart----
-// @match         *://*.tsdm39.net/*
+// @match         *://*.lofter.com/*
+// @match         *://*.tsdm39.com/*
 // @match         *://saucenao.com/search.php*
 // @match         *://*.twitter.com/*
 // @match         *://www.nicovideo.jp/watch/sm*
+// @match         *://skeb.jp/@*
 // @ ----EnhanceEnd------
 // @
 // @ ----GetOriginalSrcStart----
-// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent
+// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, BCY
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
+// @match         *://*.biliimg.com/*
 // @match         *://*.alicdn.com/*
+// @match         *://imgsrc.baidu.com/*
+// @match         *://tiebapic.baidu.com/*
+// @match         *://imgsa.baidu.com/*
+// @match         *://*.hiphotos.baidu.com/*
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
+// @match         *://*.bcyimg.com/*
 // @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit, Discord
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
@@ -41,6 +48,8 @@
 // @match         *://www.reddit.com/r/*
 // @match         *://*.discordapp.net/*
 // @match         *://*.discordapp.com/*
+// @ yande.re
+// @match         *://files.yande.re/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // @ Web Archive
@@ -50,8 +59,6 @@
 // @ ----GetOriginalSrcEnd------
 // @
 // @ ----RewriteURLStart----
-// @ SankakuComplex
-// @match         *://chan.sankakucomplex.com/*
 // @ NGA
 // @match         *://nga.178.com/*
 // @match         *://ngabbs.com/*
@@ -93,12 +100,14 @@
 // @match         *://weibo.com/*
 // @match         *://www.bilibili.com/video/*
 // @match         *://www.bilibili.com/s/video/*
+// @match         *://live.bilibili.com/*
+// @match         *://www.bilibili.com/opus/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
+// @match         *://www.patreon.com/*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
 // @match         *://*.nhentai.net/*
-// @match         *://lolibooru.moe/*
 // @match         *://danbooru.donmai.us/*
 // @match         *://*.dbsearch.net/*
 // @match         *://webcache.googleusercontent.com/search*
@@ -106,6 +115,7 @@
 // @grant             GM_setClipboard
 // @grant             GM_registerMenuCommand
 // @grant             GM_notification
+// @grant             GM_xmlhttpRequest
 // ==/UserScript==
 
 /**
@@ -123,6 +133,24 @@
     { hostname, protocol, pathname } = window.location,
     xhr = new XMLHttpRequest();
   const src = window.location.href;
+
+  const Logger = new Proxy(
+    {},
+    {
+      get(target, prop) {
+        if (prop in window.console) {
+          return function (arg1, ...args) {
+            let pre = `%c${GM_info.script.name}%c`,
+              style =
+                "color: #3c89e8; padding: 1px 5px; border-radius: 4px; border: 1px solid #91caff;";
+            if (typeof arg1 === "string") {
+              console[prop](`${pre} ${arg1}`, style, null, ...args);
+            } else console[prop](pre, style, null, arg1, ...args);
+          };
+        } else return target[prop];
+      },
+    }
+  );
 
   const weiboFn = {
     alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -409,7 +437,7 @@
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
-    console.log(i);
+    Logger.log(i);
     switch (i) {
       case 0:
       case 1:
@@ -480,6 +508,30 @@
     if (src.indexOf("safe=off") === -1) {
       return redirect(addQueries(src, { safe: "off" }));
     }
+  }
+
+  // Patreon redirect to number ID homepage
+  else if (hostname === "www.patreon.com") {
+    if (pathname.startsWith("/posts/")) return;
+    document.addEventListener("DOMContentLoaded", () => {
+      const userData = unsafeWindow.patreon?.bootstrap?.campaign?.data;
+      if (!userData) return;
+      if (pathname === "/user") {
+        const sp = new URL(src).searchParams;
+        if (sp.get("u")) {
+          GM_registerMenuCommand("View vanity page", () => {
+            location.href = `/user?v=${userData.attributes.vanity}`;
+          });
+        }
+        if (sp.get("v")) {
+          GM_registerMenuCommand("View user ID page", () => {
+            location.href = `/user?u=${userData.relationships.creator.data.id}`;
+          });
+        }
+        return;
+      }
+      return redirect(`/user?u=${userData.relationships.creator.data.id}`);
+    });
   }
 
   // Add Read Status To E-Hentai
@@ -699,33 +751,32 @@
           let cookie = parseCookie(document.cookie),
             hash = cookie.ipb_pass_hash;
           if (!hash) {
-            console.warn("NO IPB_PASS_HASH FOUND.");
+            Logger.warn("NO IPB_PASS_HASH FOUND.");
             return;
           }
           for (let group of groupedList) {
-            fetch("https://api.coo11.workers.dev/ehapi", {
+            GM_fetch("https://api.e-hentai.org/api.php", {
               method: "POST",
               headers: { Authorization: `Basic ${btoa(hash)}` },
               body: JSON.stringify({
                 method: "gdata",
                 gidlist: group,
               }),
-            })
-              .then(resp => resp.json())
-              .then(json => {
-                json?.gmetadata?.forEach(({ gid, token, title }) => {
-                  let e =
-                    needCheckedGalleries[
-                      `https://${hostname}/g/${gid}/${token}/`
-                    ];
-                  let matched = title.match(translateRegex)?.[0];
-                  if (matched) {
-                    e.innerHTML += addColor(matched);
-                    return;
-                  }
-                  /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
-                });
+            }).then(resp => {
+              let json = JSON.parse(resp.responseText);
+              json?.gmetadata?.forEach(({ gid, token, title }) => {
+                let e =
+                  needCheckedGalleries[
+                    `https://${hostname}/g/${gid}/${token}/`
+                  ];
+                let matched = title.match(translateRegex)?.[0];
+                if (matched) {
+                  e.innerHTML += addColor(matched);
+                  return;
+                }
+                /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
               });
+            });
           }
         }
         return;
@@ -745,31 +796,27 @@
     });
   }
 
-  // Auto expand hidden posts for Lolibooru
-  else if (hostname === "lolibooru.moe") {
-    return document.addEventListener("DOMContentLoaded", () => {
-      try {
-        const n = document.getElementById("blacklist-count").innerText;
-        if (n !== "0") {
-          document
-            .querySelectorAll(
-              "ul#blacklisted-list a.no-focus-outline:not(.blacklisted-tags-disabled)"
-            )
-            .forEach(e => e.click());
-        }
-      } catch (e) {
-        console.log(e);
-      }
-      return;
-    });
-  }
-
   // Danbooru Ehance
   else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
       document
         .querySelectorAll("a.post-preview-link")
         .forEach(a => (a.draggable = true));
+      document
+        .querySelectorAll(
+          "div#c-artists span.post-count,section#tag-list span.post-count,ul.tag-list  span.post-count"
+        )
+        .forEach(el => {
+          el.addEventListener("click", () => {
+            const tagStr =
+              el.parentElement.dataset.tagName ||
+              el.previousElementSibling.innerText.replace(/\s+/g, "_");
+            if (tagStr) {
+              const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
+              unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
+            }
+          });
+        });
       if (pathname.startsWith("/posts/")) {
         let image = document.querySelector("picture > img#image");
         if (image) {
@@ -785,9 +832,8 @@
         });
         const size = document.querySelector("#post-info-size > a:last-child");
         size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-        const md5 = size.previousElementSibling?.href
-          ?.split(/\/|\./)
-          .reverse()?.[1];
+        const md5 =
+          size.previousElementSibling.href?.match(/([a-z0-9]{32})\./)[1];
         document
           .querySelector("#post-info-id")
           .insertAdjacentHTML(
@@ -804,6 +850,47 @@
           time.innerText = time.title;
           time.title = title;
         }
+        // Add a button to remove post in a favorite group to the end of the favorite group navi bar
+        {
+          let noticeSearchBar = document.querySelector(".post-notice-search"),
+            favBars =
+              noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
+            postId = document.body.dataset["postId"],
+            headers = {
+              "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token"),
+            };
+          if (favBars.length) {
+            document.head.insertAdjacentHTML(
+              "beforeend",
+              `<style>.post-notice-search > .favgroup-navbar {display: flex;align-items: center;}.favgroup-navbar > .favgroup-name {white-space: normal !important;}.favgroup-navbar:hover .fav-remove-link {opacity: 1;}.favgroup-navbar .fav-remove-link {opacity: 0;}.fav-remove-link {color: var(--button-danger-background-color);}.fav-remove-link:hover {color: var(--button-danger-hover-background-color);}</style>`
+            );
+            favBars.forEach(fav => {
+              let favName = fav.querySelector(".favgroup-name");
+              let pre = favName.children[0].href;
+              favName.insertAdjacentHTML(
+                "beforeend",
+                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="/packs/static/images/icons-f4ca0cd60cf43cc54f9a.svg#xmark"></use></svg></a>'
+              );
+              favName.lastElementChild.addEventListener("click", () => {
+                fetch(`${pre}/remove_post.js?post_id=${postId}`, {
+                  method: "PUT",
+                  headers,
+                })
+                  .then(resp => resp.text())
+                  .then(text => {
+                    if (
+                      /"(Removed post from favorite group.+?)"\);/.test(text)
+                    ) {
+                      unsafeWindow.Danbooru.notice(RegExp.$1);
+                      fav.remove();
+                      if (noticeSearchBar.children.length === 0)
+                        noticeSearchBar.remove();
+                    }
+                  });
+              });
+            });
+          }
+        }
       } else if (
         pathname.startsWith("/media_assets/") ||
         pathname.startsWith("/uploads/")
@@ -817,7 +904,7 @@
             this.mediaInit();
             this.loadScript();
           },
-          initCheck() {
+          get initCheck() {
             return (
               document
                 .querySelector(".media-asset-component")
@@ -862,6 +949,7 @@
 
             this.container.style.width = "100%";
             this.container.style.height = "100%";
+            this.container.style.aspectRatio = "unset";
             this.zoomLE.style.zIndex = "1";
             this.media.style.maxHeight = "100%";
             this.curContainerWidth = this.containerWidth;
@@ -881,7 +969,8 @@
                   offsetX += x;
                   offsetY += y;
                 }
-                if (that.zoomLevel === 3) that.panzoom.zoomAbs(offsetX, offsetY, 0);
+                if (that.zoomLevel === 3)
+                  that.panzoom.zoomAbs(offsetX, offsetY, 0);
                 else {
                   let newScale = (that.attrWidth * nextLevel) / that.baseWidth;
                   that.panzoom.zoomAbs(offsetX, offsetY, newScale);
@@ -959,6 +1048,59 @@
           },
         };
         mediaAssetPanzoom.init();
+        if (pathname.startsWith("/uploads/")) {
+          wait(1000).then(() =>
+            document
+              .querySelector(".ai-tags-related-tags-column")
+              ?.classList?.remove("hidden")
+          );
+          /*   ?.classList?.remove("hidden"); */
+          const hint = document.querySelector("div.post_tag_string span.hint");
+          hint.insertAdjacentHTML(
+            "beforeend",
+            "<br /><a class='cursor-pointer'>View detials for current tag in related tags page »</a>"
+          );
+          hint.querySelector("a").addEventListener("click", () => {
+            const currentTag = unsafeWindow.Danbooru.RelatedTag.current_tag();
+            const url = `/related_tag?commit=Search&search%5Border%5D=Overlap&search%5Bquery%5D=${currentTag}`;
+            if (currentTag) window.open(url, "_blank");
+          });
+        }
+      } else if (/\/favorite_groups\/\d+\/edit/.test(pathname)) {
+        let textAreaLabel = document.querySelector(
+          ".favorite_group_post_ids_string > label"
+        );
+        textAreaLabel.insertAdjacentHTML(
+          "beforeend",
+          `<span class="text-xxs text-center" style="font-weight:normal;">&nbsp;&nbsp;<a class="ids_ascending">Ascending</a>&nbsp;|&nbsp;<a class="ids_descending">Descending</a></span>`
+        );
+        textAreaLabel
+          .querySelector("a.ids_ascending")
+          .addEventListener("click", () => sortIds());
+        textAreaLabel
+          .querySelector("a.ids_descending")
+          .addEventListener("click", () => sortIds(false));
+        function sortIds(ascending = true) {
+          let tArea = document.querySelector("#favorite_group_post_ids_string"),
+            ids = tArea.value.trim(),
+            idsArr = ids.split(/\s+/).filter(id => /^\d+$/.test(id));
+          idsArr = [...new Set(idsArr)];
+          idsArr.sort((a, b) => (ascending ? a - b : b - a));
+          tArea.value = idsArr.join(" ");
+          unsafeWindow.Danbooru.notice(
+            `Sort in ${ascending ? "ascending" : "descending"} order.`
+          );
+        }
+      } else if (/\/posts\?.*?\btags=/.test(src)) {
+        const p = document.querySelector("#page > p:last-child");
+        if (p && p.innerText.indexOf("takedown request") > -1) {
+          let tag = new URL(src).searchParams.get("tags")?.trim();
+          if (tag) {
+            let url = new URL("https://danbooru.donmai.us/artists/show_or_new");
+            url.searchParams.set("name", tag);
+            location.href = url;
+          }
+        }
       }
       return;
     });
@@ -1031,14 +1173,12 @@
   }
 
   // Bilibili
-  else if (hostname.match(/i[0-9]*\.hdslb\.com/)) {
+  else if (hostname.match(/(i[0-9]*\.hdslb|\w+\.biliimg)\.com/)) {
     return redirect(
-      src.indexOf("videoshot") > -1 // No Check
-        ? src
-        : src.replace(
-            /^(https?:\/\/\w+\.hdslb\.com\/.+\.(jpg|jpeg|gif|png|bmp|webp))(@|_).+$/i,
-            "$1"
-          )
+      src
+        .replace(/(:\/\/[^/]*\/)\d+_\d+\//, "$1")
+        .replace(/(?:@|%40)[^/]*$/, "")
+        .replace(/(\/[0-9a-f]{20,}\.[^/._]+)_\d+x\d+\.[^/]+(?:[?#].*)?$/, "$1")
     );
   }
 
@@ -1066,14 +1206,25 @@
   }
 
   // Baidu
-  else if (hostname === "tieba.baidu.com") {
-    if (pathname === "/mo/q/posts") {
-      let url = new URL(src);
-      if (url.searchParams.has("tid")) {
-        location.href =
-          "https://tieba.baidu.com/p/" + url.searchParams.get("tid");
-      }
-      return;
+  else if (
+    hostname === "imgsrc.baidu.com" ||
+    hostname === "tiebapic.baidu.com" ||
+    hostname.endsWith(".hiphotos.baidu.com") ||
+    hostname === "imgsa.baidu.com"
+  ) {
+    newSrc = decodeURIComponent(
+      src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1")
+    );
+    if (newSrc !== src) return redirect(newSrc);
+    newSrc = src
+      .replace("/abpic/item/", "/pic/item/")
+      .replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
+    if (newSrc !== src) return redirect(newSrc);
+    if (hostname !== "imgsrc.baidu.com") {
+      newSrc = src.replace(/:\/\/[^/]+\/+/, "://imgsrc.baidu.com/");
+      newSrc = new URL(newSrc);
+      newSrc.searchParams.delete("tbpicau");
+      return redirect(newSrc);
     }
   }
 
@@ -1095,24 +1246,24 @@
     return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/0"));
   }
 
+  // Banciyuan
+  else if (hostname.endsWith(".bcyimg.com")) {
+    newSrc = src.replace(
+      /p\d-bcy-sign(.*?~).*/,
+      "p3-bcy$1tplv-banciyuan-obj.image"
+    );
+    if (newSrc !== src) return redirect(newSrc);
+  }
+
   // Bilibili Video
   else if (hostname === "www.bilibili.com") {
+    disableWebRTC();
     if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
       document.addEventListener("DOMContentLoaded", () => {
         // Remove redundant element
         document.querySelector("#reco_list").style.display = "none";
         document.querySelector("#right-bottom-banner").style.display = "none";
         // TODO: https://www.bilibili.com/blackboard/newplayer.html?autoplay=0&&musth5=1aid=...&page=...&cid=...
-        document
-          .querySelector("video")
-          .addEventListener(
-            "play",
-            () =>
-              document
-                .querySelector("div.bilibili-player-video-btn-widescreen")
-                .click(),
-            { once: true }
-          );
       });
       //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
       const table = [
@@ -1241,7 +1392,12 @@
       GM_registerMenuCommand("复制 AV 短链接", () => notify("av"));
       GM_registerMenuCommand("复制 BV 短链接", () => notify("bv"));
       GM_registerMenuCommand("查看视频封面", getVideoCover);
+    } else if (/\/opus\/(\d+)/.test(pathname)) {
+      location.href = `https://t.bilibili.com/${RegExp.$1}`;
+      return;
     }
+  } else if (hostname === "live.bilibili.com") {
+    disableWebRTC();
   }
 
   // Pixiv
@@ -1255,18 +1411,27 @@
         "$1$2"
       )
       .replace(
-        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z]+\d+){0,2}|ic\d+:\d+:\d+)\//,
+        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z]+\d+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//,
         "/"
       )
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
-      .replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2")
-      .replace(/(\/[0-9]+_)square[0-9]+(\.[^/.]*)$/, "$1ugoira0$2");
+      .replace(/\/novel-cover-master\//, "/novel-cover-original/")
+      .replace(/(\/\d+_)(?:square|master)[0-9]+(\.[^/.]*)$/, "$1ugoira0$2")
+      //.replace(/(\/[0-9]+_p[0-9]+)_[^/]*(\.[^/.]*)$/, "$1$2")
+      .replace(/_(master|custom|square)1200\./, ".");
+    //https://i.pximg.net/c/w1200_q80_a2_g1_u1_cr0:0.025:1:0.98/img-original/img/2023/07/15/00/00/04/109914935_p0.png
     //https://i.pximg.net/c/ic5120:1075:6400/img-original/img/2022/11/27/13/56/44/103137994_p0.jpg
     //https://i.pximg.net/c/384x280_80_a2_g2/img-master/img/2018/12/30/23/23/32/72389353_p0_master1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/12/08/00/00/18/86162834_p0_custom1200.jpg
     //https://i.pximg.net/c/250x250_80_a2/img-master/img/2015/12/27/23/24/55/54282140_square1200.jpg
+    //https://i.pximg.net/c/240x480/img-master/img/2023/07/24/13/08/57/110194401_master1200.jpg
+    //https://i.pximg.net/img-original/img/2023/07/26/20/08/18/110258558_p0.gif
     return redirect(
-      addExts(newSrc, [hostname === "pixiv.pximg.net" ? "jpeg" : "jpg", "png"])
+      addExts(newSrc, [
+        hostname === "pixiv.pximg.net" ? "jpeg" : "jpg",
+        "png",
+        "gif",
+      ])
     );
   }
 
@@ -1449,13 +1614,6 @@
     return redirect(addExts(newSrc));
   }
 
-  // SankakuComplex
-  else if (hostname === "chan.sankakucomplex.com") {
-    return redirect(
-      src.replace(/(:\/\/[^/]*\/)(.*?)(?=post\/show\/)/, "$1cn/")
-    );
-  }
-
   // Reddit
   else if (hostname === "preview.redd.it") {
     return redirect(
@@ -1511,6 +1669,14 @@
           )
         )
       );
+    }
+  }
+
+  // yande.re
+  else if (hostname === "files.yande.re") {
+    if (pathname.startsWith("/image/") || pathname.startsWith("/sample/")) {
+      newSrc = src.replace(/(\/[a-z0-9]{32}\/).*(\..+)/, "$1$2");
+      if (newSrc != src) return redirect(newSrc);
     }
   }
 
@@ -1663,7 +1829,7 @@
                   });
               } catch (error) {
                 alert(`发送请求出错，购买失败！\n${error}`);
-                console.log("Request Failed", error);
+                Logger.log("Request Failed", error);
               }
             });
           });
@@ -1671,8 +1837,125 @@
     });
   }
 
+  // Lofter
+  else if (hostname.endsWith(".lofter.com")) {
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Hover to show image post publish time accurately
+      const fetchArchivedPostsByTime = async (uid, t) => {
+        const url =
+          "https://www.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr";
+        const headers = {
+          referer: "https://www.lofter.com",
+          "content-type": "application/x-www-form-urlencoded",
+        };
+        const body = `callCount=1\nscriptSessionId=\${scriptSessionId}187\nhttpSessionId=\nc0-scriptName=ArchiveBean\nc0-methodName=getArchivePostByTime\nc0-id=0\nc0-param0=boolean:false\nc0-param1=number:${uid}\nc0-param2=number:${t}\nc0-param3=number:50\nc0-param4=boolean:false\nbatchId=235018`;
+        try {
+          const response = await GM_fetch(url, {
+            method: "POST",
+            headers,
+            body,
+          });
+          const respText = response.responseText;
+          return respText;
+        } catch (error) {
+          Logger.error("Error fetching data:", error);
+          throw error;
+        }
+      };
+
+      const argsEvalHandler = (_, __, arr) => {
+        /* const len = arr.length;
+      arr.forEach((obj, i) => {
+        Object.assign(obj, eval(`s${i + len}`));
+      }); */
+        return arr;
+      };
+      const searchPostById = (pid, arr) => {
+        /* new RegExp(`s(\\d{1,2})\\.id=${pid};`); */
+        return arr.filter(p => p.id === pid)?.[0];
+      };
+      const parseResp = respText => {
+        const regex = new RegExp("dwr\\.engine\\._remoteHandleCallback", "g");
+        const matches = respText.match(regex);
+        if (matches && matches.length > 0) {
+          const lastMatch = matches[matches.length - 1];
+          return respText.replace(lastMatch, argsEvalHandler.name);
+        }
+        return;
+      };
+      const setTimeAsTitle = (e, t) => {
+        e.setAttribute("title", new Date(t).toString());
+      };
+      const queryPost = async (
+        uid,
+        pid,
+        e,
+        t = new Date().getTime(),
+        isLocalSearched = false
+      ) => {
+        let keyName = `_user${uid}CachedTimeLine`,
+          obj = window[keyName];
+        if (!obj) {
+          window[keyName] = { isFetchCompleted: false, posts: [] };
+          return await queryPost(uid, pid, e, t, true);
+        } else {
+          let targetPost;
+          if (!isLocalSearched) {
+            targetPost = searchPostById(pid, obj.posts);
+            if (targetPost) {
+              setTimeAsTitle(e, targetPost.time);
+              return;
+            } else if (obj.isFetchCompleted) {
+              Logger.warn(`User ${uid}'s timeline query is completed.`);
+              return;
+            }
+          }
+          let resp = await fetchArchivedPostsByTime(uid, t);
+          resp = parseResp(resp);
+          if (!resp) {
+            Logger.error(`User ${uid}'s timeline query is failure.`);
+            return;
+          } else {
+            let itemList = eval(resp),
+              itemCount = itemList.length;
+            targetPost = searchPostById(pid, itemList);
+            window[keyName].posts.push(...itemList);
+            if (targetPost) {
+              setTimeAsTitle(e, targetPost.time);
+            } else {
+              Logger.warn(
+                `Post ${pid} not found in ${itemCount} post(s) published before ${new Date(
+                  t
+                ).toString()}.`
+              );
+            }
+            if (!itemCount || itemCount < 50) {
+              Logger.warn(`User ${uid}'s timeline query is completed.`);
+              window[keyName].isFetchCompleted = true;
+              return;
+            } else if (!targetPost) {
+              return await queryPost(uid, pid, e, itemList[49].time, true);
+            }
+          }
+        }
+      };
+      for (let e of document.querySelectorAll(
+        "a.imgclasstag > img[src*='.lf127.net/img/'], a[href*='.lofter.com/post/'] > img[src*='.lf127.net/img/']"
+      )) {
+        const permaLink = e.parentElement.href
+            .replace(/#$/, "")
+            .split("/")
+            .reverse()[0],
+          [uidHex, pidHex] = permaLink.split("_"),
+          uid = parseInt(uidHex, 16),
+          pid = parseInt(pidHex, 16);
+        await queryPost(uid, pid, e.parentElement);
+      }
+    });
+  }
+
   // TSDM 天使动漫
-  else if (/\btsdm39\.net$/.test(hostname)) {
+  else if (/\btsdm39\.com$/.test(hostname)) {
     if (
       pathname.indexOf(".php") === -1 ||
       pathname.indexOf("mobile=yes") > -1 ||
@@ -1774,7 +2057,7 @@
                 }
                 break;
               default:
-                console.warn(desc);
+                Logger.warn(desc);
                 break;
             }
             if (uid && pid && miscInfoA) {
@@ -1827,14 +2110,14 @@
       },
       get resp() {
         if (this._resp && this._resp.id !== this.tid) {
-          console.warn("Something wrong with new API");
+          Logger.warn("Something wrong with new API");
           /* this._resp.id = this.tid; */
         }
         return this._resp || {};
       },
       set resp({ id, tweet }) {
         if (id === this.tid) {
-          // console.log(tweet);
+          // Logger.log(tweet);
           if (!this._resp) this._resp = { tweet: {} };
           this._resp.id = id;
           this._resp.tweet = tweet;
@@ -1872,11 +2155,11 @@
               const keyName = Object.keys(info)[0];
               info = [info[keyName].video_info.variants];
             } else {
-              console.log("No source found in API response.");
+              Logger.log("No source found in API response.");
               return;
             }
           } catch (e) {
-            console.log(e);
+            Logger.log(e);
             return;
           }
           // Add
@@ -2038,15 +2321,61 @@
     });
   }
 
+  // Skep.jp
+  else if (hostname === "skeb.jp") {
+    if (/\/@\w+\/works\/\d+/.test(pathname)) {
+      GM_registerMenuCommand("View <og:image>", () => {
+        const ogImg = document.head
+          .querySelector("meta[property='og:image']")
+          ?.getAttribute("content");
+        ogImg && window.open(ogImg, "_blank");
+      });
+      const title = "View <article_image_url>";
+      GM_registerMenuCommand(title, () => {
+        let token = localStorage.getItem("token");
+        if (!token)
+          GM_notification({
+            title,
+            text: "Please login first",
+            timeout: 2000,
+          });
+        else
+          fetch(
+            unsafeWindow.location.pathname.replace(
+              /^\/@/,
+              "https://skeb.jp/api/users/"
+            ),
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+            .then(resp => resp.json())
+            .then(data => {
+              Logger.log(data);
+              let url = data.article_image_url;
+              if (url) window.open(url, "_blank");
+              else
+                GM_notification({
+                  title,
+                  text: "article_image_url not found in API",
+                  timeout: 2000,
+                });
+            });
+      });
+    }
+  }
+
   function dragElement(el) {
     let prevPos = [];
 
     const current = (x, y) => {
       const windowOffset = [
-        window.pageXOffset ||
+        window.scrollX ||
           document.documentElement.scrollLeft ||
           document.body.scrollLeft,
-        window.pageYOffset ||
+        window.scrollY ||
           document.documentElement.scrollTop ||
           document.body.scrollTop,
       ];
@@ -2098,6 +2427,35 @@
         }
       );
       return false;
+    });
+  }
+
+  function disableWebRTC() {
+    navigator.getUserMedia = void 0;
+    unsafeWindow.MediaStreamTrack = void 0;
+    unsafeWindow.RTCPeerConnection = void 0;
+    unsafeWindow.RTCSessionDescription = void 0;
+    navigator.mozGetUserMedia = void 0;
+    unsafeWindow.mozMediaStreamTrack = void 0;
+    unsafeWindow.mozRTCPeerConnection = void 0;
+    unsafeWindow.mozRTCSessionDescription = void 0;
+    navigator.webkitGetUserMedia = void 0;
+    unsafeWindow.webkitMediaStreamTrack = void 0;
+    unsafeWindow.webkitRTCPeerConnection = void 0;
+    unsafeWindow.webkitRTCSessionDescription = void 0;
+    Logger.log("WebRTC has been overwriten.");
+  }
+
+  function GM_fetch(url, options = {}) {
+    options.data = options.body;
+    delete options.body;
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        url,
+        ...options,
+        onload: response => resolve(response),
+        onerror: error => reject(error),
+      });
     });
   }
 })();
