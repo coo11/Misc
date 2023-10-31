@@ -57,7 +57,7 @@ async function saveImageInfoToKv(request) {
   const { path, id, type, ttl } = await request.json();
   if (path && id && type) {
     await imgKv.put(id, JSON.stringify({ path, type }), {
-      expirationTtl: ttl || 3600,
+      expirationTtl: ttl || 3600
     });
     return new Response("Saved", { status: 200 });
   } else return http400("Parameter Error");
@@ -83,7 +83,7 @@ async function fetchImageFromTelegram(pathname, isDownload) {
   const init = {
       headers: newHeaders,
       status: resp.status,
-      statusText: resp.statusText,
+      statusText: resp.statusText
     },
     body = await resp.arrayBuffer();
   return new Response(body, init);

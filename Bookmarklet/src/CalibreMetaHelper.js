@@ -49,7 +49,7 @@
     pHtml:
       pid === "1"
         ? ""
-        : `<p>Pixiv: <a href="https://www.pixiv.net/users/${pid}"><span style="color: #00bfff">${pid}</span></a></p>`,
+        : `<p>Pixiv: <a href="https://www.pixiv.net/users/${pid}"><span style="color: #00bfff">${pid}</span></a></p>`
   };
 
   let page = window.open("", "_blank"),

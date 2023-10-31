@@ -7,8 +7,8 @@ const PREFLIGHT_INIT = {
     "Access-Control-Allow-Methods":
       "GET,POST,PUT,PATCH,TRACE,DELETE,HEAD,OPTIONS",
     "Access-Control-Max-Age": "1728000",
-    "Access-Control-Allow-Headers": "*",
-  }),
+    "Access-Control-Allow-Headers": "*"
+  })
 };
 
 addEventListener("fetch", event => {
@@ -61,7 +61,7 @@ async function ehCorsBypass(req) {
   if (!hash || !hash.endsWith(ehAuthHash)) return http403();
   const resp = await fetch("https://api.e-hentai.org/api.php", {
     method: req.method,
-    body: req.body,
+    body: req.body
   });
 
   const headers = new Headers(resp.headers);
@@ -72,7 +72,7 @@ async function ehCorsBypass(req) {
   return new Response(body, {
     headers,
     status: resp.status,
-    statusText: resp.statusText,
+    statusText: resp.statusText
   });
 }
 
@@ -85,7 +85,7 @@ function randomNaviBg() {
     //"https://m.360buyimg.com/babel/jfs/t1/77110/20/20946/2349377/62f4436cE094e35a0/91bcf58f45a0be2c.png", // PLAY IT STRAIGHT
     //"https://m.360buyimg.com/babel/jfs/t1/180168/15/29962/1108570/6365853aE361c32b1/8e2c7b72b093896e.jpg", // 勝利の女神：NIKKE トライアングルの 3 人
     "https://m.360buyimg.com/babel/jfs/t1/91102/5/30971/2786697/6365888cEd5167378/335c146148ff28e8.jpg", // 勝利の女神：NIKKE
-    "https://i0.wp.com/p.sda1.dev/12/45e316048148e5313b9f99d5db256762/1.jpg", // RABBIT 小隊
+    "https://i0.wp.com/p.sda1.dev/12/45e316048148e5313b9f99d5db256762/1.jpg" // RABBIT 小隊
   ];
   const n = images.length,
     url = images[Math.round(Math.random() * (n - 1))];
@@ -94,7 +94,7 @@ function randomNaviBg() {
   headers.set("access-control-allow-origin", "*");
   return new Response(null, {
     status: 302,
-    headers,
+    headers
   });
 }
 
@@ -128,8 +128,8 @@ async function sogoTts(text, req) {
         {
           headers: {
             "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-          },
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+          }
         }
       ),
       newHeaders = new Headers(resp.headers);
@@ -138,7 +138,7 @@ async function sogoTts(text, req) {
     let init = {
         headers: newHeaders,
         status: resp.status,
-        statusText: resp.statusText,
+        statusText: resp.statusText
       },
       body = await resp.arrayBuffer();
     return new Response(body, init);

@@ -2,8 +2,8 @@
 // Similar: https://mrcoles.com/demo/markdown-css/
 
 document.head.insertAdjacentHTML(
-    'beforeend',
-    `/* https://secretgeek.github.io/html_wysiwyg/html.html */<style>
+  "beforeend",
+  `/* https://secretgeek.github.io/html_wysiwyg/html.html */<style>
 html::before {content:'<html>'}
 html::after {content:'</html>'}
 head::before {content:'<head>'}
@@ -48,4 +48,5 @@ html {
   color:#333;
   font-size:1.2em;
 }
-</style>`)
+</style>`
+);

@@ -157,7 +157,7 @@
             } else console[prop](pre, style, null, arg1, ...args);
           };
         } else return target[prop];
-      },
+      }
     }
   );
 
@@ -241,7 +241,7 @@
         uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
       window.open(`https://weibo.com/u/${uid}`);
       return;
-    },
+    }
   };
 
   /**
@@ -442,7 +442,7 @@
       /\/\/m\.weibo\.cn\/s\/video\/index.*?(?:blog_mid|segment_id)=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
-      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+      /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
@@ -496,10 +496,10 @@
         `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
         {
           headers: {
-            "content-type": "application/x-www-form-urlencoded",
+            "content-type": "application/x-www-form-urlencoded"
           },
           body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST",
+          method: "POST"
         }
       )
         .then(resp => {
@@ -830,8 +830,8 @@
               headers: { Authorization: `Basic ${btoa(hash)}` },
               body: JSON.stringify({
                 method: "gdata",
-                gidlist: group,
-              }),
+                gidlist: group
+              })
             }).then(resp => {
               let json = JSON.parse(resp.responseText);
               json?.gmetadata?.forEach(({ gid, token, title }) => {
@@ -927,7 +927,7 @@
               noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
             postId = document.body.dataset["postId"],
             headers = {
-              "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token"),
+              "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token")
             };
           if (favBars.length) {
             document.head.insertAdjacentHTML(
@@ -944,7 +944,7 @@
               favName.lastElementChild.addEventListener("click", () => {
                 fetch(`${pre}/remove_post.js?post_id=${postId}`, {
                   method: "PUT",
-                  headers,
+                  headers
                 })
                   .then(resp => resp.text())
                   .then(text => {
@@ -1046,7 +1046,7 @@
                   that.panzoom.zoomAbs(offsetX, offsetY, newScale);
                 }
                 return false;
-              },
+              }
             });
 
             this.panzoom.on("zoom", () => {
@@ -1115,7 +1115,7 @@
             this.panzoom.setMinZoom(
               Math.min(this.attrWidth / 4 / this.baseWidth, 1)
             );
-          },
+          }
         };
         mediaAssetPanzoom.init();
         if (pathname.startsWith("/uploads/")) {
@@ -1337,7 +1337,7 @@
       });
       //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
       const table = [
-        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF",
+        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
       ];
       const s = [11, 10, 3, 8, 4, 6];
       const xor = 177451812;
@@ -1398,7 +1398,7 @@
         if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
           return {
             type: RegExp.$1 === "av" ? "av" : "bv",
-            id: RegExp.$2,
+            id: RegExp.$2
           };
         }
         return {};
@@ -1449,13 +1449,13 @@
           GM_notification({
             title,
             text: "已复制：" + link,
-            timeout: 2000,
+            timeout: 2000
           });
         } else {
           GM_notification({
             title,
             text: "无法获取短链接",
-            timeout: 2000,
+            timeout: 2000
           });
         }
       }
@@ -1500,7 +1500,7 @@
       addExts(newSrc, [
         hostname === "pixiv.pximg.net" ? "jpeg" : "jpg",
         "png",
-        "gif",
+        "gif"
       ])
     );
   }
@@ -1532,7 +1532,7 @@
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
       if (matched) {
         newSrc = addQueries(matched[1] + (matched[3] || ""), {
-          format: matched[2],
+          format: matched[2]
         });
       }
       newSrc = newSrc.replace(/([?&]format=)webp(&.*)?$/, "$1jpg$2");
@@ -1649,7 +1649,7 @@
       return redirect([
         src.replace(regex, "$1original/$2"),
         src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2"),
+        src.replace(regex, "$1large/$2")
       ]);
     }
   }
@@ -1824,7 +1824,7 @@
           /(\/v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/+)[^/]+(?:[?#].*)?$/,
           "$1source"
         ),
-        src,
+        src
       ]);
     }
   }
@@ -1910,7 +1910,7 @@
               try {
                 fetch(url, {
                   credentials: "include",
-                  mode: "no-cors",
+                  mode: "no-cors"
                 })
                   .then(resp => resp.text())
                   .then(text => {
@@ -1919,7 +1919,7 @@
                     }
                     fetch(document.URL, {
                       credentials: "include",
-                      mode: "no-cors",
+                      mode: "no-cors"
                     })
                       .then(resp => resp.text())
                       .then(html => {
@@ -1963,14 +1963,14 @@
           "https://www.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr";
         const headers = {
           referer: "https://www.lofter.com",
-          "content-type": "application/x-www-form-urlencoded",
+          "content-type": "application/x-www-form-urlencoded"
         };
         const body = `callCount=1\nscriptSessionId=\${scriptSessionId}187\nhttpSessionId=\nc0-scriptName=ArchiveBean\nc0-methodName=getArchivePostByTime\nc0-id=0\nc0-param0=boolean:false\nc0-param1=number:${uid}\nc0-param2=number:${t}\nc0-param3=number:50\nc0-param4=boolean:false\nbatchId=235018`;
         try {
           const response = await GM_fetch(url, {
             method: "POST",
             headers,
-            body,
+            body
           });
           const respText = response.responseText;
           return respText;
@@ -2318,7 +2318,7 @@
                   tweet:
                     resp.data.threaded_conversation_with_injections_v2.instructions[0].entries.filter(
                       i => i.entryId == `tweet-${id}`
-                    )[0],
+                    )[0]
                 };
               },
               false
@@ -2404,7 +2404,7 @@
           });
         });
         observer.observe(document.body, { childList: true, subtree: true });
-      },
+      }
     };
     addVideoLink.init();
   }
@@ -2454,7 +2454,7 @@
           GM_notification({
             title,
             text: "Please login first",
-            timeout: 2000,
+            timeout: 2000
           });
         else
           fetch(
@@ -2464,8 +2464,8 @@
             ),
             {
               headers: {
-                Authorization: `Bearer ${token}`,
-              },
+                Authorization: `Bearer ${token}`
+              }
             }
           )
             .then(resp => resp.json())
@@ -2477,7 +2477,7 @@
                 GM_notification({
                   title,
                   text: "article_image_url not found in API",
-                  timeout: 2000,
+                  timeout: 2000
                 });
             });
       });
@@ -2494,11 +2494,11 @@
           document.body.scrollLeft,
         window.scrollY ||
           document.documentElement.scrollTop ||
-          document.body.scrollTop,
+          document.body.scrollTop
       ];
       const offset = [
         windowOffset[0] + prevPos[0] - x,
-        windowOffset[1] + prevPos[1] - y,
+        windowOffset[1] + prevPos[1] - y
       ];
       prevPos[0] = x;
       prevPos[1] = y;
@@ -2540,7 +2540,7 @@
           return false;
         },
         {
-          once: true,
+          once: true
         }
       );
       return false;
@@ -2571,7 +2571,7 @@
         url,
         ...options,
         onload: response => resolve(response),
-        onerror: error => reject(error),
+        onerror: error => reject(error)
       });
     });
   }

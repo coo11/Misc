@@ -10,7 +10,7 @@ const ASSET_URL = "https://hunshcn.github.io/gh-proxy/";
 const PREFIX = "/";
 // 分支文件使用jsDelivr镜像的开关，0为关闭，默认关闭
 const Config = {
-  jsdelivr: 0,
+  jsdelivr: 0
 };
 
 const whiteList = []; // 白名单，路径里面有包含字符的才会通过，e.g. ['/username/']
@@ -22,8 +22,8 @@ const PREFLIGHT_INIT = {
     "access-control-allow-origin": "*",
     "access-control-allow-methods":
       "GET,POST,PUT,PATCH,TRACE,DELETE,HEAD,OPTIONS",
-    "access-control-max-age": "1728000",
-  }),
+    "access-control-max-age": "1728000"
+  })
 };
 
 const exp1 =
@@ -158,7 +158,7 @@ function httpHandler(req, pathname) {
     method: req.method,
     headers: reqHdrNew,
     redirect: "manual",
-    body: req.body,
+    body: req.body
   };
   return proxy(urlObj, reqInit);
 }
@@ -192,6 +192,6 @@ async function proxy(urlObj, reqInit) {
 
   return new Response(res.body, {
     status,
-    headers: resHdrNew,
+    headers: resHdrNew
   });
 }

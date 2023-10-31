@@ -31,7 +31,7 @@
         dpi: window.devicePixelRatio,
         backgroundColor: f[0] === "null" ? null : f[0],
         scale: f[1] === "0" ? 0 : f[1],
-        useCORS: true,
+        useCORS: true
       }).then(c => {
         let p = c.toDataURL("image/png", 1.0),
           w = window.open("", "_blank");
