@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Excalibur
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.61
+// @version         0.1.64
 // @description         Start taking over the world!
 // @author         coo11
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
@@ -29,12 +29,17 @@
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
 // @match         *://*.bcyimg.com/*
-// @ Pixiv, Twitter, Artstation, Steam, Pinterest, reddit, Discord
+// @ Pixiv, Twitter, Youtube, Artstation, Steam, Pinterest, reddit, Discord
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
 // @match         *://pixiv.pximg.net/*
 // @match         *://*.twimg.com/*
+// @match         *://www.youtube.com/watch?v=*
+// @match         *://www.youtube.com/shorts/*
+// @match         *://ytimg.googleusercontent.com/*
+// @match         *://*.ytimg.com/*
+// @match         *://img.youtube.com/*
 // @match         *://cdna.artstation.com/*
 // @match         *://cdnb.artstation.com/*
 // @match         *://*.steamstatic.com/*
@@ -48,8 +53,6 @@
 // @match         *://www.reddit.com/r/*
 // @match         *://*.discordapp.net/*
 // @match         *://*.discordapp.com/*
-// @ yande.re
-// @match         *://files.yande.re/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // @ Web Archive
@@ -104,11 +107,17 @@
 // @match         *://www.bilibili.com/opus/*
 // @match         *://www.google.com/search*tbs=sbi:*
 // @match         *://www.google.com/search*tbs=sbi%3A*
+// @match         *://*.fanbox.cc/*
+// @match         *://fantia.jp/posts/*
+// @match         *://fantia.jp/fanclubs/*
 // @match         *://www.patreon.com/*
+// @match         *://*.gumroad.com/*
 // @match         *://exhentai.org/*
 // @match         *://e-hentai.org/*
 // @match         *://*.nhentai.net/*
 // @match         *://danbooru.donmai.us/*
+// @match         *://yande.re/*
+// @match         *://files.yande.re/*
 // @match         *://*.dbsearch.net/*
 // @match         *://webcache.googleusercontent.com/search*
 // @ ----OtherEnd-----
@@ -429,8 +438,8 @@
   // Weibo Client Switch
   else if (hostname.endsWith("weibo.cn") || hostname.endsWith("weibo.com")) {
     const regex = [
-      /\/\/m\.weibo\.cn\/(status|detail|\d+)\/([a-z0-9]+)/i,
-      /\/\/m\.weibo\.cn\/s\/video\/index.*?blog_mid=(\d+)/i,
+      /\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i,
+      /\/\/m\.weibo\.cn\/s\/video\/index.*?(?:blog_mid|segment_id)=(\d+)/i,
       /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
       /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
       /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
@@ -440,12 +449,19 @@
     Logger.log(i);
     switch (i) {
       case 0:
+        return GM_registerMenuCommand("Open Base62 URL", () => {
+          let currentPid = window.location.href.match(
+            /\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i
+          )?.[1];
+          if (!currentPid) return;
+          if (/^\d+$/.test(currentPid)) currentPid = weiboFn.id2mid(currentPid);
+          const avatar = document.querySelector("div.main div.m-avatar-box a");
+          // https://m.weibo.cn/profile/00000000
+          const uid = avatar.href.split("/")[4];
+          window.open(`https://weibo.com/${uid}/${currentPid}`);
+        });
       case 1:
-        return GM_registerMenuCommand("Open Base62 URL", () =>
-          window.open(
-            `https://weibo.com/${unsafeWindow.$render_data.status.user.id}/${unsafeWindow.$render_data.status.bid}`
-          )
-        );
+        return redirect(`https://m.weibo.cn/status/${matched[1]}`);
       case 2:
       case 3:
         return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
@@ -510,6 +526,37 @@
     }
   }
 
+  // Fanbox add entry to Pixiv & Kemono
+  else if (hostname.endsWith(".fanbox.cc")) {
+    const getUID = () => {
+      let bg = document.querySelector(
+        'div[class^="CreatorHeader__IsNotMobileSmallWrapper-sc"] div[class^="LazyImage__BgImage-sc-"], div[class^="CoverImage__CoverWrapper-sc-"] div[class^="LazyImage__BgImage-sc-"]'
+      )?.style?.backgroundImage;
+      return bg?.match(/(?:user|creator)\/(\d+)\/(?:icon|cover)/)?.[1];
+    };
+    GM_registerMenuCommand("View Author on Kemono", () => {
+      let uid = getUID();
+      if (uid) window.open(`https://kemono.party/fanbox/user/${uid}`, "_blank");
+    });
+    GM_registerMenuCommand("View Author on Pixiv", () => {
+      let uid = getUID();
+      if (uid) window.open(`https://www.pixiv.net/users/${uid}`, "_blank");
+    });
+  }
+
+  // Fantia add entry to Kemono
+  else if (hostname === "fantia.jp") {
+    let getUID = () => {
+      return document
+        .querySelector("div.fanclub-header > a")
+        ?.href?.match(/fanclubs\/(\d+)/)?.[1];
+    };
+    GM_registerMenuCommand("View Author on Kemono", () => {
+      let uid = getUID();
+      if (uid) window.open(`https://kemono.party/fantia/user/${uid}`, "_blank");
+    });
+  }
+
   // Patreon redirect to number ID homepage
   else if (hostname === "www.patreon.com") {
     if (pathname.startsWith("/posts/")) return;
@@ -528,9 +575,32 @@
             location.href = `/user?u=${userData.relationships.creator.data.id}`;
           });
         }
+        GM_registerMenuCommand("View user on Kemono", () => {
+          window.open(
+            `https://kemono.party/patreon/user/${userData.relationships.creator.data.id}`,
+            "_blank"
+          );
+        });
         return;
       }
       return redirect(`/user?u=${userData.relationships.creator.data.id}`);
+    });
+  }
+
+  // Gumroad add entry to Kemono
+  else if (hostname.endsWith(".gumroad.com")) {
+    document.addEventListener("DOMContentLoaded", () => {
+      const getInfoComponent = () => {
+        return JSON.parse(
+          document.querySelector("script.js-react-on-rails-component")
+            ?.textContent
+        );
+      };
+      GM_registerMenuCommand("View Author on Kemono", () => {
+        let uid = getInfoComponent()?.creator_profile.external_id;
+        if (uid)
+          window.open(`https://kemono.party/gumroad/user/${uid}`, "_blank");
+      });
     });
   }
 
@@ -801,7 +871,7 @@
     return document.addEventListener("DOMContentLoaded", () => {
       document
         .querySelectorAll("a.post-preview-link")
-        .forEach(a => (a.draggable = true));
+        .forEach(a => (a.draggable = true)); // Fix for gesture plugin
       document
         .querySelectorAll(
           "div#c-artists span.post-count,section#tag-list span.post-count,ul.tag-list  span.post-count"
@@ -838,7 +908,7 @@
           .querySelector("#post-info-id")
           .insertAdjacentHTML(
             "beforeend",
-            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a></div>`
+            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
           );
         document.head.insertAdjacentHTML(
           "beforeend",
@@ -1507,28 +1577,68 @@
     if (newSrcs.length > 1) return redirect(newSrcs);
   }
 
-  // Tumblr
-  else if (hostname.endsWith("media.tumblr.com")) {
-    newSrc = src
-      .replace(/\.pnj(\?.*)?$/, ".png$1")
-      .replace(/\.gifv(\?.*)?$/, ".gif$1");
-    if (newSrc !== src) return redirect(newSrc);
-
-    if (src.match(/\/avatar_[0-9a-f]+_(?:16|64|128)\./)) {
-      return redirect(newSrc);
+  // Youtube
+  else if (hostname === "www.youtube.com") {
+    if (pathname === "/watch" || pathname.startsWith("/shorts/")) {
+      GM_registerMenuCommand("View cover", () => {
+        let matched = window.location.href.match(
+          /\/+(watch\?v=|shorts\/)([\w-]+)/
+        );
+        let pre = `https://i.ytimg.com/vi/${matched[2]}/`;
+        window.open(
+          matched[1] === "shorts/" ? pre + "oar2.jpg" : pre + "0.jpg"
+        );
+      });
     }
-
+  } else if (
+    /^i\d*\.ytimg\.com/.test(hostname) ||
+    hostname === "ytimg.googleusercontent.com" ||
+    hostname === "img.youtube.com"
+  ) {
     newSrc = src.replace(
-      /(\/(?:tumblr(?:_(?:static|inline))?_)?[0-9a-zA-Z]+(?:_og)?(?:_r[0-9]*)?)_[0-9]+(?:sq)?(\.[^/.]*)$/,
-      "$1_1280$2"
+      /^(https?:\/\/)i\d+(\.ytimg\.com\/vi(?:_webp)?\/+[^/]+\/+[0-9a-z]+\.)/,
+      "$1i$2"
     );
     if (newSrc !== src) return redirect(newSrc);
-
-    newSrc = src.replace(
-      /^[a-z]+:\/\/[^/]+\/+(?:previews\/+)?(tumblr_[^/_.]+)_(?:filmstrip|(?:frame|smart)1)\.jpg(?:[?#].*)?$/,
-      "https://ve.media.tumblr.com/$1.mp4"
+    newSrc = src.replace(/\/an(_webp)?\/+/, "/vi$1/");
+    const matched = newSrc.match(
+      /^(.+\/+vi(?:_webp)?\/+([^/]+)\/+)([a-z]*)(default|\d+)(?:_(?:live|\d+s))?(\.[^/.?#]*)(?:[?#].*)?$/
     );
-    if (newSrc !== src) return redirect(newSrc);
+    if (!matched) return;
+    let vid = matched[2];
+    GM_registerMenuCommand("View video", () => {
+      window.open("https://www.youtube.com/watch?v=" + vid);
+    });
+    GM_registerMenuCommand("View cover", () => {
+      window.open(`https://i.ytimg.com/vi/${vid}/0.jpg`);
+    });
+    [1, 2, 3].forEach(i => {
+      GM_registerMenuCommand("View key frame " + i, () => {
+        window.open(`https://i.ytimg.com/vi/${vid}/${i}.jpg`);
+      });
+      GM_registerMenuCommand(`View key frame ${i} (Shorts)`, () => {
+        window.open(`https://i.ytimg.com/vi/${vid}/oar${i}.jpg`);
+      });
+    });
+    GM_registerMenuCommand("View 1st frame", () => {
+      window.open(`https://i.ytimg.com/vi/${vid}/frame0.jpg`);
+    });
+    let sizes = ["maxres", "sd", "hq", "mq"],
+      newSrcs = [],
+      num = matched[4];
+    if ((matched[3] === "oar" || matched[3] === "frame") && num.length === 1) {
+      let midPart = matched[3] === "frame" ? "frame0" : "oar" + num;
+      newSrc = matched[1] + midPart + matched[5];
+      if (newSrc === src) return;
+      else return redirect(newSrc);
+    }
+    if (num.length > 1 || num === "0") {
+      num = "default";
+    }
+    sizes.forEach(size => {
+      newSrcs.push(matched[1] + size + num + matched[5]);
+    });
+    return redirect(newSrcs);
   }
 
   // Artstation
@@ -1673,7 +1783,14 @@
   }
 
   // yande.re
-  else if (hostname === "files.yande.re") {
+  else if (hostname === "yande.re") {
+    // Fix preview click issue: Change cookie "mode" value to "view"
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("a.thumb > img.preview").forEach(e => {
+        e.draggable = false;
+      }); // Fix for gesture plugin
+    });
+  } else if (hostname === "files.yande.re") {
     if (pathname.startsWith("/image/") || pathname.startsWith("/sample/")) {
       newSrc = src.replace(/(\/[a-z0-9]{32}\/).*(\..+)/, "$1$2");
       if (newSrc != src) return redirect(newSrc);
