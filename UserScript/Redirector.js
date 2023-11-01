@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Excalibur
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.64
+// @version         0.1.65
 // @description         Start taking over the world!
 // @author         coo11
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
@@ -160,6 +160,10 @@
       }
     }
   );
+
+  /*! js-cookie v3.0.5 | MIT */
+  /* prettier-ignore */
+  const Cookie = (function(){"use strict";function e(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)e[o]=n[o]}return e}var t=function t(n,o){function r(t,r,i){if("undefined"!=typeof document){"number"==typeof(i=e({},o,i)).expires&&(i.expires=new Date(Date.now()+864e5*i.expires)),i.expires&&(i.expires=i.expires.toUTCString()),t=encodeURIComponent(t).replace(/%(2[346B]|5E|60|7C)/g,decodeURIComponent).replace(/[()]/g,escape);var c="";for(var u in i)i[u]&&(c+="; "+u,!0!==i[u]&&(c+="="+i[u].split(";")[0]));return document.cookie=t+"="+n.write(r,t)+c}}return Object.create({set:r,get:function(e){if("undefined"!=typeof document&&(!arguments.length||e)){for(var t=document.cookie?document.cookie.split("; "):[],o={},r=0;r<t.length;r++){var i=t[r].split("="),c=i.slice(1).join("=");try{var u=decodeURIComponent(i[0]);if(o[u]=n.read(c,u),e===u)break}catch(e){}}return e?o[e]:o}},remove:function(t,n){r(t,"",e({},n,{expires:-1}))},withAttributes:function(n){return t(this.converter,e({},this.attributes,n))},withConverter:function(n){return t(e({},this.converter,n),this.attributes)}},{attributes:{value:Object.freeze(o)},converter:{value:Object.freeze(n)}})}({read:function(e){return'"'===e[0]&&(e=e.slice(1,-1)),e.replace(/(%[\dA-F]{2})+/gi,decodeURIComponent)},write:function(e){return encodeURIComponent(e).replace(/%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,decodeURIComponent)}},{path:"/"});return t})();
 
   const weiboFn = {
     alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -361,15 +365,6 @@
       document.importNode(doc.documentElement, true),
       document.documentElement
     );
-  }
-
-  function parseCookie(str) {
-    const output = {};
-    str.split(/\s*;\s*/).forEach(pair => {
-      pair = pair.split(/\s*=\s*/);
-      output[pair[0]] = pair.splice(1).join("=");
-    });
-    return output;
   }
 
   // These universal links need pretreatment.
@@ -818,8 +813,7 @@
             if (groupedList[g]) groupedList[g].push(gt);
             else groupedList[g] = [gt];
           });
-          let cookie = parseCookie(document.cookie),
-            hash = cookie.ipb_pass_hash;
+          let hash = Cookie.get("ipb_pass_hash");
           if (!hash) {
             Logger.warn("NO IPB_PASS_HASH FOUND.");
             return;
@@ -1784,7 +1778,9 @@
 
   // yande.re
   else if (hostname === "yande.re") {
-    // Fix preview click issue: Change cookie "mode" value to "view"
+    // Fix preview click issue
+    if (Cookie.get("mode") === "null")
+      Cookie.set("mode", "view", { expires: 365 });
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("a.thumb > img.preview").forEach(e => {
         e.draggable = false;
