@@ -4,7 +4,7 @@
     headers = $response.headers;
   switch (true) {
     // Short link redirect
-    case /toasturl=([^&]+)/.test(url):
+    case /sinaurl\?(?:toasturl|u)=([^&]+)/.test(url):
       headers["Location"] = decodeURIComponent(RegExp.$1)
       $done({ status: "HTTP/1.1 302 Found", headers });
       break;

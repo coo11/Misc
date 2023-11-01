@@ -92,7 +92,7 @@
 // @match         *://chii.in/*
 // @match         *://t.cn/*
 // @match         *://sinaurl.cn/*
-// @match         *://weibo.cn/sinaurl?toasturl=*
+// @match         *://weibo.cn/sinaurl?*
 // @ ----RewriteURLEnd------
 // @
 // @ ----OtherStart----
@@ -414,17 +414,16 @@
   } else if (
     hostname === "t.cn" ||
     hostname === "sinaurl.cn" ||
-    /^https?:\/\/weibo\.cn\/sinaurl\?toasturl=/.test(src)
+    /^https?:\/\/weibo\.cn\/sinaurl\?(toasturl|u)=/.test(src)
   ) {
     document.addEventListener("DOMContentLoaded", () => {
       const div = document.querySelector("div.desc");
       if (div && div.innerText.startsWith("http")) {
         return redirect(div.innerText);
       } else {
-        fetch(location.href).then(resp => {
-          let target = resp?.headers?.get("Location");
-          if (target) return redirect(target);
-        });
+        let usp = new URL(location);
+        let target = usp.searchParams.get("toasturl") || usp.searchParams("u");
+        if (target) return redirect(target);
       }
     });
     return;
@@ -2100,7 +2099,7 @@
         if (a.children[0].title === "Search Google") {
           a.href = a.href.replace(
             /^.*?=/,
-            "https://lens.google.com/uploadbyurl?url="
+            "https://www.google.com/searchbyimage?client=Chrome&image_url="
           );
         }
         a.setAttribute("target", "_blank");
@@ -2115,9 +2114,9 @@
             content = e.querySelector(".resultcontentcolumn"),
             titleUrl = e.querySelector(".resulttitle a")?.href,
             miscinfo = e.querySelector(".resultmiscinfo");
-          e.querySelectorAll("a:not([href*='saucenao.com'])").forEach(a =>
-            a.setAttribute("target", "_blank")
-          );
+          e.querySelectorAll(
+            ".resulttablecontent a:not([href*='saucenao.com'])"
+          ).forEach(a => a.setAttribute("target", "_blank"));
           if (isSourceFromHentai && content) {
             let src = img.src;
             desc = desc.replace(/.*?#\d+:\s/, "");
