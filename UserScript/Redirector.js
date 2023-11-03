@@ -431,6 +431,8 @@
 
   // Weibo Client Switch
   else if (hostname.endsWith("weibo.cn") || hostname.endsWith("weibo.com")) {
+    if (hostname === "m.weibo.cn") // Prevent from popuping PWA installation
+      document.head.querySelector('link[rel="manifest"]').remove();
     const regex = [
       /\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i,
       /\/\/m\.weibo\.cn\/s\/video\/index.*?(?:blog_mid|segment_id)=(\d+)/i,
@@ -440,7 +442,7 @@
     ];
     let i = 0;
     while (!(matched = src.match(regex[i]))) i++;
-    Logger.log(i);
+    // Logger.log(i);
     switch (i) {
       case 0:
         return GM_registerMenuCommand("Open Base62 URL", () => {
