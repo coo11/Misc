@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Excalibur
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.65
+// @version         0.1.68
 // @description         Start taking over the world!
 // @author         coo11
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
@@ -10,13 +10,14 @@
 // @match         *://*.lofter.com/*
 // @match         *://*.tsdm39.com/*
 // @match         *://saucenao.com/search.php*
-// @match         *://*.twitter.com/*
+// @match         *://twitter.com/*
+// @match         *://www.pixiv.net/*
 // @match         *://www.nicovideo.jp/watch/sm*
 // @match         *://skeb.jp/@*
 // @ ----EnhanceEnd------
 // @
 // @ ----GetOriginalSrcStart----
-// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, BCY
+// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, Lofter, Mihuashi, BCY
 // @match         *://*.sinaimg.cn/*
 // @match         *://*.zhimg.com/*
 // @match         *://*.hdslb.com/*
@@ -28,8 +29,11 @@
 // @match         *://*.hiphotos.baidu.com/*
 // @match         *://img.nga.178.com/*
 // @match         *://*.qpic.cn/*
+// @match         *://*.lf127.net/*
+// @match         *://pic-bucket.ws.126.net/*
+// @match         *://image-assets.mihuashi.com/*
 // @match         *://*.bcyimg.com/*
-// @ Pixiv, Twitter, Youtube, Artstation, Steam, Pinterest, reddit, Discord
+// @ Pixiv, Twitter, Youtube, Artstation, Steam, Pinterest, reddit, Discord, Google
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
@@ -53,6 +57,7 @@
 // @match         *://www.reddit.com/r/*
 // @match         *://*.discordapp.net/*
 // @match         *://*.discordapp.com/*
+// @match         *://*.googleusercontent.com/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // @ Web Archive
@@ -101,8 +106,9 @@
 // @match         *://video.h5.weibo.cn/1034:*
 // @match         *://h5.video.weibo.com/show/*
 // @match         *://weibo.com/*
-// @match         *://www.bilibili.com/video/*
-// @match         *://www.bilibili.com/s/video/*
+// @match         *://*.bilibili.com/video/*
+// @match         *://*.bilibili.com/s/video/*
+// @match         *://space.bilibili.com/*
 // @match         *://live.bilibili.com/*
 // @match         *://www.bilibili.com/opus/*
 // @match         *://www.google.com/search*tbs=sbi:*
@@ -165,88 +171,8 @@
   /* prettier-ignore */
   const Cookie = (function(){"use strict";function e(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)e[o]=n[o]}return e}var t=function t(n,o){function r(t,r,i){if("undefined"!=typeof document){"number"==typeof(i=e({},o,i)).expires&&(i.expires=new Date(Date.now()+864e5*i.expires)),i.expires&&(i.expires=i.expires.toUTCString()),t=encodeURIComponent(t).replace(/%(2[346B]|5E|60|7C)/g,decodeURIComponent).replace(/[()]/g,escape);var c="";for(var u in i)i[u]&&(c+="; "+u,!0!==i[u]&&(c+="="+i[u].split(";")[0]));return document.cookie=t+"="+n.write(r,t)+c}}return Object.create({set:r,get:function(e){if("undefined"!=typeof document&&(!arguments.length||e)){for(var t=document.cookie?document.cookie.split("; "):[],o={},r=0;r<t.length;r++){var i=t[r].split("="),c=i.slice(1).join("=");try{var u=decodeURIComponent(i[0]);if(o[u]=n.read(c,u),e===u)break}catch(e){}}return e?o[e]:o}},remove:function(t,n){r(t,"",e({},n,{expires:-1}))},withAttributes:function(n){return t(this.converter,e({},this.attributes,n))},withConverter:function(n){return t(e({},this.converter,n),this.attributes)}},{attributes:{value:Object.freeze(o)},converter:{value:Object.freeze(n)}})}({read:function(e){return'"'===e[0]&&(e=e.slice(1,-1)),e.replace(/(%[\dA-F]{2})+/gi,decodeURIComponent)},write:function(e){return encodeURIComponent(e).replace(/%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,decodeURIComponent)}},{path:"/"});return t})();
 
-  const weiboFn = {
-    alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    /**
-     * mid字符转换为id
-     * @param {String} mid - 微博mid，Base62，如 "wr4mOFqpbO"
-     * @returns {String} id - 微博id，如 "201110410216293360"
-     */
-    mid2id(mid) {
-      let id = "";
-      for (
-        let i = mid.length - 4;
-        i > -4;
-        i = i - 4 //从最后往前以4字节为一组读取URL字符
-      ) {
-        let offset1 = i < 0 ? 0 : i,
-          offset2 = i + 4,
-          str = mid.substring(offset1, offset2);
-
-        str = this.decodeBase62(str).toString();
-        if (offset1 > 0) {
-          //若不是第一组则不足7位补0
-          while (str.length < 7) {
-            str = "0" + str;
-          }
-        }
-        id = str + id;
-      }
-      return id;
-    },
-    /**
-     * id转换为mid字符
-     * @param {string} id - 微博id，如 "201110410216293360"
-     * @returns {string} mid - 微博mid，Base62，如 "wr4mOFqpbO"
-     */
-    id2mid(id) {
-      id = String(id);
-      let mid = "";
-      for (
-        let i = id.length - 7;
-        i > -7;
-        i = i - 7 //从最后往前以7字节为一组读取id
-      ) {
-        let offset1 = i < 0 ? 0 : i,
-          offset2 = i + 7,
-          num = id.substring(offset1, offset2);
-        num = this.encodeBase62(num);
-        if (offset1 > 0) {
-          //若不足4位补0
-          while (num.length < 4) {
-            num = "0" + num;
-          }
-        }
-        mid = num + mid;
-      }
-      return mid;
-    },
-    encodeBase62(int10) {
-      let s62 = "",
-        r = 0;
-      while (int10 != 0) {
-        r = int10 % 62;
-        s62 = this.alphabet[r] + s62;
-        int10 = Math.floor(int10 / 62);
-      }
-      return s62;
-    },
-    decodeBase62(number) {
-      let out = 0,
-        len = number.length - 1;
-      for (let t = 0; t <= len; t++) {
-        out +=
-          this.alphabet.indexOf(number.substr(t, 1)) * Math.pow(62, len - t);
-      }
-      return out;
-    },
-    openHomepageFromSinaimg(hash) {
-      const pre = hash.substr(0, 8),
-        uid = pre.startsWith("00") ? this.decodeBase62(pre) : parseInt(pre, 16);
-      window.open(`https://weibo.com/u/${uid}`);
-      return;
-    }
-  };
+  // prettier-ignore
+  const weiboFn={alphabet:"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",mid2id(r){let s="";for(let n=r.length-4;-4<n;n-=4){let e=n<0?0:n,t=n+4,o=r.substring(e,t);if(o=this.decodeBase62(o).toString(),0<e)for(;o.length<7;)o="0"+o;s=o+s}return s},id2mid(r){let s="";for(let n=(r=String(r)).length-7;-7<n;n-=7){let e=n<0?0:n,t=n+7,o=r.substring(e,t);if(o=this.encodeBase62(o),0<e)for(;o.length<4;)o="0"+o;s=o+s}return s},encodeBase62(e){let t="";for(;0!=e;)t=this.alphabet[e%62]+t,e=Math.floor(e/62);return t},decodeBase62(t){let o=0,n=t.length-1;for(let e=0;e<=n;e++)o+=this.alphabet.indexOf(t.substr(e,1))*Math.pow(62,n-e);return o},openHomepageFromSinaimg(e){const t=e.substr(0,8),o=t.startsWith("00")?this.decodeBase62(t):parseInt(t,16);window.open("https://weibo.com/u/"+o)}};
 
   /**
    * Add multiple extensions for guessing real url.
@@ -344,29 +270,6 @@
     } else window.location.replace(newSrc);
   }
 
-  function scriptTagModify(cb) {
-    // https://stackoverflow.com/a/11577730
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", src, false);
-    xhr.send(null);
-    let content = xhr.responseText,
-      doc = document.implementation.createHTMLDocument(
-        "" + (document.title || "")
-      );
-
-    doc.open();
-    doc.write(content);
-    doc.close();
-
-    let scripts = doc.getElementsByTagName("script");
-    [].forEach.call(scripts, cb);
-
-    document.replaceChild(
-      document.importNode(doc.documentElement, true),
-      document.documentElement
-    );
-  }
-
   // These universal links need pretreatment.
   if (
     // Steam
@@ -416,22 +319,27 @@
     hostname === "sinaurl.cn" ||
     /^https?:\/\/weibo\.cn\/sinaurl\?(toasturl|u)=/.test(src)
   ) {
-    document.addEventListener("DOMContentLoaded", () => {
-      const div = document.querySelector("div.desc");
-      if (div && div.innerText.startsWith("http")) {
-        return redirect(div.innerText);
-      } else {
-        let usp = new URL(location);
-        let target = usp.searchParams.get("toasturl") || usp.searchParams("u");
-        if (target) return redirect(target);
+    const div = document.querySelector("div.desc");
+    if (div && div.innerText.startsWith("http")) {
+      return redirect(div.innerText);
+    } else {
+      let usp = new URL(location);
+      let target =
+        usp.searchParams.get("toasturl") || usp.searchParams.get("u");
+      if (target) return redirect(target);
+      else if (hostname === "t.cn" && !target) {
+        let rp = await fetch(usp);
+        let url = rp.headers.get("Location");
+        if (url) return redirect(url);
       }
-    });
+    }
     return;
   }
 
   // Weibo Client Switch
   else if (hostname.endsWith("weibo.cn") || hostname.endsWith("weibo.com")) {
-    if (hostname === "m.weibo.cn") // Prevent from popuping PWA installation
+    if (hostname === "m.weibo.cn")
+      // Prevent from popuping PWA installation
       document.head.querySelector('link[rel="manifest"]').remove();
     const regex = [
       /\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i,
@@ -524,20 +432,26 @@
 
   // Fanbox add entry to Pixiv & Kemono
   else if (hostname.endsWith(".fanbox.cc")) {
-    const getUID = () => {
-      let bg = document.querySelector(
-        'div[class^="CreatorHeader__IsNotMobileSmallWrapper-sc"] div[class^="LazyImage__BgImage-sc-"], div[class^="CoverImage__CoverWrapper-sc-"] div[class^="LazyImage__BgImage-sc-"]'
-      )?.style?.backgroundImage;
-      return bg?.match(/(?:user|creator)\/(\d+)\/(?:icon|cover)/)?.[1];
-    };
-    GM_registerMenuCommand("View Author on Kemono", () => {
-      let uid = getUID();
-      if (uid) window.open(`https://kemono.party/fanbox/user/${uid}`, "_blank");
-    });
-    GM_registerMenuCommand("View Author on Pixiv", () => {
-      let uid = getUID();
-      if (uid) window.open(`https://www.pixiv.net/users/${uid}`, "_blank");
-    });
+    if (hostname.startsWith("downloads.")) {
+      newSrc = src.replace(/\/(c|w)\/\d+(x\d+)?\//, "/");
+      if (newSrc !== src) return redirect(addExts(newSrc, ["png", "jpeg"]));
+    } else {
+      const getUID = () => {
+        let bg = document.querySelector(
+          'div[class^="CreatorHeader__IsNotMobileSmallWrapper-sc"] div[class*="UserIcon__Icon-sc-"], div[class^="styled__Wrapper-sc-"] div[style^="background-image"]'
+        )?.style?.backgroundImage;
+        return bg?.match(/(?:user|creator)\/(\d+)\/(?:icon|cover)/)?.[1];
+      };
+      GM_registerMenuCommand("View Author on Kemono", () => {
+        let uid = getUID();
+        if (uid)
+          window.open(`https://kemono.party/fanbox/user/${uid}`, "_blank");
+      });
+      GM_registerMenuCommand("View Author on Pixiv", () => {
+        let uid = getUID();
+        if (uid) window.open(`https://www.pixiv.net/users/${uid}`, "_blank");
+      });
+    }
   }
 
   // Fantia add entry to Kemono
@@ -634,13 +548,13 @@
             }
           });
       } else if (pathname.startsWith("/g/")) {
-        // Add Double Click to Open in New Tab
+        // Add double click tag to open in new tab
         document.querySelectorAll("#taglist div > a").forEach(e => {
           e.addEventListener("dblclick", event => {
             window.open(event.target.href, "_blank");
           });
         });
-        // Add Comment URL hash
+        // Add comment URL hash
         document
           .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
           .forEach(a => {
@@ -867,22 +781,24 @@
       document
         .querySelectorAll("a.post-preview-link")
         .forEach(a => (a.draggable = true)); // Fix for gesture plugin
-      document
-        .querySelectorAll(
-          "div#c-artists span.post-count,section#tag-list span.post-count,ul.tag-list  span.post-count"
-        )
-        .forEach(el => {
-          el.addEventListener("click", () => {
-            const tagStr =
-              el.parentElement.dataset.tagName ||
-              el.previousElementSibling.innerText.replace(/\s+/g, "_");
-            if (tagStr) {
-              const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
-              unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
-            }
-          });
-        });
+      document.addEventListener("click", event => {
+        const el = event.target;
+        if (
+          el.tagName === "SPAN" &&
+          el.classList.contains("post-count") &&
+          !el.parentElement.classList.contains("ui-menu-item-wrapper")
+        ) {
+          const tagStr =
+            el.parentElement.dataset.tagName ||
+            el.previousElementSibling.innerText.replace(/\s+/g, "_");
+          if (tagStr) {
+            const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
+            unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
+          }
+        }
+      });
       if (pathname.startsWith("/posts/")) {
+        const postId = document.body.dataset["postId"];
         let image = document.querySelector("picture > img#image");
         if (image) {
           dragElement(image);
@@ -903,11 +819,11 @@
           .querySelector("#post-info-id")
           .insertAdjacentHTML(
             "beforeend",
-            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://beta.sankakucomplex.com/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
+            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://sankaku.app/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
           );
         document.head.insertAdjacentHTML(
           "beforeend",
-          `<style>body[data-current-user-theme=dark]{--booru-border:1px dotted;}body[data-current-user-theme=light]{--booru-border:1px;}#post-info-id>div{display:none;} #post-info-id:hover>div{display:inline-block;} #post-info-id a{font-weight:bold;} #post-info-id a {border:var(--booru-border);border-radius:3px;} #post-info-id a:hover{filter:opacity(50%);}</style>`
+          `<style>body[data-current-user-theme=light],html{--booru-border:1px}body[data-current-user-theme=dark]{--booru-border:1px dotted}@media (prefers-color-scheme:dark){body{--booru-border:1px dotted}}#post-info-id>div{display:none}#post-info-id:hover>div{display:inline-block}#post-info-id a{font-weight:700;border:var(--booru-border);border-radius:3px}#post-info-id a:hover{filter:opacity(50%)}</style>`
         );
         const time = document.querySelector("#post-info-date time"),
           title = time.innerText;
@@ -915,26 +831,42 @@
           time.innerText = time.title;
           time.title = title;
         }
+        // Add post views
+        {
+          if (postId) {
+            fetch("https://isshiki.donmai.us/post_views/" + postId)
+              .then(resp => resp.text())
+              .then(text => {
+                if (/^\d+$/.test(text)) {
+                  document
+                    .getElementById("post-info-score")
+                    ?.insertAdjacentHTML(
+                      "afterend",
+                      `<li id="post-info-views">Views: ${text}</li>`
+                    );
+                }
+              });
+          }
+        }
         // Add a button to remove post in a favorite group to the end of the favorite group navi bar
         {
           let noticeSearchBar = document.querySelector(".post-notice-search"),
             favBars =
               noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
-            postId = document.body.dataset["postId"],
             headers = {
               "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token")
             };
           if (favBars.length) {
             document.head.insertAdjacentHTML(
               "beforeend",
-              `<style>.post-notice-search > .favgroup-navbar {display: flex;align-items: center;}.favgroup-navbar > .favgroup-name {white-space: normal !important;}.favgroup-navbar:hover .fav-remove-link {opacity: 1;}.favgroup-navbar .fav-remove-link {opacity: 0;}.fav-remove-link {color: var(--button-danger-background-color);}.fav-remove-link:hover {color: var(--button-danger-hover-background-color);}</style>`
+              `<style>.post-notice-search>.favgroup-navbar{display:flex;align-items:center}.favgroup-navbar>.favgroup-name{white-space:normal!important}.favgroup-navbar:hover .fav-remove-link{opacity:1}.favgroup-navbar .fav-remove-link{opacity:0}.fav-remove-link{color:var(--button-danger-background-color)}.fav-remove-link:hover{color:var(--button-danger-hover-background-color)}</style>`
             );
             favBars.forEach(fav => {
               let favName = fav.querySelector(".favgroup-name");
               let pre = favName.children[0].href;
               favName.insertAdjacentHTML(
                 "beforeend",
-                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="/packs/static/images/icons-f4ca0cd60cf43cc54f9a.svg#xmark"></use></svg></a>'
+                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="/packs/static/public/images/icons-e8c108a4abab17da8dae.svg#xmark"></use></svg></a>'
               );
               favName.lastElementChild.addEventListener("click", () => {
                 fetch(`${pre}/remove_post.js?post_id=${postId}`, {
@@ -943,10 +875,16 @@
                 })
                   .then(resp => resp.text())
                   .then(text => {
-                    if (
-                      /"(Removed post from favorite group.+?)"\);/.test(text)
-                    ) {
-                      unsafeWindow.Danbooru.notice(RegExp.$1);
+                    const matched = text.match(
+                      /"(Removed post from favorite group )(.+?)"\);/
+                    );
+                    if (matched) {
+                      const url = encodeURI(
+                        `https://danbooru.donmai.us/posts?tags=favgroup:"${matched[2]}"`
+                      );
+                      const text =
+                        matched[1] + `<a href="${url}">${matched[2]}</a>`;
+                      unsafeWindow.Danbooru.notice(text);
                       fav.remove();
                       if (noticeSearchBar.children.length === 0)
                         noticeSearchBar.remove();
@@ -955,6 +893,21 @@
               });
             });
           }
+        }
+      } else if (pathname.startsWith("/artists/")) {
+        if (document.body.dataset["artistId"]) {
+          const el = document.querySelector("li#subnav-posts");
+          const url = el.children[0].href.replace(
+            "posts?tags=",
+            "post_versions?search%5Bchanged_tags%5D="
+          );
+          if (url)
+            el.insertAdjacentHTML(
+              "afterend",
+              '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' +
+                url +
+                '">Post changes</a></li>'
+            );
         }
       } else if (
         pathname.startsWith("/media_assets/") ||
@@ -1206,6 +1159,14 @@
 
   // Weibo
   else if (hostname.endsWith("sinaimg.cn")) {
+    if (document.contentType.startsWith("text")) {
+      document.body.insertAdjacentHTML(
+        "beforeend",
+        '<hr><center><h1><a href="https://weibo.cn/sinaurl?toasturl=' +
+          encodeURIComponent(src) +
+          '">Try</a> to add Weibo referer</h1></center>'
+      );
+    }
     if (hostname.startsWith("ss")) {
       newSrc = src.replace(
         /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
@@ -1311,6 +1272,21 @@
     return redirect(src.replace(/\/[0-9]*(?:\.[^/.]*)?(?:\?.*)?$/, "/0"));
   }
 
+  // Lofter
+  else if (
+    (hostname.endsWith(".lf127.net") && /^imglf\d+\./.test(hostname)) ||
+    hostname === "pic-bucket.ws.126.net"
+  ) {
+    newSrc = src.replace(/\?.*$/, "");
+    if (newSrc !== src) return redirect(newSrc);
+  }
+
+  // Mihuashi
+  else if (hostname === "image-assets.mihuashi.com") {
+    newSrc = src.split("!")[0];
+    if (newSrc !== src) return redirect(newSrc);
+  }
+
   // Banciyuan
   else if (hostname.endsWith(".bcyimg.com")) {
     newSrc = src.replace(
@@ -1321,7 +1297,7 @@
   }
 
   // Bilibili Video
-  else if (hostname === "www.bilibili.com") {
+  else if (hostname.endsWith(".bilibili.com")) {
     disableWebRTC();
     if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
       document.addEventListener("DOMContentLoaded", () => {
@@ -1330,64 +1306,9 @@
         document.querySelector("#right-bottom-banner").style.display = "none";
         // TODO: https://www.bilibili.com/blackboard/newplayer.html?autoplay=0&&musth5=1aid=...&page=...&cid=...
       });
-      //https://github.com/mrhso/IshisashiWebsite/blob/master/BVwhodoneit/index.html#L20-L76
-      const table = [
-        ..."fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-      ];
-      const s = [11, 10, 3, 8, 4, 6];
-      const xor = 177451812;
-      const add = 8728348608;
-      const av2bv = av => {
-        let num = NaN;
-        if (Object.prototype.toString.call(av) === "[object Number]") {
-          num = av;
-        } else if (Object.prototype.toString.call(av) === "[object String]") {
-          num = parseInt(av.replace(/[^0-9]/gu, ""));
-        }
-        if (isNaN(num) || num <= 0) {
-          // 网页版直接输出这个结果了
-          return;
-        }
-
-        num = (num ^ xor) + add;
-        let result = [..."BV1  4 1 7  "];
-        let i = 0;
-        while (i < 6) {
-          // 这里改写差点犯了运算符优先级的坑
-          // 果然 Python 也不是特别熟练
-          // 说起来 ** 按照传统语法应该写成 Math.pow()，但是我个人更喜欢 ** 一些
-          result[s[i]] = table[Math.floor(num / 58 ** i) % 58];
-          i += 1;
-        }
-        return result.join("");
-      };
-      const bv2av = bv => {
-        let str = "";
-        if (bv.length === 12) {
-          str = bv;
-        } else if (bv.length === 10) {
-          str = `BV${bv}`;
-          // 根据官方 API，BV 号开头的 BV1 其实可以省略
-          // 不过单独省略个 B 又不行（
-        } else if (bv.length === 9) {
-          str = `BV1${bv}`;
-        } else return;
-        if (
-          !str.match(
-            /[Bb][Vv][fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF]{10}/gu
-          )
-        ) {
-          return;
-        }
-
-        let result = 0;
-        let i = 0;
-        while (i < 6) {
-          result += table.indexOf(str[s[i]]) * 58 ** i;
-          i += 1;
-        }
-        return `av${(result - add) ^ xor}`;
-      };
+      // https://github.com/mrhso/IshisashiWebsite/blob/4108b25d9be21ce3925d88259f6b0fddaf594217/BVwhodoneit/index.html#L24C1-L101C3
+      // prettier-ignore
+      const abv={table:[..."FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf"],base:58n,xor:23442827791579n,rangeLeft:1n,rangeRight:2n**51n,av2bv(t){let i=t;if("[object String]"===Object.prototype.toString.call(i)&&(i=parseInt(i.replace(/^[Aa][Vv]/u,""))),("[object BigInt]"===Object.prototype.toString.call(i)||Number.isInteger(i))&&!((i=BigInt(i))<this.rangeLeft||i>=this.rangeRight)){i=i+this.rangeRight^this.xor;let t=[..."BV1000000000"],e=11;for(;2<e;)t[e]=this.table[Number(i%this.base)],i/=this.base,--e;return[t[3],t[9]]=[t[9],t[3]],[t[4],t[7]]=[t[7],t[4]],t.join("")}},bv2av(t){let i="";if(12===t.length)i=t;else if(10===t.length)i="BV"+t;else{if(9!==t.length)return;i="BV1"+t}if(i.match(/^bv1[1-9A-z]{9}$/iu)){i=[...i],[i[3],i[9]]=[i[9],i[3]],[i[4],i[7]]=[i[7],i[4]];let t=0n,e=3;for(;e<12;)t=(t*=this.base)+BigInt(this.table.indexOf(i[e])),e+=1;if(!(t<this.rangeRight||t>=2n*this.rangeRight||(t=t-this.rangeRight^this.xor)<this.rangeLeft))return"av"+t}}};
       ////////////////////////////////////////////
       function getInfoFromPathname() {
         if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(location.pathname)) {
@@ -1404,7 +1325,7 @@
         let u = new URL(location.href),
           p = u.searchParams.get("p"),
           t = u.searchParams.get("t");
-        let newId = type === "av" ? av2bv(id) : bv2av(id);
+        let newId = type === "av" ? abv.av2bv(id) : abv.bv2av(id);
         if (!newId) return;
         else {
           let newl = new URL("https://b23.tv");
@@ -1441,13 +1362,13 @@
         let title = `复制 ${targetType.toUpperCase()} 短链接`;
         if (link) {
           GM_setClipboard(link);
-          GM_notification({
+          GM_toast({
             title,
             text: "已复制：" + link,
             timeout: 2000
           });
         } else {
-          GM_notification({
+          GM_toast({
             title,
             text: "无法获取短链接",
             timeout: 2000
@@ -1460,6 +1381,26 @@
     } else if (/\/opus\/(\d+)/.test(pathname)) {
       location.href = `https://t.bilibili.com/${RegExp.$1}`;
       return;
+    } else if (hostname === "space.bilibili.com") {
+      // Fuck Bilibili Article Waterfall
+      if (/^\/\d+\/article/.test(pathname)) {
+        GM_registerMenuCommand("Fuck Waterfall", () => {
+          // 原本的瀑布流内容是动态加载的。因此每次执行只能重新排序当前屏幕上显示的内容，否则需要刷新页面。
+          let oldCtn = document.querySelector(
+            ".waterfall-content .masonry_grid_v2"
+          );
+          let newCtn = oldCtn.cloneNode(true);
+          newCtn.classList.remove("masonry_grid_v2");
+          newCtn
+            .querySelectorAll(".container > .item")
+            .forEach(el => el.removeAttribute("style"));
+          document.head.insertAdjacentHTML(
+            "beforeEnd",
+            `<style>.waterfall-content .container { display: flex; flex-wrap: wrap; justify-content: space-evenly; flex-direction: row; } .waterfall-content .item { width: 160px; margin-bottom: 20px; } .article-card-cover { max-height: 120px; } .article-card-cover:hover .b-img__inner { height: 120px; } .article-card-cover:hover .b-img__inner img { object-fit: contain; }</style>`
+          );
+          oldCtn.replaceWith(newCtn);
+        });
+      }
     }
   } else if (hostname === "live.bilibili.com") {
     disableWebRTC();
@@ -1470,13 +1411,21 @@
     /i(-c?f)?\.pximg\.net/.test(hostname) ||
     hostname === "pixiv.pximg.net"
   ) {
+    if (document.contentType.startsWith("text")) {
+      document.body.insertAdjacentHTML(
+        "beforeend",
+        '<hr><center><h1><a href="https://www.pixiv.net/jump.php?url=' +
+          encodeURIComponent(src) +
+          '">Try</a> to add Pixiv referer</h1></center>'
+      );
+    }
     newSrc = src
       .replace(
         /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
         "$1$2"
       )
       .replace(
-        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z]+\d+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//,
+        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z0-9]+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//,
         "/"
       )
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
@@ -1491,6 +1440,7 @@
     //https://i.pximg.net/c/250x250_80_a2/img-master/img/2015/12/27/23/24/55/54282140_square1200.jpg
     //https://i.pximg.net/c/240x480/img-master/img/2023/07/24/13/08/57/110194401_master1200.jpg
     //https://i.pximg.net/img-original/img/2023/07/26/20/08/18/110258558_p0.gif
+    //https://i.pximg.net/c/600x1200_90_webp/img-master/img/2023/12/31/23/16/57/114743969_p0_master1200.jpg
     return redirect(
       addExts(newSrc, [
         hostname === "pixiv.pximg.net" ? "jpeg" : "jpg",
@@ -1575,14 +1525,19 @@
   // Youtube
   else if (hostname === "www.youtube.com") {
     if (pathname === "/watch" || pathname.startsWith("/shorts/")) {
+      const matchInfo = () => {
+        return window.location.href.match(/\/+(watch\?v=|shorts\/)([\w-]+)/);
+      };
       GM_registerMenuCommand("View cover", () => {
-        let matched = window.location.href.match(
-          /\/+(watch\?v=|shorts\/)([\w-]+)/
-        );
+        const matched = matchInfo();
         let pre = `https://i.ytimg.com/vi/${matched[2]}/`;
         window.open(
           matched[1] === "shorts/" ? pre + "oar2.jpg" : pre + "0.jpg"
         );
+      });
+      GM_registerMenuCommand("View upload time", () => {
+        const matched = matchInfo();
+        window.open("https://youdate.beren.dev/api/v1?q=" + matched[2]);
       });
     }
   } else if (
@@ -1774,6 +1729,29 @@
           )
         )
       );
+    }
+  }
+
+  // Google
+  else if (hostname.endsWith(".googleusercontent.com")) {
+    if (
+      /^(?:yt|ci|lh|gp)[0-9](?:-[a-z]{2})?\./.test(hostname) ||
+      /^play-lh\./.test(hostname) ||
+      hostname === "blogger.googleusercontent.com"
+    ) {
+      if (
+        !/^[a-z]+:\/\/[^/]+\/+[^/?#=]{30,}=x[0-9]+-y[0-9]+-z[0-9]+-t[^-/?#]{23,}(?:[?#].*)?$/.test(
+          src
+        )
+      ) {
+        return redirect(
+          src
+            .replace(/#.*$/, "")
+            .replace(/\?.*$/, "")
+            .replace(/\/[swh][0-9]*(-[^/]*]*)?\/([^/]*)$/, "/s0/$2")
+            .replace(/(=[^/]*)?$/, "=s0?imgmax=0")
+        );
+      }
     }
   }
 
@@ -2098,7 +2076,7 @@
         }, 3000);
       }
       document.querySelectorAll("div#yourimageretrylinks > a").forEach(a => {
-        if (a.children[0].title === "Search Google") {
+        if (a.children[0].title.indexOf("Google") > -1) {
           a.href = a.href.replace(
             /^.*?=/,
             "https://www.google.com/searchbyimage?client=Chrome&image_url="
@@ -2175,7 +2153,7 @@
                 break;
             }
             if (uid && pid && miscInfoA) {
-              miscInfoA.href = `https://kemono.party/${site}/user/${uid}/post/${pid}`;
+              miscInfoA.href = `https://kemono.su/${site}/user/${uid}/post/${pid}`;
             }
           }
         });
@@ -2183,13 +2161,30 @@
     return;
   }
 
-  // Twitter Video Direct Link
+  // Twitter
   else if (hostname.endsWith("twitter.com")) {
     pathname = pathname.replace(/^\/i\/web/, "/user");
     newSrc = `https://twitter.com${pathname}`;
     if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname)) {
       return redirect(newSrc);
     }
+    const getUID = (short = true) => {
+      const id = JSON.parse(
+        document.head.querySelector(
+          'script[data-testid="UserProfileSchema-test"]'
+        )?.textContent || null
+      )?.author?.identifier;
+      if (id) {
+        const preifx = short
+          ? "https://twitter.com/i/user/"
+          : "https://twitter.com/intent/user?user_id=";
+        const url = preifx + id;
+        GM_setClipboard(url);
+        GM_toast(url + " Copied.");
+      } else GM_toast("UID not found.");
+    };
+    GM_registerMenuCommand("Get user permanent link", () => getUID());
+    GM_registerMenuCommand("Get user permanent linkᴸ", () => getUID(0));
     /**
      * Reference:
      *   https://gist.github.com/mozurin/0c3bc302b1106f1adb7d31e616c7df9b
@@ -2406,6 +2401,23 @@
     addVideoLink.init();
   }
 
+  // Pixiv
+  else if (hostname === "www.pixiv.net") {
+    const getUID = () => location.href.match(/\/users\/(\d+)/)?.[1];
+    GM_registerMenuCommand("Copy stacc URL", () => {
+      const uid = getUID();
+      if (uid)
+        fetch("https://www.pixiv.net/stacc/id/" + uid).then(r => {
+          GM_setClipboard(r.url);
+          GM_toast(r.url + " copied.");
+        });
+    });
+    GM_registerMenuCommand("View Artist on Fanbox", () => {
+      const uid = getUID();
+      if (uid) window.open("https://www.pixiv.net/fanbox/creator/" + uid);
+    });
+  }
+
   // Niconico Video Cover
   else if (hostname === "www.nicovideo.jp") {
     const getCoverUrl = async (id, htmlStr, t = 0) => {
@@ -2448,7 +2460,7 @@
       GM_registerMenuCommand(title, () => {
         let token = localStorage.getItem("token");
         if (!token)
-          GM_notification({
+          GM_toast({
             title,
             text: "Please login first",
             timeout: 2000
@@ -2471,7 +2483,7 @@
               let url = data.article_image_url;
               if (url) window.open(url, "_blank");
               else
-                GM_notification({
+                GM_toast({
                   title,
                   text: "article_image_url not found in API",
                   timeout: 2000
@@ -2544,6 +2556,29 @@
     });
   }
 
+  function scriptTagModify(cb) {
+    // https://stackoverflow.com/a/11577730
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", src, false);
+    xhr.send(null);
+    let content = xhr.responseText,
+      doc = document.implementation.createHTMLDocument(
+        "" + (document.title || "")
+      );
+
+    doc.open();
+    doc.write(content);
+    doc.close();
+
+    let scripts = doc.getElementsByTagName("script");
+    [].forEach.call(scripts, cb);
+
+    document.replaceChild(
+      document.importNode(doc.documentElement, true),
+      document.documentElement
+    );
+  }
+
   function disableWebRTC() {
     navigator.getUserMedia = void 0;
     unsafeWindow.MediaStreamTrack = void 0;
@@ -2571,5 +2606,21 @@
         onerror: error => reject(error)
       });
     });
+  }
+
+  /**
+   * @param {string | {title: string, text: string, timeout: number}} input - Toast message, or toast title, mssage & duration.
+   */
+  function GM_toast(input) {
+    input = typeof input === "string" ? { text: input } : input;
+    if (window.GM_notification) {
+      return GM_notification(input);
+    } else if (window.via?.toast) {
+      return window.via.toast(input.text);
+    }
+
+    // https://gist.github.com/superRaytin/d06faea2072dc1836e3d2558cdfc942a
+    // prettier-ignore
+    {window.simpleToastTimer&&clearTimeout(window.simpleToastTimer);const wrapStyle="display: flex; justify-content: center; padding: 0.6rem 1rem; font-size: 1.5rem; color: #fff; background: rgba(0, 0, 0, 0.7); border-radius: 0.4rem; position: fixed; top: 50%; left: 50%; z-index: 100; transform: translate3d(-50%, -50%, 1px);",contentStyle="display: flex; flex-direction: column; align-items: center; text-align: center;",toastEleId="__GM_toast",toastInnerHTML=`<div style="${wrapStyle}"><div style="${contentStyle}">${input.text}</div></div>`,toastEl=document.getElementById(toastEleId);if(toastEl)toastEl.innerHTML=toastInnerHTML;else{const a=document.createElement("div");a.setAttribute("id",toastEleId),a.innerHTML=toastInnerHTML,document.body.appendChild(a)}window.simpleToastTimer=setTimeout(()=>{const t=document.getElementById(toastEleId);t&&t.parentNode.removeChild(t)},input.timeout||2e3);}
   }
 })();

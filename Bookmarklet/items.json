@@ -89,5 +89,12 @@
     "view": "",
     "desc": "List all global variables and functions.",
     "hasMinified": false
+  },
+  {
+    "name": "FormatJSON",
+    "src": "src/FormatJSON.js",
+    "view": "",
+    "desc": "Format JSON.",
+    "hasMinified": false
   }
 ]

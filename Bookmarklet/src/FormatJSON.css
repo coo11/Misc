@@ -1,0 +1,28 @@
+:root {
+    /* Atom One Light */
+    --key: #c18401;
+    --null: #a626a4;
+    --num: #50a14f;
+    --bool: #0184bb;
+    /* Monokai */
+    --key-dark: #78dce8;
+    --null-dark: #f92672;
+    --num-dark: #a6e22e;
+    --bool-dark: #ae81ff;
+}
+
+body {
+    --key-clr: var(--key);
+    --null-clr: var(--null);
+    --num-clr: var(--num);
+    --bool-clr: var(--bool);
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        --key-clr: var(--key-dark);
+        --null-clr: var(--null-dark);
+        --num-clr: var(--num-dark);
+        --bool-clr: var(--bool-dark);
+    }
+}
