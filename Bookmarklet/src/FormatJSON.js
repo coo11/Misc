@@ -16,7 +16,7 @@
       JSON.stringify(JSON.parse(body.innerText), null, 4).replace(
         /"([^"\\]*(?:\\.[^"\\]*)*)": (\[|{|".*"|\d+|\btrue\b|\bfalse\b|null)/g,
         (_, $1, $2) => {
-          let pre = `<span style="color:var(--key-clr)">${$1}</span>&colon;&nbsp;`;
+          let pre = `<span style="color:var(--key-clr)">"${$1}"</span>&colon;&nbsp;`;
           let sfx =
             $2 === "null"
               ? `<span style="font-weight:bold;font-style:italic;color:var(--null-clr)">${$2}</span>`

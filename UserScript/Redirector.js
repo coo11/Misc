@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Excalibur
 // @namespace         https://github.com/coo11/Backup/tree/master/UserScript
-// @version         0.1.68
+// @version         0.1.75
 // @description         Start taking over the world!
 // @author         coo11
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
@@ -10,7 +10,7 @@
 // @match         *://*.lofter.com/*
 // @match         *://*.tsdm39.com/*
 // @match         *://saucenao.com/search.php*
-// @match         *://twitter.com/*
+// @match         *://x.com/*
 // @match         *://www.pixiv.net/*
 // @match         *://www.nicovideo.jp/watch/sm*
 // @match         *://skeb.jp/@*
@@ -33,7 +33,7 @@
 // @match         *://pic-bucket.ws.126.net/*
 // @match         *://image-assets.mihuashi.com/*
 // @match         *://*.bcyimg.com/*
-// @ Pixiv, Twitter, Youtube, Artstation, Steam, Pinterest, reddit, Discord, Google
+// @ Pixiv, Twitter, Youtube, Artstation, Steam, Pinterest, reddit, Discord, NicoSeiga, Google, tumblr
 // @match         *://i.pximg.net/*
 // @match         *://i-f.pximg.net/*
 // @match         *://i-cf.pximg.net/*
@@ -57,7 +57,10 @@
 // @match         *://www.reddit.com/r/*
 // @match         *://*.discordapp.net/*
 // @match         *://*.discordapp.com/*
+// @match         *://lohas.nicoseiga.jp/*
+// @exclude-match         *://lohas.nicoseiga.jp/priv/*
 // @match         *://*.googleusercontent.com/*
+// @match         *://64.media.tumblr.com/*
 // @ Apple Music, iTunes
 // @match         *://*.mzstatic.com/*
 // @ Web Archive
@@ -156,8 +159,7 @@
         if (prop in window.console) {
           return function (arg1, ...args) {
             let pre = `%c${GM_info.script.name}%c`,
-              style =
-                "color: #3c89e8; padding: 1px 5px; border-radius: 4px; border: 1px solid #91caff;";
+              style = "color: #3c89e8; padding: 1px 5px; border-radius: 4px; border: 1px solid #91caff;";
             if (typeof arg1 === "string") {
               console[prop](`${pre} ${arg1}`, style, null, ...args);
             } else console[prop](pre, style, null, arg1, ...args);
@@ -172,7 +174,7 @@
   const Cookie = (function(){"use strict";function e(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)e[o]=n[o]}return e}var t=function t(n,o){function r(t,r,i){if("undefined"!=typeof document){"number"==typeof(i=e({},o,i)).expires&&(i.expires=new Date(Date.now()+864e5*i.expires)),i.expires&&(i.expires=i.expires.toUTCString()),t=encodeURIComponent(t).replace(/%(2[346B]|5E|60|7C)/g,decodeURIComponent).replace(/[()]/g,escape);var c="";for(var u in i)i[u]&&(c+="; "+u,!0!==i[u]&&(c+="="+i[u].split(";")[0]));return document.cookie=t+"="+n.write(r,t)+c}}return Object.create({set:r,get:function(e){if("undefined"!=typeof document&&(!arguments.length||e)){for(var t=document.cookie?document.cookie.split("; "):[],o={},r=0;r<t.length;r++){var i=t[r].split("="),c=i.slice(1).join("=");try{var u=decodeURIComponent(i[0]);if(o[u]=n.read(c,u),e===u)break}catch(e){}}return e?o[e]:o}},remove:function(t,n){r(t,"",e({},n,{expires:-1}))},withAttributes:function(n){return t(this.converter,e({},this.attributes,n))},withConverter:function(n){return t(e({},this.converter,n),this.attributes)}},{attributes:{value:Object.freeze(o)},converter:{value:Object.freeze(n)}})}({read:function(e){return'"'===e[0]&&(e=e.slice(1,-1)),e.replace(/(%[\dA-F]{2})+/gi,decodeURIComponent)},write:function(e){return encodeURIComponent(e).replace(/%(2[346BF]|3[AC-F]|40|5[BDE]|60|7[BCD])/g,decodeURIComponent)}},{path:"/"});return t})();
 
   // prettier-ignore
-  const weiboFn={alphabet:"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",mid2id(r){let s="";for(let n=r.length-4;-4<n;n-=4){let e=n<0?0:n,t=n+4,o=r.substring(e,t);if(o=this.decodeBase62(o).toString(),0<e)for(;o.length<7;)o="0"+o;s=o+s}return s},id2mid(r){let s="";for(let n=(r=String(r)).length-7;-7<n;n-=7){let e=n<0?0:n,t=n+7,o=r.substring(e,t);if(o=this.encodeBase62(o),0<e)for(;o.length<4;)o="0"+o;s=o+s}return s},encodeBase62(e){let t="";for(;0!=e;)t=this.alphabet[e%62]+t,e=Math.floor(e/62);return t},decodeBase62(t){let o=0,n=t.length-1;for(let e=0;e<=n;e++)o+=this.alphabet.indexOf(t.substr(e,1))*Math.pow(62,n-e);return o},openHomepageFromSinaimg(e){const t=e.substr(0,8),o=t.startsWith("00")?this.decodeBase62(t):parseInt(t,16);window.open("https://weibo.com/u/"+o)}};
+  const weiboFn = {alphabet:"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",mid2id(r){let s="";for(let n=r.length-4;-4<n;n-=4){let e=n<0?0:n,t=n+4,o=r.substring(e,t);if(o=this.decodeBase62(o).toString(),0<e)for(;o.length<7;)o="0"+o;s=o+s}return s},id2mid(r){let s="";for(let n=(r=String(r)).length-7;-7<n;n-=7){let e=n<0?0:n,t=n+7,o=r.substring(e,t);if(o=this.encodeBase62(o),0<e)for(;o.length<4;)o="0"+o;s=o+s}return s},encodeBase62(e){let t="";for(;0!=e;)t=this.alphabet[e%62]+t,e=Math.floor(e/62);return t},decodeBase62(t){let o=0,n=t.length-1;for(let e=0;e<=n;e++)o+=this.alphabet.indexOf(t.substr(e,1))*Math.pow(62,n-e);return o},openHomepageFromSinaimg(e){const t=e.substr(0,8),o=t.startsWith("00")?this.decodeBase62(t):parseInt(t,16);window.open("https://weibo.com/u/"+o)}};
 
   /**
    * Add multiple extensions for guessing real url.
@@ -291,10 +293,7 @@
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
     } else return;
-  } else if (
-    hostname === "www.pixiv.net" &&
-    src.indexOf("/jump.php?http") > -1
-  ) {
+  } else if (hostname === "www.pixiv.net" && src.indexOf("/jump.php?http") > -1) {
     matched = src.match(/\?(http[^#&]*)/);
     if (matched && matched[1]) {
       return redirect(decodeURIComponent(matched[1]));
@@ -314,18 +313,13 @@
       window.location.protocol = "https:";
     }
     return;
-  } else if (
-    hostname === "t.cn" ||
-    hostname === "sinaurl.cn" ||
-    /^https?:\/\/weibo\.cn\/sinaurl\?(toasturl|u)=/.test(src)
-  ) {
+  } else if (hostname === "t.cn" || hostname === "sinaurl.cn" || /^https?:\/\/weibo\.cn\/sinaurl\?(toasturl|u)=/.test(src)) {
     const div = document.querySelector("div.desc");
     if (div && div.innerText.startsWith("http")) {
       return redirect(div.innerText);
     } else {
       let usp = new URL(location);
-      let target =
-        usp.searchParams.get("toasturl") || usp.searchParams.get("u");
+      let target = usp.searchParams.get("toasturl") || usp.searchParams.get("u");
       if (target) return redirect(target);
       else if (hostname === "t.cn" && !target) {
         let rp = await fetch(usp);
@@ -354,9 +348,7 @@
     switch (i) {
       case 0:
         return GM_registerMenuCommand("Open Base62 URL", () => {
-          let currentPid = window.location.href.match(
-            /\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i
-          )?.[1];
+          let currentPid = window.location.href.match(/\/\/m\.weibo\.cn\/(?:status|detail|\d+)\/([A-z0-9]+)/i)?.[1];
           if (!currentPid) return;
           if (/^\d+$/.test(currentPid)) currentPid = weiboFn.id2mid(currentPid);
           const avatar = document.querySelector("div.main div.m-avatar-box a");
@@ -370,21 +362,15 @@
       case 3:
         return redirect(`https://weibo.com/tv/show/1034:${matched[1]}`);
       case 4:
-        return GM_registerMenuCommand("Open Base62 URL", () =>
-          getInfoByOid(matched[1])
-        );
+        return GM_registerMenuCommand("Open Base62 URL", () => getInfoByOid(matched[1]));
       case 5:
         return GM_registerMenuCommand("Weibo Base62", () => {
-          const input = prompt(
-            "Input String to execute Base 62 encode/decode:"
-          );
+          const input = prompt("Input String to execute Base 62 encode/decode:");
           if (!input) {
             return;
           }
           const isEncoded = /\D/.test(input);
-          const output = isEncoded
-              ? weiboFn.mid2id(input)
-              : weiboFn.id2mid(input),
+          const output = isEncoded ? weiboFn.mid2id(input) : weiboFn.id2mid(input),
             tip = isEncoded ? "Decoded" : "Encoded";
           return prompt(`${tip} result:`, output);
         });
@@ -396,16 +382,13 @@
       if (currentOid && currentOid[1] !== oid) {
         oid = currentOid[1];
       }
-      fetch(
-        `https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`,
-        {
-          headers: {
-            "content-type": "application/x-www-form-urlencoded"
-          },
-          body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
-          method: "POST"
-        }
-      )
+      fetch(`https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`, {
+        headers: {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        body: `data={"Component_Play_Playinfo":{"oid":"1034:${oid}"}}`,
+        method: "POST"
+      })
         .then(resp => {
           if (resp && resp.status == 200) {
             return resp.json();
@@ -444,8 +427,7 @@
       };
       GM_registerMenuCommand("View Author on Kemono", () => {
         let uid = getUID();
-        if (uid)
-          window.open(`https://kemono.party/fanbox/user/${uid}`, "_blank");
+        if (uid) window.open(`https://kemono.party/fanbox/user/${uid}`, "_blank");
       });
       GM_registerMenuCommand("View Author on Pixiv", () => {
         let uid = getUID();
@@ -457,9 +439,7 @@
   // Fantia add entry to Kemono
   else if (hostname === "fantia.jp") {
     let getUID = () => {
-      return document
-        .querySelector("div.fanclub-header > a")
-        ?.href?.match(/fanclubs\/(\d+)/)?.[1];
+      return document.querySelector("div.fanclub-header > a")?.href?.match(/fanclubs\/(\d+)/)?.[1];
     };
     GM_registerMenuCommand("View Author on Kemono", () => {
       let uid = getUID();
@@ -486,10 +466,7 @@
           });
         }
         GM_registerMenuCommand("View user on Kemono", () => {
-          window.open(
-            `https://kemono.party/patreon/user/${userData.relationships.creator.data.id}`,
-            "_blank"
-          );
+          window.open(`https://kemono.party/patreon/user/${userData.relationships.creator.data.id}`, "_blank");
         });
         return;
       }
@@ -501,15 +478,11 @@
   else if (hostname.endsWith(".gumroad.com")) {
     document.addEventListener("DOMContentLoaded", () => {
       const getInfoComponent = () => {
-        return JSON.parse(
-          document.querySelector("script.js-react-on-rails-component")
-            ?.textContent
-        );
+        return JSON.parse(document.querySelector("script.js-react-on-rails-component")?.textContent);
       };
       GM_registerMenuCommand("View Author on Kemono", () => {
         let uid = getInfoComponent()?.creator_profile.external_id;
-        if (uid)
-          window.open(`https://kemono.party/gumroad/user/${uid}`, "_blank");
+        if (uid) window.open(`https://kemono.party/gumroad/user/${uid}`, "_blank");
       });
     });
   }
@@ -518,35 +491,30 @@
   else if (hostname === "exhentai.org" || hostname === "e-hentai.org") {
     return document.addEventListener("DOMContentLoaded", () => {
       if (src.indexOf("gallerytorrents.php") > -1) {
-        return document
-          .querySelectorAll("#torrentinfo form table tr:nth-child(2)")
-          .forEach(tr => {
-            let magnet,
-              a = tr.nextElementSibling.querySelector("a");
-            if (a) {
-              magnet = a.href.replace(
-                /.*?([0-9a-f]{40}).*$/i,
-                "magnet:?xt=urn:btih:$1"
-              );
-              if (!magnet || magnet.length !== 60) return;
-            }
-            let td = tr.querySelector("td[rowspan='2']");
-            if (td) {
-              td.setAttribute("rowspan", "1");
-              const newTd = td.cloneNode(true),
-                input = newTd.children[0];
-              input.type = "button";
-              input.value = "Magnet";
-              input.onclick = function () {
-                input.blur();
-                if (input.value === "Copied!") return;
-                GM_setClipboard(magnet);
-                input.value = "Copied!";
-                wait(2000).then(() => (input.value = "Magnet"));
-              };
-              tr.appendChild(newTd);
-            }
-          });
+        return document.querySelectorAll("#torrentinfo form table tr:nth-child(2)").forEach(tr => {
+          let magnet,
+            a = tr.nextElementSibling.querySelector("a");
+          if (a) {
+            magnet = a.href.replace(/.*?([0-9a-f]{40}).*$/i, "magnet:?xt=urn:btih:$1");
+            if (!magnet || magnet.length !== 60) return;
+          }
+          let td = tr.querySelector("td[rowspan='2']");
+          if (td) {
+            td.setAttribute("rowspan", "1");
+            const newTd = td.cloneNode(true),
+              input = newTd.children[0];
+            input.type = "button";
+            input.value = "Magnet";
+            input.onclick = function () {
+              input.blur();
+              if (input.value === "Copied!") return;
+              GM_setClipboard(magnet);
+              input.value = "Copied!";
+              wait(2000).then(() => (input.value = "Magnet"));
+            };
+            tr.appendChild(newTd);
+          }
+        });
       } else if (pathname.startsWith("/g/")) {
         // Add double click tag to open in new tab
         document.querySelectorAll("#taglist div > a").forEach(e => {
@@ -555,13 +523,11 @@
           });
         });
         // Add comment URL hash
-        document
-          .querySelectorAll("div.gdtm > div > a, div.gdtl > a")
-          .forEach(a => {
-            if (a.href.indexOf("hentai.org/s/") > -1) {
-              a.setAttribute("target", "_blank");
-            }
-          });
+        document.querySelectorAll("div.gdtm > div > a, div.gdtl > a").forEach(a => {
+          if (a.href.indexOf("hentai.org/s/") > -1) {
+            a.setAttribute("target", "_blank");
+          }
+        });
         document.querySelectorAll("#cdiv div.c3").forEach(el => {
           let a = el.closest("div.c1").previousSibling;
           if (a && a.name) {
@@ -579,10 +545,8 @@
         i3.append(img);
         a.removeAttribute("href");
         let ap = a.cloneNode(),
-          apCss =
-            "width: 42%; height: 70%; position: absolute; left: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/p.png),auto;",
-          aCss =
-            "width: 42%; height: 70%; position: absolute; right: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/n.png),auto;";
+          apCss = "width: 42%; height: 70%; position: absolute; left: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/p.png),auto;",
+          aCss = "width: 42%; height: 70%; position: absolute; right: 0; top: 15%; z-index: 12; cursor: url(//ehgt.org/g/n.png),auto;";
         ap.onclick = document.querySelector("a#prev").onclick;
         a.style.cssText = aCss;
         ap.style.cssText = apCss;
@@ -592,19 +556,14 @@
           let apOnClikck = a.n.match(/prev.*?(return.*?)"/)[1];
           a.i3 = a.i3
             .replace(/href.*?"/, "")
-            .replace(
-              /(^.*?onclick.*?\)")(.*?>)(<img.*?\/>)(.*?$)/,
-              `<a onclick="${apOnClikck}" style="${apCss}">$4$1 style="${aCss}"$2$4$3`
-            );
+            .replace(/(^.*?onclick.*?\)")(.*?>)(<img.*?\/>)(.*?$)/, `<a onclick="${apOnClikck}" style="${apCss}">$4$1 style="${aCss}"$2$4$3`);
           hookedFn(a);
         };
       } else if (/^\/(mpv\/|torrents\.php|upld\/|mytags)/.test(pathname));
       else {
         // Open Gallery in New Tab
         [].forEach.call(document.getElementsByClassName("itg"), table => {
-          table
-            .querySelectorAll("a")
-            .forEach(a => a.setAttribute("target", "_blank"));
+          table.querySelectorAll("a").forEach(a => a.setAttribute("target", "_blank"));
         });
         // Add Search in South Plus
         const inputArea = document.getElementById("f_search");
@@ -633,28 +592,16 @@
           "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } " +
           ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }" +
           "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }";
-        const pageMode =
-          document.querySelector("#dms select")?.selectedIndex ||
-          document.querySelector("div.searchnav select")?.selectedIndex;
+        const pageMode = document.querySelector("#dms select")?.selectedIndex || document.querySelector("div.searchnav select")?.selectedIndex;
         // Add bouncing animation for title
         if (pageMode < 3) {
           const hookedFn = unsafeWindow.show_image_pane;
           unsafeWindow.show_image_pane = function (a) {
-            const tr = document
-              .querySelector("div#ic" + a)
-              .parentNode.parentNode.closest("tr");
+            const tr = document.querySelector("div#ic" + a).parentNode.parentNode.closest("tr");
             const container = tr.querySelector("td.glname");
             const text = tr.querySelector("div.glink");
-            if (
-              container.clientWidth < text.scrollWidth &&
-              !text.classList.contains("bouncing")
-            )
-              text.classList.add("bouncing");
-            else if (
-              container.clientWidth >= text.scrollWidth &&
-              text.classList.contains("bouncing")
-            )
-              text.classList.remove("bouncing");
+            if (container.clientWidth < text.scrollWidth && !text.classList.contains("bouncing")) text.classList.add("bouncing");
+            else if (container.clientWidth >= text.scrollWidth && text.classList.contains("bouncing")) text.classList.remove("bouncing");
             hookedFn(a);
           };
         }
@@ -662,24 +609,18 @@
         {
           // Show translator meta: Not good if use Extended or Thumbnail mode.
           let needCheckedGalleries = {};
-          let translateRegex =
-            /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
-          let translateRegexIrregular =
-            /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
+          let translateRegex = /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
+          let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
           let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
-          let aiRegex =
-            /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
-          const defaultColor =
-            hostname === "e-hentai.org" ? "blueviolet" : "cyan";
-          let addColor = (text, color = defaultColor) =>
-            `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
+          let aiRegex = /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
+          const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
+          let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
           document.querySelectorAll("div.glink").forEach(e => {
             let jpTitle = e.innerText;
             jpTitle = jpTitle.replace(/］/g, "]").replace(/［/g, "[");
             let matched = jpTitle.match(translateRegex)?.[0];
             if (matched) {
-              e.innerHTML =
-                jpTitle.replace(matched, " ").trim() + addColor(matched);
+              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched);
               return;
             }
             matched = jpTitle.match(cnTsGalleriesRegex)?.[0];
@@ -690,37 +631,25 @@
             }
             matched = jpTitle.match(translateRegexIrregular)?.[0];
             if (matched) {
-              e.innerHTML =
-                jpTitle.replace(matched, " ").trim() +
-                addColor("[中文]", "#EF5FA7");
+              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[中文]", "#EF5FA7");
               return;
             }
             matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
             if (matched) {
-              e.innerHTML =
-                jpTitle.replace(matched, " ").trim() +
-                addColor(matched, "#EF5FA7");
+              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
               return;
             }
             matched = jpTitle.match(aiRegex)?.[0];
             if (matched) {
-              e.innerHTML =
-                jpTitle.replace(matched, " ").trim() +
-                addColor("[AI Generated]", "#FF0000");
+              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[AI Generated]", "#FF0000");
               return;
             }
-            if (
-              e.nextElementSibling?.querySelector(
-                "div.gt[title='language:chinese']"
-              )
-            ) {
+            if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
               e.innerHTML = e.innerHTML.trim();
               needCheckedGalleries[e.parentNode.href] = e;
             }
           });
-          let gidList = Object.keys(needCheckedGalleries).map(url =>
-            url.split("/").splice(4, 2)
-          );
+          let gidList = Object.keys(needCheckedGalleries).map(url => url.split("/").splice(4, 2));
           if (gidList.length === 0) return;
           let groupedList = [];
           gidList.forEach((gt, n) => {
@@ -744,10 +673,7 @@
             }).then(resp => {
               let json = JSON.parse(resp.responseText);
               json?.gmetadata?.forEach(({ gid, token, title }) => {
-                let e =
-                  needCheckedGalleries[
-                    `https://${hostname}/g/${gid}/${token}/`
-                  ];
+                let e = needCheckedGalleries[`https://${hostname}/g/${gid}/${token}/`];
                 let matched = title.match(translateRegex)?.[0];
                 if (matched) {
                   e.innerHTML += addColor(matched);
@@ -778,27 +704,89 @@
   // Danbooru Ehance
   else if (hostname.endsWith(".donmai.us")) {
     return document.addEventListener("DOMContentLoaded", () => {
-      document
-        .querySelectorAll("a.post-preview-link")
-        .forEach(a => (a.draggable = true)); // Fix for gesture plugin
+      document.querySelectorAll("a.post-preview-link").forEach(a => (a.draggable = true)); // Fix for gesture plugin
       document.addEventListener("click", event => {
         const el = event.target;
-        if (
-          el.tagName === "SPAN" &&
-          el.classList.contains("post-count") &&
-          !el.parentElement.classList.contains("ui-menu-item-wrapper")
-        ) {
-          const tagStr =
-            el.parentElement.dataset.tagName ||
-            el.previousElementSibling.innerText.replace(/\s+/g, "_");
+        if (el.tagName === "SPAN" && el.classList.contains("post-count") && !el.parentElement.classList.contains("ui-menu-item-wrapper")) {
+          const tagStr = el.parentElement.dataset.tagName || el.previousElementSibling.innerText.replace(/\s+/g, "_");
           if (tagStr) {
             const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
             unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
           }
         }
       });
+      // Convert full-width characters to half-width in search bar or tag edit textbox
+      {
+        function hasFullWidthSearchChar(data) {
+          return (
+            data &&
+            (data.indexOf("\uFF1A") > -1 ||
+              data.indexOf("\uFF08") > -1 ||
+              data.indexOf("\uFF09") > -1 ||
+              data.indexOf("\u201C") > -1 ||
+              data.indexOf("\u201D") > -1 ||
+              data.indexOf("\u2018") > -1 ||
+              data.indexOf("\u2019") > -1 ||
+              data.indexOf("\u2014\u2014") > -1)
+          );
+        }
+        function replaceFullWidthChar(data) {
+          return data
+            .replace(/\uFF1A/g, ":")
+            .replace(/\uFF08/g, "(")
+            .replace(/\uFF09/g, ")")
+            .replace(/\u201C|\u201D/g, '"')
+            .replace(/\u2018|\u2019/g, "'")
+            .replace(/\u2014\u2014/g, "_");
+        }
+
+        const contentEditableElements = document.querySelectorAll("input[data-autocomplete='tag-query'], textarea[data-autocomplete='tag-edit']");
+
+        contentEditableElements.forEach(el => {
+          el.addEventListener("beforeinput", e => {
+            const { inputType, data, target } = e;
+            const { value, selectionStart, selectionEnd } = target;
+            let beginning = value.slice(0, selectionStart);
+            let ending = value.slice(selectionEnd);
+            console.log(e);
+
+            if (inputType === "insertFromPaste" && data && hasFullWidthSearchChar(data)) {
+              let newData = replaceFullWidthChar(data);
+              let cursor = beginning.length + newData.length;
+              inputElement.value = beginning + newData + ending;
+              inputElement.selectionStart = inputElement.selectionEnd = cursor;
+              return false;
+            }
+          });
+          el.addEventListener("input", e => {
+            // data here is null if inputType is insertFromPaste in Windows Chrome.
+            // So we need to replace it in beforeinput event.
+            const { inputType, data, target } = e;
+            const { value, selectionStart, selectionEnd } = target;
+            let beginning = value.slice(0, selectionStart);
+            let ending = value.slice(selectionEnd);
+
+            if (inputType.startsWith("insert") && data && hasFullWidthSearchChar(data)) {
+              beginning = beginning.slice(0, -data.length);
+              let newData = replaceFullWidthChar(data);
+              let cursor = beginning.length + newData.length;
+              target.value = beginning + newData + ending;
+
+              // Android Webview and Chrome for Android has no insertCompositionText inputType.
+              if (inputType === "insertCompositionText") target.hasInsertCompositionText = true;
+              // An extra insertText event will be triggered in Windows Chrome.
+              if (inputType === "insertText" && target.hasInsertCompositionText) {
+                cursor = beginning.length;
+                target.value = beginning + ending;
+              }
+
+              target.selectionStart = target.selectionEnd = cursor;
+            }
+          });
+        });
+      }
       if (pathname.startsWith("/posts/")) {
-        const postId = document.body.dataset["postId"];
+        const postId = document.body?.dataset["postId"] || document.head.querySelector("meta[name='post-id']").getAttribute("content");
         let image = document.querySelector("picture > img#image");
         if (image) {
           dragElement(image);
@@ -806,15 +794,12 @@
         }
         document.querySelector("div#a-show")?.addEventListener("click", e => {
           if (e.target.classList.contains("image-view-original-link")) {
-            document
-              .querySelector("picture > img#image")
-              .classList.remove("fit-width");
+            document.querySelector("picture > img#image").classList.remove("fit-width");
           }
         });
         const size = document.querySelector("#post-info-size > a:last-child");
         size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-        const md5 =
-          size.previousElementSibling.href?.match(/([a-z0-9]{32})\./)[1];
+        const md5 = size.previousElementSibling.href?.match(/([a-z0-9]{32})\./)[1];
         document
           .querySelector("#post-info-id")
           .insertAdjacentHTML(
@@ -838,11 +823,20 @@
               .then(resp => resp.text())
               .then(text => {
                 if (/^\d+$/.test(text)) {
+                  document.getElementById("post-info-score")?.insertAdjacentHTML("afterend", `<li id="post-info-views">Views: ${text}</li>`);
+                }
+              });
+            fetch("/favorite_groups.json?only=id&limit=100&search%5Bpost_ids_include_all%5D=" + postId)
+              .then(resp => resp.json())
+              .then(json => {
+                if (Array.isArray(json)) {
+                  let len = json.length;
+                  len = len > 100 ? len + "+" : len;
                   document
-                    .getElementById("post-info-score")
+                    .getElementById("post-info-favorites")
                     ?.insertAdjacentHTML(
                       "afterend",
-                      `<li id="post-info-views">Views: ${text}</li>`
+                      `<li id="post-info-favgroups">Favgroups: <a href="/favorite_groups?search%5Bpost_ids_include_all%5D=${postId}" target="_blank">${len}</a></li>`
                     );
                 }
               });
@@ -851,8 +845,7 @@
         // Add a button to remove post in a favorite group to the end of the favorite group navi bar
         {
           let noticeSearchBar = document.querySelector(".post-notice-search"),
-            favBars =
-              noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
+            favBars = noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
             headers = {
               "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token")
             };
@@ -861,12 +854,15 @@
               "beforeend",
               `<style>.post-notice-search>.favgroup-navbar{display:flex;align-items:center}.favgroup-navbar>.favgroup-name{white-space:normal!important}.favgroup-navbar:hover .fav-remove-link{opacity:1}.favgroup-navbar .fav-remove-link{opacity:0}.fav-remove-link{color:var(--button-danger-background-color)}.fav-remove-link:hover{color:var(--button-danger-hover-background-color)}</style>`
             );
+            let xhref = document.querySelector("#close-news-ticker-link > svg > use").href.baseVal;
             favBars.forEach(fav => {
               let favName = fav.querySelector(".favgroup-name");
               let pre = favName.children[0].href;
               favName.insertAdjacentHTML(
                 "beforeend",
-                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="/packs/static/public/images/icons-e8c108a4abab17da8dae.svg#xmark"></use></svg></a>'
+                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="' +
+                  xhref +
+                  '"></use></svg></a>'
               );
               favName.lastElementChild.addEventListener("click", () => {
                 fetch(`${pre}/remove_post.js?post_id=${postId}`, {
@@ -875,19 +871,13 @@
                 })
                   .then(resp => resp.text())
                   .then(text => {
-                    const matched = text.match(
-                      /"(Removed post from favorite group )(.+?)"\);/
-                    );
+                    const matched = text.match(/"(Removed post from favorite group )(.+?)"\);/);
                     if (matched) {
-                      const url = encodeURI(
-                        `https://danbooru.donmai.us/posts?tags=favgroup:"${matched[2]}"`
-                      );
-                      const text =
-                        matched[1] + `<a href="${url}">${matched[2]}</a>`;
+                      const url = encodeURI(`https://danbooru.donmai.us/posts?tags=favgroup:"${matched[2]}"`);
+                      const text = matched[1] + `<a href="${url}">${matched[2]}</a>`;
                       unsafeWindow.Danbooru.notice(text);
                       fav.remove();
-                      if (noticeSearchBar.children.length === 0)
-                        noticeSearchBar.remove();
+                      if (noticeSearchBar.children.length === 0) noticeSearchBar.remove();
                     }
                   });
               });
@@ -897,22 +887,10 @@
       } else if (pathname.startsWith("/artists/")) {
         if (document.body.dataset["artistId"]) {
           const el = document.querySelector("li#subnav-posts");
-          const url = el.children[0].href.replace(
-            "posts?tags=",
-            "post_versions?search%5Bchanged_tags%5D="
-          );
-          if (url)
-            el.insertAdjacentHTML(
-              "afterend",
-              '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' +
-                url +
-                '">Post changes</a></li>'
-            );
+          const url = el.children[0].href.replace("posts?tags=", "post_versions?search%5Bchanged_tags%5D=");
+          if (url) el.insertAdjacentHTML("afterend", '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' + url + '">Post changes</a></li>');
         }
-      } else if (
-        pathname.startsWith("/media_assets/") ||
-        pathname.startsWith("/uploads/")
-      ) {
+      } else if (pathname.startsWith("/media_assets/") || pathname.startsWith("/uploads/")) {
         const mediaAssetPanzoom = {
           isDashed: false,
           get media() {
@@ -924,14 +902,9 @@
           },
           get initCheck() {
             return (
-              document
-                .querySelector(".media-asset-component")
-                ?.getAttribute("data-dynamic-height-initialized") === "true" &&
-              ((this.media?.tagName === "VIDEO" &&
-                this.media.readyState === 4) ||
-                (this.media?.tagName === "IMG" &&
-                  this.media.complete === true &&
-                  this.media.naturalHeight !== 0))
+              document.querySelector(".media-asset-component")?.getAttribute("data-dynamic-height-initialized") === "true" &&
+              ((this.media?.tagName === "VIDEO" && this.media.readyState === 4) ||
+                (this.media?.tagName === "IMG" && this.media.complete === true && this.media.naturalHeight !== 0))
             );
           },
           loadScript() {
@@ -977,18 +950,14 @@
             this.panzoom = unsafeWindow.panzoom(this.media, {
               zoomDoubleClickSpeed: 1,
               onDoubleClick: function (e) {
-                let nextLevel =
-                  that.zoomLevelQueue.filter(
-                    l => l - that.zoomLevel > 0.001 && l > that.zoomLevel
-                  )?.[0] || that.zoomLevelQueue[0];
+                let nextLevel = that.zoomLevelQueue.filter(l => l - that.zoomLevel > 0.001 && l > that.zoomLevel)?.[0] || that.zoomLevelQueue[0];
                 let { offsetX, offsetY } = e;
                 if (e.target.tagName !== "DIV") {
                   let { x, y } = that.panzoom.getTransform();
                   offsetX += x;
                   offsetY += y;
                 }
-                if (that.zoomLevel === 3)
-                  that.panzoom.zoomAbs(offsetX, offsetY, 0);
+                if (that.zoomLevel === 3) that.panzoom.zoomAbs(offsetX, offsetY, 0);
                 else {
                   let newScale = (that.attrWidth * nextLevel) / that.baseWidth;
                   that.panzoom.zoomAbs(offsetX, offsetY, newScale);
@@ -1038,10 +1007,7 @@
             return arr;
           },
           get zoomLevel() {
-            return (
-              (this.baseWidth * this.panzoom.getTransform().scale) /
-              this.attrWidth
-            );
+            return (this.baseWidth * this.panzoom.getTransform().scale) / this.attrWidth;
           },
           updateZoom() {
             this.zoomLE.classList.remove("hidden");
@@ -1049,35 +1015,22 @@
           },
           moveToCenter() {
             this.panzoom.smoothMoveTo(
-              this.containerWidth / 2 -
-                (this.baseWidth * this.panzoom.getTransform().scale) / 2,
+              this.containerWidth / 2 - (this.baseWidth * this.panzoom.getTransform().scale) / 2,
               this.container.clientHeight / 2 -
-                (((this.baseWidth * this.media.getAttribute("height")) /
-                  this.attrWidth) *
-                  this.panzoom.getTransform().scale) /
-                  2
+                (((this.baseWidth * this.media.getAttribute("height")) / this.attrWidth) * this.panzoom.getTransform().scale) / 2
             );
           },
           updateScaleRange() {
             this.panzoom.setMaxZoom((this.attrWidth * 3) / this.baseWidth);
-            this.panzoom.setMinZoom(
-              Math.min(this.attrWidth / 4 / this.baseWidth, 1)
-            );
+            this.panzoom.setMinZoom(Math.min(this.attrWidth / 4 / this.baseWidth, 1));
           }
         };
         mediaAssetPanzoom.init();
         if (pathname.startsWith("/uploads/")) {
-          wait(1000).then(() =>
-            document
-              .querySelector(".ai-tags-related-tags-column")
-              ?.classList?.remove("hidden")
-          );
+          wait(1000).then(() => document.querySelector(".ai-tags-related-tags-column")?.classList?.remove("hidden"));
           /*   ?.classList?.remove("hidden"); */
           const hint = document.querySelector("div.post_tag_string span.hint");
-          hint.insertAdjacentHTML(
-            "beforeend",
-            "<br /><a class='cursor-pointer'>View detials for current tag in related tags page »</a>"
-          );
+          hint.insertAdjacentHTML("beforeend", "<br /><a class='cursor-pointer'>View detials for current tag in related tags page »</a>");
           hint.querySelector("a").addEventListener("click", () => {
             const currentTag = unsafeWindow.Danbooru.RelatedTag.current_tag();
             const url = `/related_tag?commit=Search&search%5Border%5D=Overlap&search%5Bquery%5D=${currentTag}`;
@@ -1085,19 +1038,13 @@
           });
         }
       } else if (/\/favorite_groups\/\d+\/edit/.test(pathname)) {
-        let textAreaLabel = document.querySelector(
-          ".favorite_group_post_ids_string > label"
-        );
+        let textAreaLabel = document.querySelector(".favorite_group_post_ids_string > label");
         textAreaLabel.insertAdjacentHTML(
           "beforeend",
           `<span class="text-xxs text-center" style="font-weight:normal;">&nbsp;&nbsp;<a class="ids_ascending">Ascending</a>&nbsp;|&nbsp;<a class="ids_descending">Descending</a></span>`
         );
-        textAreaLabel
-          .querySelector("a.ids_ascending")
-          .addEventListener("click", () => sortIds());
-        textAreaLabel
-          .querySelector("a.ids_descending")
-          .addEventListener("click", () => sortIds(false));
+        textAreaLabel.querySelector("a.ids_ascending").addEventListener("click", () => sortIds());
+        textAreaLabel.querySelector("a.ids_descending").addEventListener("click", () => sortIds(false));
         function sortIds(ascending = true) {
           let tArea = document.querySelector("#favorite_group_post_ids_string"),
             ids = tArea.value.trim(),
@@ -1105,9 +1052,7 @@
           idsArr = [...new Set(idsArr)];
           idsArr.sort((a, b) => (ascending ? a - b : b - a));
           tArea.value = idsArr.join(" ");
-          unsafeWindow.Danbooru.notice(
-            `Sort in ${ascending ? "ascending" : "descending"} order.`
-          );
+          unsafeWindow.Danbooru.notice(`Sort in ${ascending ? "ascending" : "descending"} order.`);
         }
       } else if (/\/posts\?.*?\btags=/.test(src)) {
         const p = document.querySelector("#page > p:last-child");
@@ -1127,15 +1072,9 @@
   // Auto skip R18 warning for dbsearach
   else if (hostname.endsWith("dbsearch.net")) {
     if (/^(adult(comic|novel|anime)|erogame)\./.test(hostname)) {
-      let r18Warning =
-        document.querySelector("div#warning-box > p:first-of-type") ||
-        document.querySelector("div#contents > p:first-of-type");
-      if (
-        r18Warning &&
-        r18Warning.innerText.indexOf("Adults only, or 18 and older.") > -1
-      ) {
-        window.location.href =
-          document.querySelector("ul#select > li > a").href;
+      let r18Warning = document.querySelector("div#warning-box > p:first-of-type") || document.querySelector("div#contents > p:first-of-type");
+      if (r18Warning && r18Warning.innerText.indexOf("Adults only, or 18 and older.") > -1) {
+        window.location.href = document.querySelector("ul#select > li > a").href;
         return;
       } else return;
     } else return;
@@ -1162,24 +1101,16 @@
     if (document.contentType.startsWith("text")) {
       document.body.insertAdjacentHTML(
         "beforeend",
-        '<hr><center><h1><a href="https://weibo.cn/sinaurl?toasturl=' +
-          encodeURIComponent(src) +
-          '">Try</a> to add Weibo referer</h1></center>'
+        '<hr><center><h1><a href="https://weibo.cn/sinaurl?toasturl=' + encodeURIComponent(src) + '">Try</a> to add Weibo referer</h1></center>'
       );
     }
     if (hostname.startsWith("ss")) {
-      newSrc = src.replace(
-        /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
-        ".sinaimg.cn/orignal/$1"
-      );
+      newSrc = src.replace(/\.sinaimg\.cn\/[^/]*\/+([^/]*)/i, ".sinaimg.cn/orignal/$1");
     } else if (hostname.startsWith("n.")) {
       newSrc = newSrc.replace(/(\/ent\/+[0-9]+_)img(\/+upload\/)/, "$1ori$2");
     } else if (hostname.match(/^([a-z]{2,4}\d|wxt)\./)) {
       /* tvax2.sinaimg.cn */
-      newSrc = src.replace(
-        /\.sinaimg\.cn\/[^/]*\/+([^/]*)/i,
-        ".sinaimg.cn/large/$1"
-      );
+      newSrc = src.replace(/\.sinaimg\.cn\/[^/]*\/+([^/]*)/i, ".sinaimg.cn/large/$1");
       GM_registerMenuCommand("Image Publisher Homepage", () => {
         const hash = src.match(/\/([a-z0-9]{32,})\./i);
         if (hash) weiboFn.openHomepageFromSinaimg(hash[1]);
@@ -1190,12 +1121,7 @@
 
   // Zhihu
   else if (hostname.match(/pic[0-9]\.zhimg\.com/)) {
-    return redirect(
-      src.replace(
-        /\/((?:v[0-9]*-)?[0-9a-f]+)(?:_[^/._]*)?(\.(jpg|jpeg|gif|png|bmp|webp))(?:\?.+)?$/i,
-        "/$1_r$2"
-      )
-    );
+    return redirect(src.replace(/\/((?:v[0-9]*-)?[0-9a-f]+)(?:_[^/._]*)?(\.(jpg|jpeg|gif|png|bmp|webp))(?:\?.+)?$/i, "/$1_r$2"));
   }
 
   // Bilibili
@@ -1212,10 +1138,7 @@
   else if (hostname.endsWith("alicdn.com")) {
     newSrc = src;
     if (hostname === "img-tmdetail.alicdn.com") {
-      newSrc = src.replace(
-        /^[a-z]+:\/\/[^/]+\/+bao\/+uploaded\/+([^/]+\.[^/]+\/+)/,
-        "$1"
-      );
+      newSrc = src.replace(/^[a-z]+:\/\/[^/]+\/+bao\/+uploaded\/+([^/]+\.[^/]+\/+)/, "$1");
       if (!newSrc.match(/^https?:\/\//)) {
         newSrc = "https://" + newSrc;
       }
@@ -1232,19 +1155,10 @@
   }
 
   // Baidu
-  else if (
-    hostname === "imgsrc.baidu.com" ||
-    hostname === "tiebapic.baidu.com" ||
-    hostname.endsWith(".hiphotos.baidu.com") ||
-    hostname === "imgsa.baidu.com"
-  ) {
-    newSrc = decodeURIComponent(
-      src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1")
-    );
+  else if (hostname === "imgsrc.baidu.com" || hostname === "tiebapic.baidu.com" || hostname.endsWith(".hiphotos.baidu.com") || hostname === "imgsa.baidu.com") {
+    newSrc = decodeURIComponent(src.replace(/.*\/[^/]*[?&]src=([^&]*).*/, "$1"));
     if (newSrc !== src) return redirect(newSrc);
-    newSrc = src
-      .replace("/abpic/item/", "/pic/item/")
-      .replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
+    newSrc = src.replace("/abpic/item/", "/pic/item/").replace(/\/[^/]*(?:=|%3D)[^/]*\/sign=[^/]*\//, "/pic/item/");
     if (newSrc !== src) return redirect(newSrc);
     if (hostname !== "imgsrc.baidu.com") {
       newSrc = src.replace(/:\/\/[^/]+\/+/, "://imgsrc.baidu.com/");
@@ -1256,12 +1170,7 @@
 
   // NGA
   else if (hostname === "img.nga.178.com") {
-    return redirect(
-      src.replace(
-        /(\/attachments\/+[^/]*_[0-9]{6}\/+[0-9]+\/+[^/]*)\.(?:thumb|medium)(?:_[a-z])?\.[^/.]*(?:[?#].*)?$/,
-        "$1"
-      )
-    );
+    return redirect(src.replace(/(\/attachments\/+[^/]*_[0-9]{6}\/+[0-9]+\/+[^/]*)\.(?:thumb|medium)(?:_[a-z])?\.[^/.]*(?:[?#].*)?$/, "$1"));
   }
 
   // Tencent
@@ -1273,10 +1182,7 @@
   }
 
   // Lofter
-  else if (
-    (hostname.endsWith(".lf127.net") && /^imglf\d+\./.test(hostname)) ||
-    hostname === "pic-bucket.ws.126.net"
-  ) {
+  else if ((hostname.endsWith(".lf127.net") && /^imglf\d+\./.test(hostname)) || hostname === "pic-bucket.ws.126.net") {
     newSrc = src.replace(/\?.*$/, "");
     if (newSrc !== src) return redirect(newSrc);
   }
@@ -1289,10 +1195,7 @@
 
   // Banciyuan
   else if (hostname.endsWith(".bcyimg.com")) {
-    newSrc = src.replace(
-      /p\d-bcy-sign(.*?~).*/,
-      "p3-bcy$1tplv-banciyuan-obj.image"
-    );
+    newSrc = src.replace(/p\d-bcy-sign(.*?~).*/, "p3-bcy$1tplv-banciyuan-obj.image");
     if (newSrc !== src) return redirect(newSrc);
   }
 
@@ -1332,9 +1235,7 @@
           p && newl.searchParams.set("p", p);
           t && newl.searchParams.set("t", t);
           if (targetType === type.toLowerCase()) {
-            newl.pathname = location.pathname
-              .replace(/(\/s)?\/video/, "")
-              .replace(/\/$/, "");
+            newl.pathname = location.pathname.replace(/(\/s)?\/video/, "").replace(/\/$/, "");
           } else newl.pathname = "/" + newId;
           return newl.href;
         }
@@ -1386,14 +1287,10 @@
       if (/^\/\d+\/article/.test(pathname)) {
         GM_registerMenuCommand("Fuck Waterfall", () => {
           // 原本的瀑布流内容是动态加载的。因此每次执行只能重新排序当前屏幕上显示的内容，否则需要刷新页面。
-          let oldCtn = document.querySelector(
-            ".waterfall-content .masonry_grid_v2"
-          );
+          let oldCtn = document.querySelector(".waterfall-content .masonry_grid_v2");
           let newCtn = oldCtn.cloneNode(true);
           newCtn.classList.remove("masonry_grid_v2");
-          newCtn
-            .querySelectorAll(".container > .item")
-            .forEach(el => el.removeAttribute("style"));
+          newCtn.querySelectorAll(".container > .item").forEach(el => el.removeAttribute("style"));
           document.head.insertAdjacentHTML(
             "beforeEnd",
             `<style>.waterfall-content .container { display: flex; flex-wrap: wrap; justify-content: space-evenly; flex-direction: row; } .waterfall-content .item { width: 160px; margin-bottom: 20px; } .article-card-cover { max-height: 120px; } .article-card-cover:hover .b-img__inner { height: 120px; } .article-card-cover:hover .b-img__inner img { object-fit: contain; }</style>`
@@ -1407,27 +1304,16 @@
   }
 
   // Pixiv
-  else if (
-    /i(-c?f)?\.pximg\.net/.test(hostname) ||
-    hostname === "pixiv.pximg.net"
-  ) {
+  else if (/i(-c?f)?\.pximg\.net/.test(hostname) || hostname === "pixiv.pximg.net") {
     if (document.contentType.startsWith("text")) {
       document.body.insertAdjacentHTML(
         "beforeend",
-        '<hr><center><h1><a href="https://www.pixiv.net/jump.php?url=' +
-          encodeURIComponent(src) +
-          '">Try</a> to add Pixiv referer</h1></center>'
+        '<hr><center><h1><a href="https://www.pixiv.net/jump.php?url=' + encodeURIComponent(src) + '">Try</a> to add Pixiv referer</h1></center>'
       );
     }
     newSrc = src
-      .replace(
-        /(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
-        "$1$2"
-      )
-      .replace(
-        /\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z0-9]+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//,
-        "/"
-      )
+      .replace(/(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/, "$1$2")
+      .replace(/\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z0-9]+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//, "/")
       .replace(/\/(?:img-master|custom-thumb)\//, "/img-original/")
       .replace(/\/novel-cover-master\//, "/novel-cover-original/")
       .replace(/(\/\d+_)(?:square|master)[0-9]+(\.[^/.]*)$/, "$1ugoira0$2")
@@ -1441,37 +1327,19 @@
     //https://i.pximg.net/c/240x480/img-master/img/2023/07/24/13/08/57/110194401_master1200.jpg
     //https://i.pximg.net/img-original/img/2023/07/26/20/08/18/110258558_p0.gif
     //https://i.pximg.net/c/600x1200_90_webp/img-master/img/2023/12/31/23/16/57/114743969_p0_master1200.jpg
-    return redirect(
-      addExts(newSrc, [
-        hostname === "pixiv.pximg.net" ? "jpeg" : "jpg",
-        "png",
-        "gif"
-      ])
-    );
+    return redirect(addExts(newSrc, [hostname === "pixiv.pximg.net" ? "jpeg" : "jpg", "png", "gif"]));
   }
 
   // Twitter
-  else if (
-    hostname === "pbs.twimg.com" ||
-    (hostname === "ton.twitter.com" && src.indexOf("/ton/data/dm/") > -1)
-  ) {
+  else if (hostname === "pbs.twimg.com" || (hostname === "ton.twitter.com" && src.indexOf("/ton/data/dm/") > -1)) {
     if (src.indexOf("/profile_images/") > -1) {
-      return redirect(
-        src
-          .replace(/[?#].*$/, "")
-          .replace(
-            /_(?:bigger|normal|mini|reasonably_small|[0-9]+x[0-9]+)(\.[^/_]*)$/,
-            "$1"
-          )
-      );
+      return redirect(src.replace(/[?#].*$/, "").replace(/_(?:bigger|normal|mini|reasonably_small|[0-9]+x[0-9]+)(\.[^/_]*)$/, "$1"));
     } else if (src.indexOf("/profile_banners/") > -1) {
       //https://pbs.twimg.com/profile_banners/247054763/1348017380/600x200
       return redirect([src.replace(/\/[0-9]+x[0-9]+(?:[?#].*)?$/, ""), src]);
     }
 
-    newSrc = src
-      .replace(/:([^/?]+)(.*)?$/, "$2?name=$1")
-      .replace(/(\?.*)\?name=/, "$1&name=");
+    newSrc = src.replace(/:([^/?]+)(.*)?$/, "$2?name=$1").replace(/(\?.*)\?name=/, "$1&name=");
 
     if (/:\/\/[^/]+\/media\//.test(newSrc)) {
       matched = newSrc.match(/^([^?#]+\/[^/.?#]+)\.([^/.?#]+)([?#].*)?$/);
@@ -1504,9 +1372,7 @@
     if (end < 0) end = names.length;
 
     for (let i = 0; i < end; i++) {
-      newSrc = newSrc
-        .replace(/(\.[a-z]+)\?(?:(.*)&)?format=[^&]+/, "$1?$2&")
-        .replace(/&$/, "");
+      newSrc = newSrc.replace(/(\.[a-z]+)\?(?:(.*)&)?format=[^&]+/, "$1?$2&").replace(/&$/, "");
 
       newSrc = addQueries(newSrc, { name: names[i] });
       let { format } = getQueries(newSrc);
@@ -1531,29 +1397,18 @@
       GM_registerMenuCommand("View cover", () => {
         const matched = matchInfo();
         let pre = `https://i.ytimg.com/vi/${matched[2]}/`;
-        window.open(
-          matched[1] === "shorts/" ? pre + "oar2.jpg" : pre + "0.jpg"
-        );
+        window.open(matched[1] === "shorts/" ? pre + "oar2.jpg" : pre + "0.jpg");
       });
       GM_registerMenuCommand("View upload time", () => {
         const matched = matchInfo();
         window.open("https://youdate.beren.dev/api/v1?q=" + matched[2]);
       });
     }
-  } else if (
-    /^i\d*\.ytimg\.com/.test(hostname) ||
-    hostname === "ytimg.googleusercontent.com" ||
-    hostname === "img.youtube.com"
-  ) {
-    newSrc = src.replace(
-      /^(https?:\/\/)i\d+(\.ytimg\.com\/vi(?:_webp)?\/+[^/]+\/+[0-9a-z]+\.)/,
-      "$1i$2"
-    );
+  } else if (/^i\d*\.ytimg\.com/.test(hostname) || hostname === "ytimg.googleusercontent.com" || hostname === "img.youtube.com") {
+    newSrc = src.replace(/^(https?:\/\/)i\d+(\.ytimg\.com\/vi(?:_webp)?\/+[^/]+\/+[0-9a-z]+\.)/, "$1i$2");
     if (newSrc !== src) return redirect(newSrc);
     newSrc = src.replace(/\/an(_webp)?\/+/, "/vi$1/");
-    const matched = newSrc.match(
-      /^(.+\/+vi(?:_webp)?\/+([^/]+)\/+)([a-z]*)(default|\d+)(?:_(?:live|\d+s))?(\.[^/.?#]*)(?:[?#].*)?$/
-    );
+    const matched = newSrc.match(/^(.+\/+vi(?:_webp)?\/+([^/]+)\/+)([a-z]*)(default|\d+)(?:_(?:live|\d+s))?(\.[^/.?#]*)(?:[?#].*)?$/);
     if (!matched) return;
     let vid = matched[2];
     GM_registerMenuCommand("View video", () => {
@@ -1596,39 +1451,23 @@
     const regex =
       /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
     if (regex.test(src)) {
-      return redirect([
-        src.replace(regex, "$1original/$2"),
-        src.replace(regex, "$14k/$2"),
-        src.replace(regex, "$1large/$2")
-      ]);
+      return redirect([src.replace(regex, "$1original/$2"), src.replace(regex, "$14k/$2"), src.replace(regex, "$1large/$2")]);
     }
   }
 
   // Steam
-  else if (
-    hostname.match(/cdn\.[^.]*\.steamstatic\.com/) ||
-    hostname.match(/steamcdn(?:-[a-z]*)?\.akamaihd\.net/)
-  ) {
-    newSrc = src.replace(
-      /(\/steam\/+apps\/+[0-9]+\/+movie)[0-9]+(?:_vp9)?(\.[^/.]+)(?:[?#].*)?$/,
-      "$1_max$2"
-    );
+  else if (hostname.match(/cdn\.[^.]*\.steamstatic\.com/) || hostname.match(/steamcdn(?:-[a-z]*)?\.akamaihd\.net/)) {
+    newSrc = src.replace(/(\/steam\/+apps\/+[0-9]+\/+movie)[0-9]+(?:_vp9)?(\.[^/.]+)(?:[?#].*)?$/, "$1_max$2");
     if (newSrc !== src) {
       return redirect(newSrc);
     }
 
-    newSrc = src.replace(
-      /(\/steam\/+apps\/+[0-9]+\/+movie)\.(?:jpg|JPG|jpeg|JPEG|png|PNG)(?:[?#].*)?$/,
-      "$1_max.webm"
-    );
+    newSrc = src.replace(/(\/steam\/+apps\/+[0-9]+\/+movie)\.(?:jpg|JPG|jpeg|JPEG|png|PNG)(?:[?#].*)?$/, "$1_max.webm");
     if (newSrc !== src) {
       return redirect(newSrc);
     }
 
-    newSrc = src.replace(
-      /(\/steamcommunity\/+public\/+images\/+clans\/+[0-9]+\/+[0-9a-f]{20,})_[0-9]+x[0-9]+(\.[^/.]+)(?:[?#].*)?$/,
-      "$1$2"
-    );
+    newSrc = src.replace(/(\/steamcommunity\/+public\/+images\/+clans\/+[0-9]+\/+[0-9a-f]{20,})_[0-9]+x[0-9]+(\.[^/.]+)(?:[?#].*)?$/, "$1$2");
     if (newSrc !== src) {
       return redirect(newSrc);
     }
@@ -1643,10 +1482,8 @@
   // Pinterest
   else if (
     hostname === "i.pinimg.com" ||
-    (hostname.endsWith("pinimg.com") &&
-      hostname.match(/^(?:i|(?:s-)?media-cache)-[^.]*\.pinimg/)) ||
-    (hostname.endsWith("s3.amazonaws.com") &&
-      src.indexOf("media.pinterest.com") > -1)
+    (hostname.endsWith("pinimg.com") && hostname.match(/^(?:i|(?:s-)?media-cache)-[^.]*\.pinimg/)) ||
+    (hostname.endsWith("s3.amazonaws.com") && src.indexOf("media.pinterest.com") > -1)
     /**
      * http://s3.amazonaws.com/media.pinterest.com/640x/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
      * http://s3.amazonaws.com/media.pinterest.com/originals/c9/68/4a/c9684afc422e69662bed9f59835d2001.jpg
@@ -1656,15 +1493,9 @@
   ) {
     const noSuffix = src.replace(/[?#].*$/, "");
     if (noSuffix.match(/:\/\/[^/]*\/media\.pinterest\.com\//)) {
-      newSrc = noSuffix.replace(
-        /(:\/\/[^/]*\/media\.pinterest\.com\/)[^/]*(\/.*\/[^/]*\.[^/.]*)$/,
-        "$1originals$2"
-      );
+      newSrc = noSuffix.replace(/(:\/\/[^/]*\/media\.pinterest\.com\/)[^/]*(\/.*\/[^/]*\.[^/.]*)$/, "$1originals$2");
     } else {
-      newSrc = noSuffix.replace(
-        /(:\/\/[^/]*\/)[^/]*(\/.*\/[^/]*\.[^/.]*)$/,
-        "$1originals$2"
-      );
+      newSrc = noSuffix.replace(/(:\/\/[^/]*\/)[^/]*(\/.*\/[^/]*\.[^/.]*)$/, "$1originals$2");
     }
     /**
      * https://i.pinimg.com/640x/1f/3f/ed/1f3fed6c284955934c7d724d2fe13ecb.jpg
@@ -1676,74 +1507,63 @@
 
   // Reddit
   else if (hostname === "preview.redd.it") {
-    return redirect(
-      src.replace(
-        /:\/\/preview\.redd\.it\/((?:award_images\/+t[0-9]*_[0-9a-z]+\/+)?[^/.]*\.[^/.?]*)\?.*$/,
-        "://i.redd.it/$1"
-      )
-    );
+    return redirect(src.replace(/:\/\/preview\.redd\.it\/((?:award_images\/+t[0-9]*_[0-9a-z]+\/+)?[^/.]*\.[^/.?]*)\?.*$/, "://i.redd.it/$1"));
   } else if (hostname === "www.reddit.com") {
     let regex = /\/r\/.*?\/comments\/(\w+)/;
     if (regex.test(pathname)) {
-      GM_registerMenuCommand("Copy post shortlink", () =>
-        GM_setClipboard(`https://redd.it/${regex.exec(pathname)[1]}`)
-      );
+      GM_registerMenuCommand("Copy post shortlink", () => GM_setClipboard(`https://redd.it/${regex.exec(pathname)[1]}`));
     }
   }
 
   // Discord
   else if (/\bdiscordapp\b/.test(hostname)) {
-    if (
-      (hostname === "media.discordapp.net" && /\/attachments\//.test(src)) ||
-      hostname === "images.discordapp.net"
-    ) {
+    if ((hostname === "media.discordapp.net" && /\/attachments\//.test(src)) || hostname === "images.discordapp.net") {
       return redirect(src.replace(/\?.*$/, ""));
     }
     if (hostname === "cdn.discordapp.com") {
       return redirect(
         src
           .replace(/(\/emojis\/+[0-9]+\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096")
-          .replace(
-            /(\/[-a-z]+\/+[0-9]{5,}\/+(?:users\/+[0-9]+\/+avatars\/+)?[^/]+\.[^/.?#]+)(?:[?#].*)?$/,
-            "$1?size=4096"
-          )
+          .replace(/(\/[-a-z]+\/+[0-9]{5,}\/+(?:users\/+[0-9]+\/+avatars\/+)?[^/]+\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096")
       );
     }
     if (hostname === "media.discordapp.net") {
-      return redirect(
-        src.replace(
-          /(\/stickers\/+[0-9]{5,}\.[^/.?#]+)(?:[?#].*)?$/,
-          "$1?size=4096"
-        )
-      );
+      return redirect(src.replace(/(\/stickers\/+[0-9]{5,}\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096"));
     }
-    if (
-      hostname.endsWith("discordapp.net") &&
-      hostname.match(/images-ext-[0-9]*\.discordapp\.net/)
-    ) {
-      return redirect(
-        decodeURIComponent(
-          src.replace(
-            /.*\/external\/[^/]*\/(?:([^/]*)\/)?(https?)\/(.*?)(?:\?[^/]*)?$/,
-            "$2://$3$1"
-          )
-        )
-      );
+    if (hostname.endsWith("discordapp.net") && hostname.match(/images-ext-[0-9]*\.discordapp\.net/)) {
+      return redirect(decodeURIComponent(src.replace(/.*\/external\/[^/]*\/(?:([^/]*)\/)?(https?)\/(.*?)(?:\?[^/]*)?$/, "$2://$3$1")));
+    }
+  }
+
+  // Nico Seiga
+  else if (hostname === "lohas.nicoseiga.jp") {
+    let pid = pathname.match(/thumb\/(\d+)/)?.[1];
+    if (pid) {
+      let origSrc = "https://sp.seiga.nicovideo.jp/image/source/" + pid;
+      let largeThumbSrc = `https://lohas.nicoseiga.jp/thumb/${pid}i`;
+      if (!window.via?.toast) {
+        let resp = await GM_fetch(origSrc);
+        if (resp.readyState === 4 && resp.status === 200) {
+          let finalUrl = resp.finalUrl;
+          if (finalUrl.indexOf("jp/priv") > -1) return redirect(origSrc);
+          else if (finalUrl.indexOf("account.nicovideo.jp") > -1);
+        }
+      }
+      if (largeThumbSrc !== src) return redirect(largeThumbSrc);
+      else {
+        GM_toast("Current page is a large thumbnail (Login to view original)");
+        if (window.via?.toast)
+          GM_registerMenuCommand("View original (Need log in)", () => {
+            location.href = origSrc;
+          });
+      }
     }
   }
 
   // Google
   else if (hostname.endsWith(".googleusercontent.com")) {
-    if (
-      /^(?:yt|ci|lh|gp)[0-9](?:-[a-z]{2})?\./.test(hostname) ||
-      /^play-lh\./.test(hostname) ||
-      hostname === "blogger.googleusercontent.com"
-    ) {
-      if (
-        !/^[a-z]+:\/\/[^/]+\/+[^/?#=]{30,}=x[0-9]+-y[0-9]+-z[0-9]+-t[^-/?#]{23,}(?:[?#].*)?$/.test(
-          src
-        )
-      ) {
+    if (/^(?:yt|ci|lh|gp)[0-9](?:-[a-z]{2})?\./.test(hostname) || /^play-lh\./.test(hostname) || hostname === "blogger.googleusercontent.com") {
+      if (!/^[a-z]+:\/\/[^/]+\/+[^/?#=]{30,}=x[0-9]+-y[0-9]+-z[0-9]+-t[^-/?#]{23,}(?:[?#].*)?$/.test(src)) {
         return redirect(
           src
             .replace(/#.*$/, "")
@@ -1755,11 +1575,22 @@
     }
   }
 
+  // tumblr (new URL only)
+  else if (hostname.endsWith(".tumblr.com")) {
+    if (hostname === "64.media.tumblr.com") {
+      newSrc = src.replace(/(\/[0-9a-f]{32}\/[0-9a-f]{16}-[0-9a-f]{2})\/s\d+x\d+/, "$1/s99999x99999");
+      if (src !== newSrc) return redirect(newSrc);
+      document.addEventListener("DOMContentLoaded", () => {
+        const imgSrc = document.querySelector("div#base-container img[src^='https://64.media.tumblr.com/']")?.src;
+        if (imgSrc && src !== imgSrc) return redirect(imgSrc);
+      });
+    }
+  }
+
   // yande.re
   else if (hostname === "yande.re") {
     // Fix preview click issue
-    if (Cookie.get("mode") === "null")
-      Cookie.set("mode", "view", { expires: 365 });
+    if (Cookie.get("mode") === "null") Cookie.set("mode", "view", { expires: 365 });
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("a.thumb > img.preview").forEach(e => {
         e.draggable = false;
@@ -1768,25 +1599,17 @@
   } else if (hostname === "files.yande.re") {
     if (pathname.startsWith("/image/") || pathname.startsWith("/sample/")) {
       newSrc = src.replace(/(\/[a-z0-9]{32}\/).*(\..+)/, "$1$2");
-      if (newSrc != src) return redirect(newSrc);
+      if (newSrc != src) return redirect("https://href.li/?" + newSrc);
     }
   }
 
   // Apple Music, iTunes
   else if (hostname.endsWith(".mzstatic.com")) {
-    if (
-      /is\d(-ssl)?\.mzstatic\.com/.test(hostname) &&
-      src.indexOf("/image/thumb/") > -1
-    ) {
+    if (/is\d(-ssl)?\.mzstatic\.com/.test(hostname) && src.indexOf("/image/thumb/") > -1) {
       if (src.endsWith("1200x1200.jpg")) return;
-      newSrc = src.replace(
-        /\/[0-9]*x[0-9]*[a-z]*(?:-[0-9]+)?(\.[^/.]*)$/,
-        "/999999999x0w-999$1"
-      );
+      newSrc = src.replace(/\/[0-9]*x[0-9]*[a-z]*(?:-[0-9]+)?(\.[^/.]*)$/, "/999999999x0w-999$1");
       if (/\.png(?:[?#].*)?$/i.test(newSrc)) {
-        let matched = src.match(
-          /\/([^/]+\/+v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/[^/]+)\//
-        );
+        let matched = src.match(/\/([^/]+\/+v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/[^/]+)\//);
         if (matched) {
           return redirect("https://a1.mzstatic.com/us/r1000/063/" + matched[1]);
         }
@@ -1794,48 +1617,28 @@
       return redirect(addExts(newSrc, ["png", "jpg"]));
     }
     if (/^[as][0-9]+\./.test(hostname)) {
-      return redirect([
-        src.replace(
-          /(\/v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/+)[^/]+(?:[?#].*)?$/,
-          "$1source"
-        ),
-        src
-      ]);
+      return redirect([src.replace(/(\/v4\/+(?:[a-f0-9]{2}\/+){3}[-0-9a-f]{20,}\/+)[^/]+(?:[?#].*)?$/, "$1source"), src]);
     }
   }
 
   // Web Archive
   else if (hostname.endsWith(".archive.org") && /^ia[0-9]*\./.test(hostname)) {
-    newSrc = src.replace(
-      /(\/items\/+mbid-[-0-9a-f]+\/+mbid-[-0-9a-f]+)_(?:thumb[0-9]+|itemimage)(\.[^/.]*)(?:[?#].*)?$/,
-      "$1$2"
-    );
+    newSrc = src.replace(/(\/items\/+mbid-[-0-9a-f]+\/+mbid-[-0-9a-f]+)_(?:thumb[0-9]+|itemimage)(\.[^/.]*)(?:[?#].*)?$/, "$1$2");
     if (newSrc !== src) {
       return redirect(addExts(newSrc, ["png", "jpg"]));
     }
   } else if (hostname === "coverartarchive.org") {
-    return redirect(
-      src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2")
-    );
+    return redirect(src.replace(/(\/[0-9]+)-[0-9]+(\.[^/.]*)(?:[?#].*)?$/, "$1$2"));
   }
 
   // NGA
-  else if (
-    hostname === "nga.178.com" ||
-    hostname === "ngabbs.com" ||
-    hostname === "g.nga.cn"
-  ) {
+  else if (hostname === "nga.178.com" || hostname === "ngabbs.com" || hostname === "g.nga.cn") {
     window.location.hostname = "bbs.nga.cn";
     return;
   }
 
   // SouthPlus
-  else if (
-    /\b(spring|summer|white|north|south|east|soul|level|snow|blue)-plus\.net$/i.test(
-      hostname
-    ) ||
-    hostname.endsWith("south-plus.org")
-  ) {
+  else if (/\b(spring|summer|white|north|south|east|soul|level|snow|blue)-plus\.net$/i.test(hostname) || hostname.endsWith("south-plus.org")) {
     window.location.hostname = "bbs.imoutolove.me";
     return;
   } else if (hostname === "bbs.imoutolove.me") {
@@ -1858,73 +1661,58 @@
                 const opEl = document.createElement("div");
                 opEl.classList.add("op");
                 opEl.textContent = "OP";
-                document
-                  .querySelectorAll(".r_two > div[align='center'] > a")
-                  .forEach(a => {
-                    if (a.href.endsWith(`-${opUid}.html`)) {
-                      a.appendChild(document.createTextNode(" "));
-                      a.insertAdjacentElement("afterend", opEl.cloneNode(true));
-                    }
-                  });
+                document.querySelectorAll(".r_two > div[align='center'] > a").forEach(a => {
+                  if (a.href.endsWith(`-${opUid}.html`)) {
+                    a.appendChild(document.createTextNode(" "));
+                    a.insertAdjacentElement("afterend", opEl.cloneNode(true));
+                  }
+                });
               }
             }
           });
-        document
-          .querySelectorAll(".quote.jumbotron>.btn.btn-danger")
-          .forEach(button => {
-            let url = button
-              .getAttribute("onclick")
-              .replace(/location\.href='(.+)'/, "$1");
-            // Get comment ID
-            let post_id = button.closest("div").id;
-            // Prevent page from redirecting when clicking button
-            button.removeAttribute("onclick");
-            button.addEventListener("click", e => {
-              let btn = e.target;
-              btn.setAttribute("value", "正在购买，请稍等");
-              try {
-                fetch(url, {
-                  credentials: "include",
-                  mode: "no-cors"
-                })
-                  .then(resp => resp.text())
-                  .then(text => {
-                    if (text.indexOf("操作完成") === -1) {
-                      alert("购买失败！");
-                    }
-                    fetch(document.URL, {
-                      credentials: "include",
-                      mode: "no-cors"
-                    })
-                      .then(resp => resp.text())
-                      .then(html => {
-                        let dummy = document.createElement("html");
-                        dummy.innerHTML = html;
-                        let purchased = dummy.querySelector("#" + post_id);
-                        let notPurchased = document.querySelector(
-                          "#" + post_id
-                        );
-                        notPurchased.parentNode.replaceChild(
-                          purchased,
-                          notPurchased
-                        );
-                        dummy = null;
-                        btn.remove();
-                        if (window.history && unsafeWindow.copyurl) {
-                          window.history.pushState(
-                            {},
-                            document.title,
-                            unsafeWindow.copyurl + post_id.split("_")[1]
-                          );
-                        }
-                      });
-                  });
-              } catch (error) {
-                alert(`发送请求出错，购买失败！\n${error}`);
-                Logger.log("Request Failed", error);
-              }
-            });
+        document.querySelectorAll(".quote.jumbotron>.btn.btn-danger").forEach(button => {
+          let url = button.getAttribute("onclick").replace(/location\.href='(.+)'/, "$1");
+          // Get comment ID
+          let post_id = button.closest("div").id;
+          // Prevent page from redirecting when clicking button
+          button.removeAttribute("onclick");
+          button.addEventListener("click", e => {
+            let btn = e.target;
+            btn.setAttribute("value", "正在购买，请稍等");
+            try {
+              fetch(url, {
+                credentials: "include",
+                mode: "no-cors"
+              })
+                .then(resp => resp.text())
+                .then(text => {
+                  if (text.indexOf("操作完成") === -1) {
+                    alert("购买失败！");
+                  }
+                  fetch(document.URL, {
+                    credentials: "include",
+                    mode: "no-cors"
+                  })
+                    .then(resp => resp.text())
+                    .then(html => {
+                      let dummy = document.createElement("html");
+                      dummy.innerHTML = html;
+                      let purchased = dummy.querySelector("#" + post_id);
+                      let notPurchased = document.querySelector("#" + post_id);
+                      notPurchased.parentNode.replaceChild(purchased, notPurchased);
+                      dummy = null;
+                      btn.remove();
+                      if (window.history && unsafeWindow.copyurl) {
+                        window.history.pushState({}, document.title, unsafeWindow.copyurl + post_id.split("_")[1]);
+                      }
+                    });
+                });
+            } catch (error) {
+              alert(`发送请求出错，购买失败！\n${error}`);
+              Logger.log("Request Failed", error);
+            }
           });
+        });
       }
     });
   }
@@ -1934,8 +1722,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
       // Hover to show image post publish time accurately
       const fetchArchivedPostsByTime = async (uid, t) => {
-        const url =
-          "https://www.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr";
+        const url = "https://www.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr";
         const headers = {
           referer: "https://www.lofter.com",
           "content-type": "application/x-www-form-urlencoded"
@@ -1978,13 +1765,7 @@
       const setTimeAsTitle = (e, t) => {
         e.setAttribute("title", new Date(t).toString());
       };
-      const queryPost = async (
-        uid,
-        pid,
-        e,
-        t = new Date().getTime(),
-        isLocalSearched = false
-      ) => {
+      const queryPost = async (uid, pid, e, t = new Date().getTime(), isLocalSearched = false) => {
         let keyName = `_user${uid}CachedTimeLine`,
           obj = window[keyName];
         if (!obj) {
@@ -2015,11 +1796,7 @@
             if (targetPost) {
               setTimeAsTitle(e, targetPost.time);
             } else {
-              Logger.warn(
-                `Post ${pid} not found in ${itemCount} post(s) published before ${new Date(
-                  t
-                ).toString()}.`
-              );
+              Logger.warn(`Post ${pid} not found in ${itemCount} post(s) published before ${new Date(t).toString()}.`);
             }
             if (!itemCount || itemCount < 50) {
               Logger.warn(`User ${uid}'s timeline query is completed.`);
@@ -2031,13 +1808,8 @@
           }
         }
       };
-      for (let e of document.querySelectorAll(
-        "a.imgclasstag > img[src*='.lf127.net/img/'], a[href*='.lofter.com/post/'] > img[src*='.lf127.net/img/']"
-      )) {
-        const permaLink = e.parentElement.href
-            .replace(/#$/, "")
-            .split("/")
-            .reverse()[0],
+      for (let e of document.querySelectorAll("a.imgclasstag > img[src*='.lf127.net/img/'], a[href*='.lofter.com/post/'] > img[src*='.lf127.net/img/']")) {
+        const permaLink = e.parentElement.href.replace(/#$/, "").split("/").reverse()[0],
           [uidHex, pidHex] = permaLink.split("_"),
           uid = parseInt(uidHex, 16),
           pid = parseInt(pidHex, 16);
@@ -2048,11 +1820,7 @@
 
   // TSDM 天使动漫
   else if (/\btsdm39\.com$/.test(hostname)) {
-    if (
-      pathname.indexOf(".php") === -1 ||
-      pathname.indexOf("mobile=yes") > -1 ||
-      pathname.startsWith("/archiver")
-    ) {
+    if (pathname.indexOf(".php") === -1 || pathname.indexOf("mobile=yes") > -1 || pathname.startsWith("/archiver")) {
       return;
     }
     document.addEventListener("DOMContentLoaded", () => {
@@ -2077,107 +1845,98 @@
       }
       document.querySelectorAll("div#yourimageretrylinks > a").forEach(a => {
         if (a.children[0].title.indexOf("Google") > -1) {
-          a.href = a.href.replace(
-            /^.*?=/,
-            "https://www.google.com/searchbyimage?client=Chrome&image_url="
-          );
+          a.href = a.href.replace(/^.*?=/, "https://www.google.com/searchbyimage?client=Chrome&image_url=");
         }
         a.setAttribute("target", "_blank");
       });
-      document
-        .querySelectorAll("div:not(#result-hidden-notification).result")
-        .forEach(e => {
-          let img = e.querySelector(".resultimage img"),
-            desc = img.title,
-            isSourceFromHentai = /hentai/i.test(desc),
-            isSourceFromKemono = /Kemono/i.test(desc),
-            content = e.querySelector(".resultcontentcolumn"),
-            titleUrl = e.querySelector(".resulttitle a")?.href,
-            miscinfo = e.querySelector(".resultmiscinfo");
-          e.querySelectorAll(
-            ".resulttablecontent a:not([href*='saucenao.com'])"
-          ).forEach(a => a.setAttribute("target", "_blank"));
-          if (isSourceFromHentai && content) {
-            let src = img.src;
-            desc = desc.replace(/.*?#\d+:\s/, "");
-            content.innerHTML =
-              content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") +
-              `<small style="color: #999;">${desc}</small><br>`;
-            if (desc.indexOf("E-Hentai") > -1) {
-              const sha1 = src.match(/[0-9A-z]{40}/i);
-              if (sha1) {
-                const href = `https://exhentai.org/?f_cats=0&fs_similar=1&fs_exp=on&f_sft=on&f_shash=${sha1[0]}`;
-                miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
-              }
-            } else if (desc.indexOf("nhentai") > -1) {
-              const id = src.match(/res\/nhentai\/(\d+)/);
-              if (id) {
-                const href = `https://nhentai.net/g/${id[1]}/`;
-                miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/nhentai.ico" width="16" height="16" border="0" alt=""></a><br>`;
-              }
+      document.querySelectorAll("div:not(#result-hidden-notification).result").forEach(e => {
+        let img = e.querySelector(".resultimage img"),
+          desc = img.title,
+          isSourceFromHentai = /hentai/i.test(desc),
+          isSourceFromKemono = /Kemono/i.test(desc),
+          content = e.querySelector(".resultcontentcolumn"),
+          titleUrl = e.querySelector(".resulttitle a")?.href,
+          miscinfo = e.querySelector(".resultmiscinfo");
+        e.querySelectorAll(".resulttablecontent a:not([href*='saucenao.com'])").forEach(a => a.setAttribute("target", "_blank"));
+        if (isSourceFromHentai && content) {
+          let src = img.src;
+          desc = desc.replace(/.*?#\d+:\s/, "");
+          content.innerHTML = content.innerHTML.replace(/<(small)>\s*?<\/\1>\s*?<br>/, "") + `<small style="color: #999;">${desc}</small><br>`;
+          if (desc.indexOf("E-Hentai") > -1) {
+            const sha1 = src.match(/[0-9A-z]{40}/i);
+            if (sha1) {
+              const href = `https://exhentai.org/?f_cats=0&fs_similar=1&fs_exp=on&f_sft=on&f_shash=${sha1[0]}`;
+              miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/e-hentai.ico" style="background-color: #E3E0D1" width="16" height="16" border="0" alt=""></a><br>`;
+            }
+          } else if (desc.indexOf("nhentai") > -1) {
+            const id = src.match(/res\/nhentai\/(\d+)/);
+            if (id) {
+              const href = `https://nhentai.net/g/${id[1]}/`;
+              miscinfo.innerHTML += `<a href="${href}" target="_blank" ><img src="images/static/siteicons/nhentai.ico" width="16" height="16" border="0" alt=""></a><br>`;
             }
           }
-          if (isSourceFromKemono && titleUrl) {
-            const miscInfoA = miscinfo.querySelector("a");
-            let uid, pid, site;
-            switch (true) {
-              case titleUrl.indexOf("fanbox") > -1:
-                {
-                  site = "fanbox";
-                  let matched =
-                    titleUrl?.match(/creator\/(\d+)\/post\/(\d+)/) || [];
-                  uid = matched[1];
-                  pid = matched[2];
-                }
-                break;
-              case titleUrl.indexOf("fantia") > -1:
-                {
-                  site = "fantia";
-                  pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
-                  uid = content
-                    .querySelector("a")
-                    ?.href?.match(/fanclubs\/(\d+)/)?.[1];
-                }
-                break;
-              case titleUrl.indexOf("patreon") > -1:
-                {
-                  site = "patreon";
-                  pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
-                  uid = content
-                    .querySelector("a")
-                    ?.href?.match(/user\?u=(\d+)/)?.[1];
-                }
-                break;
-              default:
-                Logger.warn(desc);
-                break;
-            }
-            if (uid && pid && miscInfoA) {
-              miscInfoA.href = `https://kemono.su/${site}/user/${uid}/post/${pid}`;
-            }
+        }
+        if (isSourceFromKemono && titleUrl) {
+          const miscInfoA = miscinfo.querySelector("a");
+          let uid, pid, site;
+          switch (true) {
+            case titleUrl.indexOf("fanbox") > -1:
+              {
+                site = "fanbox";
+                let matched = titleUrl?.match(/creator\/(\d+)\/post\/(\d+)/) || [];
+                uid = matched[1];
+                pid = matched[2];
+              }
+              break;
+            case titleUrl.indexOf("fantia") > -1:
+              {
+                site = "fantia";
+                pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
+                uid = content.querySelector("a")?.href?.match(/fanclubs\/(\d+)/)?.[1];
+              }
+              break;
+            case titleUrl.indexOf("patreon") > -1:
+              {
+                site = "patreon";
+                pid = titleUrl?.match(/posts\/(\d+)/)?.[1];
+                uid = content.querySelector("a")?.href?.match(/user\?u=(\d+)/)?.[1];
+              }
+              break;
+            default:
+              Logger.warn(desc);
+              break;
           }
-        });
+          if (uid && pid && miscInfoA) {
+            miscInfoA.href = `https://kemono.su/${site}/user/${uid}/post/${pid}`;
+          }
+        }
+      });
     });
     return;
   }
 
   // Twitter
-  else if (hostname.endsWith("twitter.com")) {
+  else if (hostname === "x.com") {
     pathname = pathname.replace(/^\/i\/web/, "/user");
-    newSrc = `https://twitter.com${pathname}`;
+    newSrc = `https://x.com${pathname}`;
     if (newSrc != src && /^\/\w+\/status\/\d+/.test(pathname)) {
       return redirect(newSrc);
     }
+    {
+      document.head.insertAdjacentHTML(
+        "beforeend",
+        "<style>" +
+          // Hide annoying button or tab
+          'a[href="/i/grok"], a[href="/i/premium_sign_up"], a[href="/jobs"], a[href="/settings/monetization"], a[href="https://ads.x.com/?ref=gl-tw-tw-twitter-ads-rweb"], div[role=presentation]:has(a[href*="/highlights"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/verified-choose"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/trends"]) { display: none !important; } ' +
+          // Blink multiple images media grid
+          '@keyframes colorCycle{0%,100%{fill:black}50%{fill:white}}[id^=verticalGridItem-][id$="-profile-grid-0"] a svg{animation:2s infinite colorCycle}' +
+          "</style>"
+      );
+    }
     const getUID = (short = true) => {
-      const id = JSON.parse(
-        document.head.querySelector(
-          'script[data-testid="UserProfileSchema-test"]'
-        )?.textContent || null
-      )?.author?.identifier;
+      const id = JSON.parse(document.head.querySelector('script[data-testid="UserProfileSchema-test"]')?.textContent || null)?.author?.identifier;
       if (id) {
-        const preifx = short
-          ? "https://twitter.com/i/user/"
-          : "https://twitter.com/intent/user?user_id=";
+        const preifx = short ? "https://x.com/i/user/" : "https://x.com/intent/user?user_id=";
         const url = preifx + id;
         GM_setClipboard(url);
         GM_toast(url + " Copied.");
@@ -2246,21 +2005,16 @@
             return a;
           };
           // Video url to add, maybe more than 1 or mixed with photo:
-          // https://twitter.com/Miss_stlouis3/status/1590343016530972673
+          // https://x.com/Miss_stlouis3/status/1590343016530972673
           let info = [];
           try {
             let result = tweet.content.itemContent.tweet_results.result;
-            let { extended_entities, card } =
-              result?.legacy || result?.tweet?.legacy; // https://twitter.com/MAPPA_Info/status/1591393136475246592
+            let { extended_entities, card } = result?.legacy || result?.tweet?.legacy; // https://x.com/MAPPA_Info/status/1591393136475246592
             if (extended_entities) {
-              info = extended_entities.media
-                .filter(i => i.type === "video" || i.type === "animated_gif")
-                .map(i => i.video_info.variants);
+              info = extended_entities.media.filter(i => i.type === "video" || i.type === "animated_gif").map(i => i.video_info.variants);
             } else if (card) {
               // Maybe only show 1 video in cart type tweet
-              info = JSON.parse(
-                card.binding_values.unified_card.string_value
-              ).media_entities;
+              info = JSON.parse(card.binding_values.unified_card.string_value).media_entities;
               const keyName = Object.keys(info)[0];
               info = [info[keyName].video_info.variants];
             } else {
@@ -2273,9 +2027,7 @@
           }
           // Add
           info.forEach((meta, i) => {
-            let url = meta
-                .filter(i => i.content_type === "video/mp4")
-                .sort((a, b) => b.bitrate - a.bitrate)[0].url,
+            let url = meta.filter(i => i.content_type === "video/mp4").sort((a, b) => b.bitrate - a.bitrate)[0].url,
               newA = clonedA();
             newA.classList.add("LinkAdded");
             newA.target = "_blank";
@@ -2292,9 +2044,7 @@
         let proxied = window.XMLHttpRequest.prototype.open,
           that = this;
         window.XMLHttpRequest.prototype.open = function (method, url) {
-          let matched = url.match(
-            /\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/
-          );
+          let matched = url.match(/\/graphql\/.*?\/TweetDetail\?.*?focalTweetId%22%3A%22(\d*?)%22/);
           if (matched && !that.added && that.tid) {
             let id = matched[1];
             this.addEventListener(
@@ -2307,10 +2057,7 @@
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
                 that.resp = {
                   id,
-                  tweet:
-                    resp.data.threaded_conversation_with_injections_v2.instructions[0].entries.filter(
-                      i => i.entryId == `tweet-${id}`
-                    )[0]
+                  tweet: resp.data.threaded_conversation_with_injections_v2.instructions[0].entries.filter(i => i.entryId == `tweet-${id}`)[0]
                 };
               },
               false
@@ -2327,9 +2074,7 @@
                 }
                 let resp = this.response;
                 resp = typeof resp === "string" ? JSON.parse(resp) : resp;
-                let entries =
-                  resp.data.bookmark_timeline.timeline?.instructions?.[0]
-                    ?.entries;
+                let entries = resp.data.bookmark_timeline.timeline?.instructions?.[0]?.entries;
                 if (!entries) return;
                 entries.forEach(t => {
                   let res = t.content?.itemContent?.tweet_results?.result;
@@ -2337,8 +2082,7 @@
                     res.tombstone.text.text += " " + t.entryId.split("-")[1];
                   }
                 });
-                resp.data.bookmark_timeline.timeline.instructions[0].entries =
-                  entries;
+                resp.data.bookmark_timeline.timeline.instructions[0].entries = entries;
                 Object.defineProperty(this, "responseText", { writable: true });
                 this.responseText = JSON.stringify(resp);
               },
@@ -2384,11 +2128,7 @@
               this.hasVideo = true;
               this.findTarget();
             }
-            if (
-              this.added &&
-              this.hasVideo &&
-              !document.querySelector(`a[href*="${id}"]`)
-            ) {
+            if (this.added && this.hasVideo && !document.querySelector(`a[href*="${id}"]`)) {
               // Added elements might disappear after scroll to comment area.
               this.added = false;
               this.findTarget();
@@ -2421,19 +2161,13 @@
   // Niconico Video Cover
   else if (hostname === "www.nicovideo.jp") {
     const getCoverUrl = async (id, htmlStr, t = 0) => {
-      let coverUrlRegExp = new RegExp(
-        `https[^"]+\\/${id}\\/${id}\\.\\d+\\.original[^"]+`
-      );
+      let coverUrlRegExp = new RegExp(`https[^"]+\\/${id}\\/${id}\\.\\d+\\.original[^"]+`);
       let coverUrl = htmlStr.match(coverUrlRegExp)?.[0];
       if (!coverUrl) {
         if (t) return;
         let req = await fetch(`https://www.nicovideo.jp/watch/sm${id}`);
         if (req.status === 200) {
-          return getCoverUrl(
-            id,
-            (await req.text()).replace(/&quot;/g, '"').replace(/\\\//g, "/"),
-            ++t
-          );
+          return getCoverUrl(id, (await req.text()).replace(/&quot;/g, '"').replace(/\\\//g, "/"), ++t);
         }
       }
       return coverUrl;
@@ -2451,9 +2185,7 @@
   else if (hostname === "skeb.jp") {
     if (/\/@\w+\/works\/\d+/.test(pathname)) {
       GM_registerMenuCommand("View <og:image>", () => {
-        const ogImg = document.head
-          .querySelector("meta[property='og:image']")
-          ?.getAttribute("content");
+        const ogImg = document.head.querySelector("meta[property='og:image']")?.getAttribute("content");
         ogImg && window.open(ogImg, "_blank");
       });
       const title = "View <article_image_url>";
@@ -2466,17 +2198,11 @@
             timeout: 2000
           });
         else
-          fetch(
-            unsafeWindow.location.pathname.replace(
-              /^\/@/,
-              "https://skeb.jp/api/users/"
-            ),
-            {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
+          fetch(unsafeWindow.location.pathname.replace(/^\/@/, "https://skeb.jp/api/users/"), {
+            headers: {
+              Authorization: `Bearer ${token}`
             }
-          )
+          })
             .then(resp => resp.json())
             .then(data => {
               Logger.log(data);
@@ -2498,17 +2224,10 @@
 
     const current = (x, y) => {
       const windowOffset = [
-        window.scrollX ||
-          document.documentElement.scrollLeft ||
-          document.body.scrollLeft,
-        window.scrollY ||
-          document.documentElement.scrollTop ||
-          document.body.scrollTop
+        window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft,
+        window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
       ];
-      const offset = [
-        windowOffset[0] + prevPos[0] - x,
-        windowOffset[1] + prevPos[1] - y
-      ];
+      const offset = [windowOffset[0] + prevPos[0] - x, windowOffset[1] + prevPos[1] - y];
       prevPos[0] = x;
       prevPos[1] = y;
       return offset;
@@ -2517,11 +2236,7 @@
     el.addEventListener("dragstart", () => false);
 
     return el.addEventListener("mousedown", e => {
-      if (
-        e.button !== 0 ||
-        e.altKey /* conflict with CB saving image fn */ ||
-        e.ctrlKey
-      ) {
+      if (e.button !== 0 || e.altKey /* conflict with CB saving image fn */ || e.ctrlKey) {
         return;
       }
 
@@ -2562,9 +2277,7 @@
     xhr.open("GET", src, false);
     xhr.send(null);
     let content = xhr.responseText,
-      doc = document.implementation.createHTMLDocument(
-        "" + (document.title || "")
-      );
+      doc = document.implementation.createHTMLDocument("" + (document.title || ""));
 
     doc.open();
     doc.write(content);
@@ -2573,10 +2286,22 @@
     let scripts = doc.getElementsByTagName("script");
     [].forEach.call(scripts, cb);
 
-    document.replaceChild(
-      document.importNode(doc.documentElement, true),
-      document.documentElement
-    );
+    document.replaceChild(document.importNode(doc.documentElement, true), document.documentElement);
+  }
+
+  function findObjAtKeys(obj, keys) {
+    let found = [];
+    let stack = Object.entries(obj);
+    while (stack.length > 0) {
+      let current = stack.pop();
+      if (keys.indexOf(current[0] != -1)) {
+        found.push(current[1]);
+      }
+      if (current[1] && typeof current[1] == "object") {
+        stack = stack.concat(Object.entries(current[1]));
+      }
+    }
+    return found;
   }
 
   function disableWebRTC() {
@@ -2601,6 +2326,7 @@
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         url,
+        method: "GET",
         ...options,
         onload: response => resolve(response),
         onerror: error => reject(error)

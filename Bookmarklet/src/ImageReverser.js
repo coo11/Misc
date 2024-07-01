@@ -65,7 +65,7 @@
     },
     Bing: {
       d: "https://www.bing.com",
-      p: "/images/searchbyimage?cbir=sbi&imgurl="
+      p: "/images/search?view=detailv2&iss=sbi&q=imgurl%3A"
     },
     IQDB: {
       d: "http://iqdb.org",
