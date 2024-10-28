@@ -1,10 +1,14 @@
 ({
+  id: "ImageReverseSearch",
+  get el() {
+    return document.getElementById(this.id);
+  },
   init() {
-    let id = "ImageReverseSearch",
-      elem = document.getElementById(id);
-    if (elem) {
-      elem.style.left = "unset";
-      elem.style.right = 0;
+    let id = this.id,
+      el = this.el;
+    if (el) {
+      el.style.left = "unset";
+      el.style.right = 0;
       return;
     }
     if ("about:blank" !== location.href) {
@@ -26,30 +30,28 @@
   },
   handleEvent(event) {
     let element = event.target,
-      id = "ImageReverseSearch",
-      div = document.getElementById(id);
-    if (element.parentNode.id !== id) {
-      document.removeEventListener("click", this, true);
-      event.stopImmediatePropagation(); // 阻止绑定在同一元素的其它事件
-    } else return;
+      el = this.el;
+    if (el.contains(element)) return;
+    document.removeEventListener("click", this, true);
+    event.stopImmediatePropagation(); // 阻止绑定在同一元素的其它事件
     event.preventDefault(); // 阻止默认事件
     if (element.tagName === "IMG") {
       event.stopPropagation(); // 阻止捕获和冒泡事件传播
-      const engine = div.children[1].value;
+      const engine = el.children[1].value;
       const { d, p } = this.engines[engine];
-      const prefix = engine === "Baidu" || engine === "Google" ? p : d + p;
-      window.open(prefix + encodeURIComponent(element.src), "_blank");
+      const prefix = p.startsWith("/") ? d + p : p;
+      window.open(encodeURI(prefix + element.src), "_blank");
     }
-    document.body.removeChild(div);
+    document.body.removeChild(el);
   },
   engines: {
     Google: {
       d: "https://images.google.com",
       p: "https://www.google.com/searchbyimage?client=Chrome&image_url="
     },
-    Yandex: {
-      d: "https://yandex.com/images",
-      p: "/search?rpt=imageview&url="
+    Lens: {
+      d: "https://images.google.com",
+      p: "https://lens.google.com/uploadbyurl?url="
     },
     sauceNAO: {
       d: "https://saucenao.com",
@@ -58,6 +60,10 @@
     ASCII2D: {
       d: "https://ascii2d.net",
       p: "/search/url/"
+    },
+    Yandex: {
+      d: "https://yandex.com/images",
+      p: "/search?rpt=imageview&url="
     },
     Baidu: {
       d: "https://image.baidu.com",
