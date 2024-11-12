@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Aegis
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.80
+// @version     0.1.82
 // @description Start taking over the world for Via!
 // @author      coo11
-// @run-at      document-start
+// @run-at      document-end
 // @match       *://mp.weixin.qq.com/*
 // @match       *://*.bilibili.com/video/*
 // @match       *://*.bilibili.com/s/video/*
@@ -213,41 +213,35 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Gumroad add entry to Kemono
   else if (hostname.endsWith(".gumroad.com")) {
-    document.addEventListener("DOMContentLoaded", () => {
-      const getInfoComponent = () => {
-        return JSON.parse(document.querySelector("script.js-react-on-rails-component")?.textContent);
-      };
-      GM_registerMenuCommand("View Author on Kemono", () => {
-        let uid = getInfoComponent()?.creator_profile.external_id;
-        if (uid) window.open(`https://kemono.party/gumroad/user/${uid}`, "_blank");
-      });
+    const getUid = () => JSON.parse(document.querySelector("script[data-component-name='Profile']")?.textContent)?.creator_profile.external_id;
+    GM_registerMenuCommand("Get user permanent link", () => {
+      const uid = getUid();
+      if (!uid) return;
+      const url = "https://gumroad.com/" + uid;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    });
+    GM_registerMenuCommand("View user on Kemono", () => {
+      let uid = getUid();
+      if (uid) window.open(`https://kemono.party/gumroad/user/${uid}`, "_blank");
     });
   }
 
   // Patreon
   else if (hostname === "www.patreon.com") {
     if (pathname.startsWith("/posts/")) return;
-    document.addEventListener("DOMContentLoaded", () => {
-      const userData = unsafeWindow.patreon?.bootstrap?.campaign?.data;
-      if (!userData) return;
-      if (pathname === "/user") {
-        const sp = new URL(src).searchParams;
-        if (sp.get("u")) {
-          GM_registerMenuCommand("View vanity page", () => {
-            location.href = `/user?v=${userData.attributes.vanity}`;
-          });
-        }
-        if (sp.get("v")) {
-          GM_registerMenuCommand("View user ID page", () => {
-            location.href = `/user?u=${userData.relationships.creator.data.id}`;
-          });
-        }
-        GM_registerMenuCommand("View user on Kemono", () => {
-          window.open(`https://kemono.party/patreon/user/${userData.relationships.creator.data.id}`, "_blank");
-        });
-        return;
-      }
-      return redirect(`/user?u=${userData.relationships.creator.data.id}`);
+    const getUid = () => patreon?.bootstrap?.campaign?.data?.relationships?.creator?.data?.id;
+    GM_registerMenuCommand("Get user permanent link", () => {
+      const uid = getUid();
+      if (!uid) return;
+      const url = "https://www.patreon.com/user?u=" + uid;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    });
+    GM_registerMenuCommand("View user on Kemono", () => {
+      const uid = getUid();
+      if (!uid) return;
+      window.open(`https://kemono.party/patreon/user/${uid}`, "_blank");
     });
   }
 
@@ -557,117 +551,116 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Danbooru Ehance
   else if (hostname.endsWith(".donmai.us")) {
-    return document.addEventListener("DOMContentLoaded", async () => {
-      // Banned post helper
-      {
-        if (/\/posts\/\d+/.test(location.pathname)) {
-          const p = document.querySelector("#page > p:last-child");
-          if (p && p.innerText === "This page has been removed because of a takedown request.") {
-            p.innerText = "Fetching data...";
-            try {
-              const html = await (
-                await fetch(location, {
-                  headers: { "X-CSRF-Token": Danbooru.Utility.meta("csrf-token") }
-                })
-              ).text();
-              // rails-ujs not broken
-              window._rails_loaded = false;
-              document.open();
-              document.write(html);
-              document.close();
-              await wait(1000);
-            } catch (e) {
-              console.error("Error:", e);
-            }
+    // Banned post helper
+    {
+      if (/\/posts\/\d+/.test(location.pathname)) {
+        const p = document.querySelector("#page > p:last-child");
+        if (p && p.innerText === "This page has been removed because of a takedown request.") {
+          p.innerText = "Fetching data...";
+          try {
+            const html = await (
+              await fetch(location, {
+                headers: { "X-CSRF-Token": Danbooru.Utility.meta("csrf-token") }
+              })
+            ).text();
+            // rails-ujs not broken
+            window._rails_loaded = false;
+            document.open();
+            document.write(html);
+            document.close();
+            await wait(1000);
+          } catch (e) {
+            console.error("Error:", e);
           }
-        } else if (location.pathname === "/posts") {
-          const p = document.querySelector("#page > p:last-child");
-          if (p && p.innerText.indexOf("takedown request") > -1) {
-            let tag = new URL(src).searchParams.get("tags")?.trim();
-            tag = tag.replace(/(status|is|has|user):\w+\b/gi, "").trim();
-            if (tag) {
-              let url = new URL(`https://${hostname}/artists/show_or_new`);
-              url.searchParams.set("name", tag);
-              location.href = url;
-            }
+        }
+      } else if (location.pathname === "/posts") {
+        const p = document.querySelector("#page > p:last-child");
+        if (p && p.innerText.indexOf("takedown request") > -1) {
+          let tag = new URL(src).searchParams.get("tags")?.trim();
+          tag = tag.replace(/(status|is|has|user):\w+\b/gi, "").trim();
+          if (tag) {
+            let url = new URL(`https://${hostname}/artists/show_or_new`);
+            url.searchParams.set("name", tag);
+            location.href = url;
           }
-          if (document.body.classList.contains("a-index")) {
-            const postContainer = document.querySelector("#posts > div.post-gallery > div.posts-container");
-            if (postContainer) {
-              const userPerPage = Danbooru.CurrentUser.data("per-page");
-              const postCount = postContainer.children.length;
-              if (postCount !== userPerPage) {
-                let newUrl = new URL(location);
-                let searchText = (newUrl.searchParams.get("tags") || document.getElementById("tags").value).trim();
-                if (!/\border:random\b/.test(searchText)) {
-                  const showDeleted = /\bstatus:(deleted|any)\b/.test(searchText) || Danbooru.CurrentUser.data("show-deleted-posts");
-                  newUrl.pathname = "/posts.json";
+        }
+        if (document.body.classList.contains("a-index")) {
+          const postContainer = document.querySelector("#posts > div.post-gallery > div.posts-container");
+          if (postContainer) {
+            const userPerPage = Danbooru.CurrentUser.data("per-page");
+            const postCount = postContainer.children.length;
+            if (postCount !== userPerPage) {
+              let newUrl = new URL(location);
+              let searchText = (newUrl.searchParams.get("tags") || document.getElementById("tags").value).trim();
+              if (!/\border:random\b/.test(searchText)) {
+                const showDeleted = /\bstatus:(deleted|any)\b/.test(searchText) || Danbooru.CurrentUser.data("show-deleted-posts");
+                newUrl.pathname = "/posts.json";
 
-                  const iconsHash = document.querySelector("a#close-notice-link use").href.baseVal.split(/-|\./)[1];
-                  const hideScore = Danbooru.Cookie.get("post_preview_show_votes") == "false";
-                  const postPreviewSize = Danbooru.Cookie.get("post_preview_size") || "180";
+                const iconsHash = document.querySelector("a#close-notice-link use").href.baseVal.split(/-|\./)[1];
+                const hideScore = Danbooru.Cookie.get("post_preview_show_votes") == "false";
+                const postPreviewSize = Danbooru.Cookie.get("post_preview_size") || "180";
 
-                  // prettier-ignore
-                  const thumbnailData={variants:[{type:"180x180",url:"https://cdn.donmai.us/180x180/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",width:180,height:135,file_ext:"jpg"},{type:"360x360",url:"https://cdn.donmai.us/360x360/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",width:360,height:270,file_ext:"jpg"},{type:"720x720",url:"https://cdn.donmai.us/720x720/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.webp",width:720,height:540,file_ext:"webp"}]}
-                  let matchedThumbnailSize;
-                  switch (postPreviewSize) {
-                    case "150":
-                    case "180":
-                      matchedThumbnailSize = "180x180";
-                      break;
-                    case "225":
-                    case "270":
-                    case "360":
-                      matchedThumbnailSize = "360x360";
-                      break;
-                    case "720":
-                      matchedThumbnailSize = "720x720";
-                    default:
-                      break;
-                  }
-                  let { width, height, url } = thumbnailData.variants.filter(info => {
-                    return info.type === matchedThumbnailSize;
-                  })[0];
+                // prettier-ignore
+                const thumbnailData={variants:[{type:"180x180",url:"https://cdn.donmai.us/180x180/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",width:180,height:135,file_ext:"jpg"},{type:"360x360",url:"https://cdn.donmai.us/360x360/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",width:360,height:270,file_ext:"jpg"},{type:"720x720",url:"https://cdn.donmai.us/720x720/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.webp",width:720,height:540,file_ext:"webp"}]}
+                let matchedThumbnailSize;
+                switch (postPreviewSize) {
+                  case "150":
+                  case "180":
+                    matchedThumbnailSize = "180x180";
+                    break;
+                  case "225":
+                  case "270":
+                  case "360":
+                    matchedThumbnailSize = "360x360";
+                    break;
+                  case "720":
+                    matchedThumbnailSize = "720x720";
+                  default:
+                    break;
+                }
+                let { width, height, url } = thumbnailData.variants.filter(info => {
+                  return info.type === matchedThumbnailSize;
+                })[0];
 
-                  let a = document.createElement("a");
-                  a.id = "check_banned_posts";
-                  a.href = "#";
-                  a.title = "Shortcut is c";
-                  a.setAttribute("data-shortcut", "c");
-                  a.innerHTML = "<i>Banned</i>";
-                  document.getElementById("show-posts-link").closest("li").insertAdjacentElement("beforeend", a);
-                  Danbooru.Shortcuts.initialize_data_shortcuts();
+                let a = document.createElement("a");
+                a.id = "check_banned_posts";
+                a.href = "#";
+                a.title = "Shortcut is c";
+                a.setAttribute("data-shortcut", "c");
+                a.innerHTML = "<i>Banned</i>";
+                document.getElementById("show-posts-link").closest("li").insertAdjacentElement("beforeend", a);
+                Danbooru.Shortcuts.initialize_data_shortcuts();
 
-                  const parsingPostData = ({ id, uploader_id, score, rating, tag_string, is_pending, is_flagged, is_deleted, has_children, parent_id }) => {
-                    const dataFlag = is_pending ? "pending" : is_flagged ? "flagged" : is_deleted ? "deleted" : "";
-                    const isBlacklisted = Danbooru.Blacklist.entries.some(entry => {
-                      if (entry.disabled) {
-                        return false;
-                      }
-                      let tags = Danbooru.Utility.splitWords(tag_string);
-                      tags.push("rating:" + rating);
-                      tags.push("uploaderid:" + uploader_id);
-                      tags.push("status:" + dataFlag);
-                      let score_test = entry.min_score === null || score < entry.min_score;
-                      return (
-                        Danbooru.Utility.is_subset(tags, entry.require) &&
-                        score_test &&
-                        (!entry.optional.length || Danbooru.Utility.intersect(tags, entry.optional).length) &&
-                        !Danbooru.Utility.intersect(tags, entry.exclude).length
-                      );
-                    });
+                const parsingPostData = ({ id, uploader_id, score, rating, tag_string, is_pending, is_flagged, is_deleted, has_children, parent_id }) => {
+                  const dataFlag = is_pending ? "pending" : is_flagged ? "flagged" : is_deleted ? "deleted" : "";
+                  const isBlacklisted = Danbooru.Blacklist.entries.some(entry => {
+                    if (entry.disabled) {
+                      return false;
+                    }
+                    let tags = Danbooru.Utility.splitWords(tag_string);
+                    tags.push("rating:" + rating);
+                    tags.push("uploaderid:" + uploader_id);
+                    tags.push("status:" + dataFlag);
+                    let score_test = entry.min_score === null || score < entry.min_score;
+                    return (
+                      Danbooru.Utility.is_subset(tags, entry.require) &&
+                      score_test &&
+                      (!entry.optional.length || Danbooru.Utility.intersect(tags, entry.optional).length) &&
+                      !Danbooru.Utility.intersect(tags, entry.exclude).length
+                    );
+                  });
 
-                    const classList = ["post-preview", "post-preview-" + postPreviewSize, "post-preview-fit-compact", "blacklisted"];
-                    !hideScore && classList.push("post-preview-show-votes");
-                    is_pending && classList.push("post-status-pending");
-                    is_pending && classList.push("post-status-flagged");
-                    is_deleted && classList.push("post-status-deleted");
-                    has_children && classList.push("post-status-has-children");
-                    parent_id && classList.push("post-status-has-parent");
-                    isBlacklisted && classList.push("blacklisted-active");
-                    const scorePart = hideScore
-                      ? ""
-                      : `<div class="post-preview-score text-sm text-center mt-1">
+                  const classList = ["post-preview", "post-preview-" + postPreviewSize, "post-preview-fit-compact", "blacklisted"];
+                  !hideScore && classList.push("post-preview-show-votes");
+                  is_pending && classList.push("post-status-pending");
+                  is_pending && classList.push("post-status-flagged");
+                  is_deleted && classList.push("post-status-deleted");
+                  has_children && classList.push("post-status-has-children");
+                  parent_id && classList.push("post-status-has-parent");
+                  isBlacklisted && classList.push("blacklisted-active");
+                  const scorePart = hideScore
+                    ? ""
+                    : `<div class="post-preview-score text-sm text-center mt-1">
               <span class="post-votes inline-flex gap-1" data-id="${id}">
               <a class="post-upvote-link inactive-link" data-remote="true" rel="nofollow" data-method="post" href="/posts/${id}/votes?score=1">
               <svg class="icon svg-icon upvote-icon" viewBox="0 0 448 512">
@@ -679,7 +672,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
               <svg class="icon svg-icon downvote-icon" viewBox="0 0 448 512">
               <use fill="currentColor" href="/packs/static/icons-${iconsHash}.svg#arrow-alt-down"></use>
               </svg></a></span></div>`;
-                    return `<article id="post_${id}"
+                  return `<article id="post_${id}"
               class="${classList.join(" ")}" data-id="${id}" data-tags="${tag_string}" data-rating="${rating}" data-flags="${dataFlag}"
               data-score="${score}" data-uploader-id="${uploader_id}">
               <div class="post-preview-container">
@@ -691,379 +684,448 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
               </picture></a></div>
               ${scorePart}
               </article>`;
-                  };
+                };
 
-                  a.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    a.innerHTML = "<i>Checking...</i>";
-                    fetch(newUrl)
-                      .then(response => response.json())
-                      .then(posts => {
-                        let bannedPostsCount = posts.filter(post => post.is_banned === true).length;
-                        if (!showDeleted) posts = posts.filter(post => !post.is_deleted);
-                        let currentPosts = Array.from(postContainer.children);
-                        const currentPostIds = currentPosts.map(el => {
-                          return Number(el.getAttribute("data-id"));
-                        });
-                        currentPostIds.push(0);
-                        let idx = 0,
-                          bannedToShow = 0,
-                          postsLength = posts.length;
-                        currentPostIds.forEach((pid, index) => {
-                          let htmlToInsert = "";
-                          while (idx < postsLength && posts[idx].id !== pid) {
-                            if (posts[idx].is_banned) {
-                              htmlToInsert += parsingPostData(posts[idx]);
-                              bannedToShow++;
-                            }
-                            idx++;
+                a.addEventListener("click", function (event) {
+                  event.preventDefault();
+                  a.innerHTML = "<i>Checking...</i>";
+                  fetch(newUrl)
+                    .then(response => response.json())
+                    .then(posts => {
+                      let bannedPostsCount = posts.filter(post => post.is_banned === true).length;
+                      if (!showDeleted) posts = posts.filter(post => !post.is_deleted);
+                      let currentPosts = Array.from(postContainer.children);
+                      const currentPostIds = currentPosts.map(el => {
+                        return Number(el.getAttribute("data-id"));
+                      });
+                      currentPostIds.push(0);
+                      let idx = 0,
+                        bannedToShow = 0,
+                        postsLength = posts.length;
+                      currentPostIds.forEach((pid, index) => {
+                        let htmlToInsert = "";
+                        while (idx < postsLength && posts[idx].id !== pid) {
+                          if (posts[idx].is_banned) {
+                            htmlToInsert += parsingPostData(posts[idx]);
+                            bannedToShow++;
                           }
                           idx++;
-                          if (htmlToInsert) {
-                            if (pid === 0) {
-                              postContainer.insertAdjacentHTML("afterbegin", htmlToInsert);
-                            } else currentPosts[index].insertAdjacentHTML("beforebegin", htmlToInsert);
-                          }
-                        });
-                        let msg = "";
-                        if (bannedPostsCount === 0 && bannedToShow === 0) msg = "No banned posts found.";
-                        else if (bannedToShow === 0 && bannedPostsCount > bannedToShow) {
-                          if (bannedPostsCount === 1) msg = "1 banned post found.";
-                          else msg = `${bannedPostsCount} banned posts found.`;
-                        } else {
-                          if (bannedToShow === 1) msg = "Show 1 banned post.";
-                          else msg = `Show ${bannedToShow} banned posts.`;
-                          if (bannedPostsCount != bannedToShow) {
-                            msg += ` ${bannedPostsCount} posts found in total.`;
-                          }
                         }
-                        Danbooru.Utility.notice(msg);
-                        $(a)
-                          .html('<i style="color:var(--success-color)">Finished.</i>')
-                          .fadeOut("slow", function () {
-                            $(this).remove();
-                          });
-                      })
-                      .catch(e => {
-                        console.error("Error:", e);
-                        a.innerHTML = '<i style="color:var(--error-color)">Failure</i>';
+                        idx++;
+                        if (htmlToInsert) {
+                          if (pid === 0) {
+                            postContainer.insertAdjacentHTML("afterbegin", htmlToInsert);
+                          } else currentPosts[index].insertAdjacentHTML("beforebegin", htmlToInsert);
+                        }
                       });
-                  });
-                }
+                      let msg = "";
+                      if (bannedPostsCount === 0 && bannedToShow === 0) msg = "No banned posts found.";
+                      else if (bannedToShow === 0 && bannedPostsCount > bannedToShow) {
+                        if (bannedPostsCount === 1) msg = "1 banned post found.";
+                        else msg = `${bannedPostsCount} banned posts found.`;
+                      } else {
+                        if (bannedToShow === 1) msg = "Show 1 banned post.";
+                        else msg = `Show ${bannedToShow} banned posts.`;
+                        if (bannedPostsCount != bannedToShow) {
+                          msg += ` ${bannedPostsCount} posts found in total.`;
+                        }
+                      }
+                      Danbooru.Utility.notice(msg);
+                      $(a)
+                        .html('<i style="color:var(--success-color)">Finished.</i>')
+                        .fadeOut("slow", function () {
+                          $(this).remove();
+                        });
+                    })
+                    .catch(e => {
+                      console.error("Error:", e);
+                      a.innerHTML = '<i style="color:var(--error-color)">Failure</i>';
+                    });
+                });
               }
             }
           }
         }
       }
-      // Enable non-view mode on current page only
-      document.querySelector("#mode-box select")?.addEventListener("change", () => setTimeout(() => localStorage.setItem("mode", "view")));
-      document.addEventListener("click", event => {
-        const el = event.target;
-        if (el.tagName === "A" && (el.parentElement.classList.contains("post-score") || el.parentElement.classList.contains("post-favcount"))) {
-          if (!el.focused) {
-            event.preventDefault();
-            el.focused = true;
-            el.addEventListener("blur", () => {
-              el.focused = false;
-            });
-          }
-        } else if (el.tagName === "SPAN" && el.classList.contains("post-count") && !el.parentElement.classList.contains("ui-menu-item-wrapper")) {
-          const tagStr = el.parentElement.dataset.tagName || el.previousElementSibling.innerText.replace(/\s+/g, "_");
-          if (tagStr) {
-            const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
-            unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
-          }
-        }
-      });
-      // Convert full-width characters to half-width in search bar or tag edit textbox
-      {
-        function hasFullWidthSearchChar(data) {
-          return (
-            data &&
-            (data.indexOf("\uFF1A") > -1 ||
-              data.indexOf("\uFF08") > -1 ||
-              data.indexOf("\uFF09") > -1 ||
-              data.indexOf("\u201C") > -1 ||
-              data.indexOf("\u201D") > -1 ||
-              data.indexOf("\u2018") > -1 ||
-              data.indexOf("\u2019") > -1 ||
-              data.indexOf("\u2014\u2014") > -1)
-          );
-        }
-        function replaceFullWidthChar(data) {
-          return data
-            .replace(/\uFF1A/g, ":")
-            .replace(/\uFF08/g, "(")
-            .replace(/\uFF09/g, ")")
-            .replace(/\u201C|\u201D/g, '"')
-            .replace(/\u2018|\u2019/g, "'")
-            .replace(/\u2014\u2014/g, "_");
-        }
-
-        const contentEditableElements = document.querySelectorAll("input[data-autocomplete='tag-query'], textarea[data-autocomplete='tag-edit']");
-
-        contentEditableElements.forEach(el => {
-          el.addEventListener("beforeinput", e => {
-            const { inputType, data, target } = e;
-            const { value, selectionStart, selectionEnd } = target;
-            let beginning = value.slice(0, selectionStart);
-            let ending = value.slice(selectionEnd);
-
-            if (inputType === "insertFromPaste" && data && hasFullWidthSearchChar(data)) {
-              let newData = replaceFullWidthChar(data);
-              let cursor = beginning.length + newData.length;
-              inputElement.value = beginning + newData + ending;
-              inputElement.selectionStart = inputElement.selectionEnd = cursor;
-              return false;
-            }
+    }
+    // Enable non-view mode on current page only
+    document.querySelector("#mode-box select")?.addEventListener("change", () => setTimeout(() => localStorage.setItem("mode", "view")));
+    document.addEventListener("click", event => {
+      const el = event.target;
+      if (el.tagName === "A" && (el.parentElement.classList.contains("post-score") || el.parentElement.classList.contains("post-favcount"))) {
+        if (!el.focused) {
+          event.preventDefault();
+          el.focused = true;
+          el.addEventListener("blur", () => {
+            el.focused = false;
           });
-          el.addEventListener("input", e => {
-            // data here is null if inputType is insertFromPaste in Windows Chrome.
-            // So we need to replace it in beforeinput event.
-            const { inputType, data, target } = e;
-            const { value, selectionStart, selectionEnd } = target;
-            let beginning = value.slice(0, selectionStart);
-            let ending = value.slice(selectionEnd);
+        }
+      } else if (el.tagName === "SPAN" && el.classList.contains("post-count") && !el.parentElement.classList.contains("ui-menu-item-wrapper")) {
+        const tagStr = el.parentElement.dataset.tagName || el.previousElementSibling.innerText.replace(/\s+/g, "_");
+        if (tagStr) {
+          const msg = `Tag <b><i>${tagStr}</i></b> copied.`;
+          unsafeWindow.Danbooru.Utility.copyToClipboard(tagStr, msg);
+        }
+      }
+    });
+    // Convert full-width characters to half-width in search bar or tag edit textbox
+    {
+      function hasFullWidthSearchChar(data) {
+        return (
+          data &&
+          (data.indexOf("\uFF1A") > -1 ||
+            data.indexOf("\uFF08") > -1 ||
+            data.indexOf("\uFF09") > -1 ||
+            data.indexOf("\u201C") > -1 ||
+            data.indexOf("\u201D") > -1 ||
+            data.indexOf("\u2018") > -1 ||
+            data.indexOf("\u2019") > -1 ||
+            data.indexOf("\u2014\u2014") > -1)
+        );
+      }
+      function replaceFullWidthChar(data) {
+        return data
+          .replace(/\uFF1A/g, ":")
+          .replace(/\uFF08/g, "(")
+          .replace(/\uFF09/g, ")")
+          .replace(/\u201C|\u201D/g, '"')
+          .replace(/\u2018|\u2019/g, "'")
+          .replace(/\u2014\u2014/g, "_");
+      }
 
-            if (inputType?.startsWith("insert") && data && hasFullWidthSearchChar(data)) {
-              beginning = beginning.slice(0, -data.length);
-              let newData = replaceFullWidthChar(data);
-              let cursor = beginning.length + newData.length;
-              target.value = beginning + newData + ending;
+      const contentEditableElements = document.querySelectorAll("input[data-autocomplete='tag-query'], textarea[data-autocomplete='tag-edit']");
 
-              // Android Webview and Chrome for Android has no insertCompositionText inputType.
-              if (inputType === "insertCompositionText") target.hasInsertCompositionText = true;
-              // An extra insertText event will be triggered in Windows Chrome.
-              if (inputType === "insertText" && target.hasInsertCompositionText) {
-                cursor = beginning.length;
-                target.value = beginning + ending;
-              }
+      contentEditableElements.forEach(el => {
+        el.addEventListener("beforeinput", e => {
+          const { inputType, data, target } = e;
+          const { value, selectionStart, selectionEnd } = target;
+          let beginning = value.slice(0, selectionStart);
+          let ending = value.slice(selectionEnd);
 
-              target.selectionStart = target.selectionEnd = cursor;
-            }
-          });
+          if (inputType === "insertFromPaste" && data && hasFullWidthSearchChar(data)) {
+            let newData = replaceFullWidthChar(data);
+            let cursor = beginning.length + newData.length;
+            inputElement.value = beginning + newData + ending;
+            inputElement.selectionStart = inputElement.selectionEnd = cursor;
+            return false;
+          }
         });
-      }
-      // Auto Save Danbooru Upload Content
-      const autoSave = {
-        db: null,
-        assetId: null,
-        DB_STORE_NAME: "savedContentFromUploadPage",
-        async init() {
-          if (pathname.startsWith("/posts/") && !pathname.endsWith(".xml") && !pathname.endsWith(".json")) {
-            this.assetId =
-              document.querySelector("#related-tags-container")?.getAttribute("data-media-asset-id") ||
-              document.querySelector("#post-info-size > a[href^='/media_assets/']")?.href.split("/media_assets/")[1];
-            await this.openDB();
-            this.remove(this.assetId);
-          } else if (/^\/uploads\/\d+$/.test(pathname) || /^\/uploads\/\d+\/assets\/\d+/.test(pathname)) {
-            this.assetId =
-              document.querySelector("#media_asset_id")?.value || document.querySelector("#related-tags-container")?.getAttribute("data-media-asset-id");
+        el.addEventListener("input", e => {
+          // data here is null if inputType is insertFromPaste in Windows Chrome.
+          // So we need to replace it in beforeinput event.
+          const { inputType, data, target } = e;
+          const { value, selectionStart, selectionEnd } = target;
+          let beginning = value.slice(0, selectionStart);
+          let ending = value.slice(selectionEnd);
 
-            await this.openDB();
+          if (inputType?.startsWith("insert") && data && hasFullWidthSearchChar(data)) {
+            beginning = beginning.slice(0, -data.length);
+            let newData = replaceFullWidthChar(data);
+            let cursor = beginning.length + newData.length;
+            target.value = beginning + newData + ending;
 
-            const saved = await this.load();
-            if (saved) {
-              delete saved.asset_id;
-              for (let elementName in saved) {
-                document.querySelector(`#${elementName}`).value = saved[elementName];
-              }
-              document.querySelector("span.tag-count").innerText = "- / 20 tags";
+            // Android Webview and Chrome for Android has no insertCompositionText inputType.
+            if (inputType === "insertCompositionText") target.hasInsertCompositionText = true;
+            // An extra insertText event will be triggered in Windows Chrome.
+            if (inputType === "insertText" && target.hasInsertCompositionText) {
+              cursor = beginning.length;
+              target.value = beginning + ending;
             }
 
-            document.addEventListener("input", event => {
-              let el = event.target;
-              switch (el.id) {
-                case "post_tag_string":
-                // case "post_source":
-                // case "post_artist_commentary_title":
-                // case "post_artist_commentary_desc":
-                case "post_translated_commentary_title":
-                case "post_translated_commentary_desc":
-                case "post_parent_id":
-                  this.save({ [el.id]: el.value });
-                  break;
-              }
-            });
-
-            const tagTextarea = document.querySelector("#post_tag_string");
-            document.querySelector("#related-tags-container").addEventListener("click", event => {
-              const el = event.target;
-              if ((el.tagName === "A" || el.tagName === "INPUT") && el.closest("ul")?.className === "tag-list") {
-                setTimeout(() => {
-                  const event = new Event("input", {
-                    bubbles: true,
-                    cancelable: true
-                  });
-                  tagTextarea.dispatchEvent(event);
-                });
-              }
-            });
+            target.selectionStart = target.selectionEnd = cursor;
           }
-        },
-        openDB() {
-          return new Promise((resolve, reject) => {
-            const request = indexedDB.open("AutoSavedDB", 1);
-            request.onupgradeneeded = event => {
-              this.db = event.target.result;
-              if (!this.db.objectStoreNames.contains(this.DB_STORE_NAME)) {
-                this.db.createObjectStore(this.DB_STORE_NAME, {
-                  keyPath: "asset_id"
-                });
-              }
-            };
-            request.onsuccess = event => {
-              this.db = event.target.result;
-              resolve();
-            };
-            request.onerror = event => reject(event.target.errorCode);
-          });
-        },
-        save(content) {
-          const objectStore = this.db.transaction(this.DB_STORE_NAME, "readwrite").objectStore(this.DB_STORE_NAME);
-          const request = objectStore.get(this.assetId);
-          request.onsuccess = event => {
-            const updatedData = Object.assign({ asset_id: this.assetId }, event.target.result, content);
-            objectStore.put(updatedData);
-          };
-        },
-        load() {
-          return new Promise((resolve, reject) => {
-            const request = this.db.transaction(this.DB_STORE_NAME, "readonly").objectStore(this.DB_STORE_NAME).get(this.assetId);
+        });
+      });
+    }
+    // Auto Save Danbooru Upload Content
+    const autoSave = {
+      db: null,
+      assetId: null,
+      DB_STORE_NAME: "savedContentFromUploadPage",
+      async init() {
+        if (pathname.startsWith("/posts/") && !pathname.endsWith(".xml") && !pathname.endsWith(".json")) {
+          this.assetId =
+            document.querySelector("#related-tags-container")?.getAttribute("data-media-asset-id") ||
+            document.querySelector("#post-info-size > a[href^='/media_assets/']")?.href.split("/media_assets/")[1];
+          await this.openDB();
+          this.remove(this.assetId);
+        } else if (/^\/uploads\/\d+$/.test(pathname) || /^\/uploads\/\d+\/assets\/\d+/.test(pathname)) {
+          this.assetId =
+            document.querySelector("#media_asset_id")?.value || document.querySelector("#related-tags-container")?.getAttribute("data-media-asset-id");
 
-            request.onsuccess = event => resolve(event.target.result);
-            request.onerror = event => reject(event.target.errorCode);
+          await this.openDB();
+
+          const saved = await this.load();
+          if (saved) {
+            delete saved.asset_id;
+            for (let elementName in saved) {
+              const value = saved[elementName];
+              if (elementName === "post_rating") {
+                document.querySelector(`#${elementName}_${value}`).checked = true;
+              } else {
+                document.querySelector(`#${elementName}`).value = value;
+              }
+            }
+            document.querySelector("#post_tag_string").dispatchEvent(new InputEvent("input"));
+          }
+
+          document.addEventListener("input", event => {
+            let el = event.target;
+            let { id, value } = el;
+            switch (id) {
+              case "post_rating_g":
+              case "post_rating_s":
+              case "post_rating_q":
+              case "post_rating_e":
+                this.save({ post_rating: id.slice(-1) });
+                break;
+              case "post_tag_string":
+                value = value.trim() + " ";
+              // case "post_source":
+              // case "post_artist_commentary_title":
+              // case "post_artist_commentary_desc":
+              case "post_translated_commentary_title":
+              case "post_translated_commentary_desc":
+              case "post_parent_id":
+                this.save({ [id]: value });
+                break;
+              default:
+                break;
+            }
           });
-        },
-        remove() {
-          this.db.transaction(this.DB_STORE_NAME, "readwrite").objectStore(this.DB_STORE_NAME).delete(this.assetId);
+
+          const tagTextarea = document.querySelector("#post_tag_string");
+          document.querySelector("#related-tags-container").addEventListener("click", event => {
+            const el = event.target;
+            if ((el.tagName === "A" || el.tagName === "INPUT") && el.closest("ul")?.className === "tag-list") {
+              setTimeout(() => {
+                const event = new Event("input", { bubbles: true });
+                tagTextarea.dispatchEvent(event);
+              });
+            }
+          });
         }
-      };
-      autoSave.init();
-      if (pathname.startsWith("/posts/")) {
-        const postId = document.body?.dataset["postId"] || document.head.querySelector("meta[name='post-id']").getAttribute("content");
-        const size = document.querySelector("#post-info-size > a:last-child");
-        size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-        const md5 = size.previousElementSibling?.href?.match(/([a-z0-9]{32})\./)[1];
-        if (md5) {
-          document
-            .querySelector("#post-info-id")
-            .insertAdjacentHTML(
-              "beforeend",
-              `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://sankaku.app/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
-            );
+      },
+      openDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open("AutoSavedDB", 1);
+          request.onupgradeneeded = event => {
+            this.db = event.target.result;
+            if (!this.db.objectStoreNames.contains(this.DB_STORE_NAME)) {
+              this.db.createObjectStore(this.DB_STORE_NAME, {
+                keyPath: "asset_id"
+              });
+            }
+          };
+          request.onsuccess = event => {
+            this.db = event.target.result;
+            resolve();
+          };
+          request.onerror = event => reject(event.target.errorCode);
+        });
+      },
+      save(content) {
+        const objectStore = this.db.transaction(this.DB_STORE_NAME, "readwrite").objectStore(this.DB_STORE_NAME);
+        const request = objectStore.get(this.assetId);
+        request.onsuccess = event => {
+          const updatedData = Object.assign({ asset_id: this.assetId }, event.target.result, content);
+          objectStore.put(updatedData);
+        };
+      },
+      load() {
+        return new Promise((resolve, reject) => {
+          const request = this.db.transaction(this.DB_STORE_NAME, "readonly").objectStore(this.DB_STORE_NAME).get(this.assetId);
+
+          request.onsuccess = event => resolve(event.target.result);
+          request.onerror = event => reject(event.target.errorCode);
+        });
+      },
+      remove() {
+        this.db.transaction(this.DB_STORE_NAME, "readwrite").objectStore(this.DB_STORE_NAME).delete(this.assetId);
+      }
+    };
+    autoSave.init();
+    if (pathname.startsWith("/posts/")) {
+      const postId = document.body?.dataset["postId"] || document.head.querySelector("meta[name='post-id']").getAttribute("content");
+      const size = document.querySelector("#post-info-size > a:last-child");
+      size.previousSibling.data = size.previousSibling.data.replace("x", "×");
+      const md5 = size.previousElementSibling?.href?.match(/([a-z0-9]{32})\./)[1];
+      if (md5) {
+        document
+          .querySelector("#post-info-id")
+          .insertAdjacentHTML(
+            "beforeend",
+            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://sankaku.app/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
+          );
+        document.head.insertAdjacentHTML(
+          "beforeend",
+          `<style>body[data-current-user-theme=light],html{--booru-border:1px}body[data-current-user-theme=dark]{--booru-border:1px dotted}@media (prefers-color-scheme:dark){body{--booru-border:1px dotted}}#post-info-id>div{display:none}#post-info-id:hover>div{display:inline-block}#post-info-id a{font-weight:700;border:var(--booru-border);border-radius:3px}#post-info-id a:hover{filter:opacity(50%)}</style>`
+        );
+      }
+      const time = document.querySelector("#post-info-date time"),
+        title = time.innerText;
+      time.innerText = time.title;
+      time.title = title;
+      // Add post views
+      {
+        if (postId) {
+          fetch("https://isshiki.donmai.us/post_views/" + postId)
+            .then(resp => resp.text())
+            .then(text => {
+              if (/^\d+$/.test(text)) {
+                document.getElementById("post-info-score")?.insertAdjacentHTML("afterend", `<li id="post-info-views">Views: ${text}</li>`);
+              }
+            });
+          fetch("/favorite_groups.json?only=id&limit=100&search%5Bpost_ids_include_all%5D=" + postId)
+            .then(resp => resp.json())
+            .then(json => {
+              if (Array.isArray(json)) {
+                let len = json.length;
+                len = len > 100 ? len + "+" : len;
+                document
+                  .getElementById("post-info-favorites")
+                  ?.insertAdjacentHTML(
+                    "afterend",
+                    `<li id="post-info-favgroups">Favgroups: <a href="/favorite_groups?search%5Bpost_ids_include_all%5D=${postId}" target="_blank">${len}</a></li>`
+                  );
+              }
+            });
+        }
+      }
+      // Add a button to remove post in a favorite group to the end of the favorite group navi bar
+      {
+        let noticeSearchBar = document.querySelector(".post-notice-search"),
+          favBars = noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
+          headers = {
+            "X-CSRF-Token": window.Danbooru.Utility.meta("csrf-token")
+          };
+        if (favBars.length) {
           document.head.insertAdjacentHTML(
             "beforeend",
-            `<style>body[data-current-user-theme=light],html{--booru-border:1px}body[data-current-user-theme=dark]{--booru-border:1px dotted}@media (prefers-color-scheme:dark){body{--booru-border:1px dotted}}#post-info-id>div{display:none}#post-info-id:hover>div{display:inline-block}#post-info-id a{font-weight:700;border:var(--booru-border);border-radius:3px}#post-info-id a:hover{filter:opacity(50%)}</style>`
+            `<style>.post-notice-search>.favgroup-navbar{display:flex;align-items:center}.favgroup-navbar>.favgroup-name{white-space:normal!important}.fav-remove-link{color:var(--button-danger-background-color)}</style>`
           );
-        }
-        const time = document.querySelector("#post-info-date time"),
-          title = time.innerText;
-        time.innerText = time.title;
-        time.title = title;
-        // Add post views
-        {
-          if (postId) {
-            fetch("https://isshiki.donmai.us/post_views/" + postId)
-              .then(resp => resp.text())
-              .then(text => {
-                if (/^\d+$/.test(text)) {
-                  document.getElementById("post-info-score")?.insertAdjacentHTML("afterend", `<li id="post-info-views">Views: ${text}</li>`);
-                }
-              });
-            fetch("/favorite_groups.json?only=id&limit=100&search%5Bpost_ids_include_all%5D=" + postId)
-              .then(resp => resp.json())
-              .then(json => {
-                if (Array.isArray(json)) {
-                  let len = json.length;
-                  len = len > 100 ? len + "+" : len;
-                  document
-                    .getElementById("post-info-favorites")
-                    ?.insertAdjacentHTML(
-                      "afterend",
-                      `<li id="post-info-favgroups">Favgroups: <a href="/favorite_groups?search%5Bpost_ids_include_all%5D=${postId}" target="_blank">${len}</a></li>`
-                    );
-                }
-              });
-          }
-        }
-        // Add a button to remove post in a favorite group to the end of the favorite group navi bar
-        {
-          let noticeSearchBar = document.querySelector(".post-notice-search"),
-            favBars = noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [],
-            headers = {
-              "X-CSRF-Token": window.Danbooru.Utility.meta("csrf-token")
-            };
-          if (favBars.length) {
-            document.head.insertAdjacentHTML(
+          let xhref = document.querySelector(".icon.svg-icon.close-icon > use").href.baseVal;
+          favBars.forEach(fav => {
+            let favName = fav.querySelector(".favgroup-name");
+            let pre = favName.children[0].href;
+            favName.insertAdjacentHTML(
               "beforeend",
-              `<style>.post-notice-search>.favgroup-navbar{display:flex;align-items:center}.favgroup-navbar>.favgroup-name{white-space:normal!important}.fav-remove-link{color:var(--button-danger-background-color)}</style>`
+              '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="' +
+                xhref +
+                '"></use></svg></a>'
             );
-            let xhref = document.querySelector(".icon.svg-icon.close-icon > use").href.baseVal;
-            favBars.forEach(fav => {
-              let favName = fav.querySelector(".favgroup-name");
-              let pre = favName.children[0].href;
-              favName.insertAdjacentHTML(
-                "beforeend",
-                '&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="' +
-                  xhref +
-                  '"></use></svg></a>'
-              );
-              favName.lastElementChild.addEventListener("click", () => {
-                fetch(`${pre}/remove_post.js?post_id=${postId}`, {
-                  method: "PUT",
-                  headers
-                })
-                  .then(resp => resp.text())
-                  .then(text => {
-                    const matched = text.match(/"(Removed post from favorite group )(.+?)"\);/);
-                    if (matched) {
-                      const url = encodeURI(`https://${hostname}/posts?tags=favgroup:"${matched[2]}"`);
-                      const text = matched[1] + `<a href="${url}">${matched[2]}</a>`;
-                      window.Danbooru.notice(text);
-                      fav.remove();
-                      if (noticeSearchBar.children.length === 0) noticeSearchBar.remove();
-                    }
-                  });
-              });
+            favName.lastElementChild.addEventListener("click", () => {
+              fetch(`${pre}/remove_post.js?post_id=${postId}`, {
+                method: "PUT",
+                headers
+              })
+                .then(resp => resp.text())
+                .then(text => {
+                  const matched = text.match(/"(Removed post from favorite group )(.+?)"\);/);
+                  if (matched) {
+                    const url = encodeURI(`https://${hostname}/posts?tags=favgroup:"${matched[2]}"`);
+                    const text = matched[1] + `<a href="${url}">${matched[2]}</a>`;
+                    window.Danbooru.notice(text);
+                    fav.remove();
+                    if (noticeSearchBar.children.length === 0) noticeSearchBar.remove();
+                  }
+                });
             });
-          }
-        }
-      } else if (pathname.startsWith("/artists/")) {
-        if (document.body.dataset["artistId"]) {
-          const el = document.querySelector("li#subnav-posts");
-          const url = el.children[0].href.replace("posts?tags=", "post_versions?search%5Bchanged_tags%5D=");
-          if (url) el.insertAdjacentHTML("afterend", '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' + url + '">Post changes</a></li>');
-        }
-      } else if (pathname.startsWith("/uploads/")) {
-        wait(1000).then(() => document.querySelector(".ai-tags-related-tags-column")?.classList?.remove("hidden"));
-        const hint = document.querySelector("div.post_tag_string span.hint");
-        hint.insertAdjacentHTML("beforeend", "<br /><a class='cursor-pointer'>View detials for current tag in related tags page »</a>");
-        hint.querySelector("a").addEventListener("click", () => {
-          const currentTag = unsafeWindow.Danbooru.RelatedTag.current_tag();
-          const url = `/related_tag?commit=Search&search%5Border%5D=Overlap&search%5Bquery%5D=${currentTag}`;
-          if (currentTag) window.open(url, "_blank");
-        });
-      } else if (/\/favorite_groups\/\d+\/edit/.test(pathname)) {
-        let textAreaLabel = document.querySelector(".favorite_group_post_ids_string > label");
-        textAreaLabel.insertAdjacentHTML(
-          "beforeend",
-          `<span class="text-xxs text-center" style="font-weight:normal;">&nbsp;&nbsp;<a class="ids_ascending">Ascending</a>&nbsp;|&nbsp;<a class="ids_descending">Descending</a></span>`
-        );
-        textAreaLabel.querySelector("a.ids_ascending").addEventListener("click", () => sortIds());
-        textAreaLabel.querySelector("a.ids_descending").addEventListener("click", () => sortIds(false));
-        function sortIds(ascending = true) {
-          let tArea = document.querySelector("#favorite_group_post_ids_string"),
-            ids = tArea.value.trim(),
-            idsArr = ids.split(/\s+/).filter(id => /^\d+$/.test(id));
-          idsArr = [...new Set(idsArr)];
-          idsArr.sort((a, b) => (ascending ? a - b : b - a));
-          tArea.value = idsArr.join(" ");
-          unsafeWindow.Danbooru.notice(`Sort in ${ascending ? "ascending" : "descending"} order.`);
+          });
         }
       }
-      return;
-    });
+    } else if (pathname.startsWith("/artists/")) {
+      if (document.body.dataset["artistId"]) {
+        const el = document.querySelector("li#subnav-posts");
+        const url = el.children[0].href.replace("posts?tags=", "post_versions?search%5Bchanged_tags%5D=");
+        if (url) el.insertAdjacentHTML("afterend", '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' + url + '">Post changes</a></li>');
+      }
+    } else if (pathname.startsWith("/uploads/")) {
+      wait(1000).then(() => document.querySelector(".ai-tags-related-tags-column")?.classList?.remove("hidden"));
+      const tagsField = document.querySelector("#post_tag_string");
+      Danbooru.Autocomplete._ic = Danbooru.Autocomplete.insert_completion;
+      Danbooru.Autocomplete.insert_completion = function () {
+        this._ic(...arguments);
+        // jQuery trigger('input') does not fire native JavaScript input event
+        tagsField.dispatchEvent(new InputEvent("input", { bubbles: true }));
+      };
+      // Easier 1up https://gist.github.com/TypeA2/bff1474c0f4ca2188cf21897d4e4b2dd
+      const easier1Up = {
+        init() {
+          const similar = document.getElementById("iqdb-similar");
+          this.observer = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(this.process.bind(this))));
+          this.observer.observe(similar, {
+            subtree: true,
+            childList: true
+          });
+        },
+        process(node) {
+          if (node.className !== "iqdb-posts") return;
+          for (const post of node.getElementsByTagName("article")) {
+            const div = post.querySelector(".iqdb-similarity-score").parentElement;
+            const setParent = document.createElement("a");
+            setParent.classList.add("inactive-link");
+            setParent.href = "#";
+            setParent.innerText = "parent";
+            setParent.addEventListener("click", e => {
+              e.preventDefault();
+              this.copyTags(post, true);
+            });
+            const setChild = document.createElement("a");
+            setChild.classList.add("inactive-link");
+            setChild.href = "#";
+            setChild.innerText = "child";
+            setChild.addEventListener("click", e => {
+              e.preventDefault();
+              this.copyTags(post, false);
+            });
+            div.appendChild(document.createTextNode(" | "));
+            div.appendChild(setParent);
+            div.appendChild(document.createTextNode(" | "));
+            div.appendChild(setChild);
+          }
+          this.observer?.disconnect();
+        },
+        copyTags(post, isParent) {
+          const tags = post.dataset.tags.split(" ").filter(t => t === "social_commentary" || t.indexOf("commentary") == -1);
+          document.querySelector(`input.radio_buttons[value='${post.dataset.rating}']`).checked = true;
+          if (isParent) {
+            document.getElementById("post_parent_id").value = post.dataset.id;
+          } else tags.push("child:" + post.dataset.id);
+          tagsField.value = tags.join(" ") + " ";
+          tagsField.dispatchEvent(new InputEvent("input", { bubbles: true }));
+          document.querySelector(".source-tab").click();
+          Danbooru.Utility.notice("Succesfully copied tags. Please check the commentary tags.");
+        }
+      };
+      easier1Up.init();
+
+      const hint = document.querySelector("div.post_tag_string span.hint");
+      hint.insertAdjacentHTML("beforeend", "<br /><a class='cursor-pointer'>View detials for current tag in related tags page »</a>");
+      hint.querySelector("a").addEventListener("click", () => {
+        const currentTag = unsafeWindow.Danbooru.RelatedTag.current_tag();
+        const url = `/related_tag?commit=Search&search%5Border%5D=Overlap&search%5Bquery%5D=${currentTag}`;
+        if (currentTag) window.open(url, "_blank");
+      });
+    } else if (/\/favorite_groups\/\d+\/edit/.test(pathname)) {
+      let textAreaLabel = document.querySelector(".favorite_group_post_ids_string > label");
+      textAreaLabel.insertAdjacentHTML(
+        "beforeend",
+        `<span class="text-xxs text-center" style="font-weight:normal;">&nbsp;&nbsp;<a class="ids_ascending">Ascending</a>&nbsp;|&nbsp;<a class="ids_descending">Descending</a></span>`
+      );
+      textAreaLabel.querySelector("a.ids_ascending").addEventListener("click", () => sortIds());
+      textAreaLabel.querySelector("a.ids_descending").addEventListener("click", () => sortIds(false));
+      function sortIds(ascending = true) {
+        let tArea = document.querySelector("#favorite_group_post_ids_string"),
+          ids = tArea.value.trim(),
+          idsArr = ids.split(/\s+/).filter(id => /^\d+$/.test(id));
+        idsArr = [...new Set(idsArr)];
+        idsArr.sort((a, b) => (ascending ? a - b : b - a));
+        tArea.value = idsArr.join(" ");
+        unsafeWindow.Danbooru.notice(`Sort in ${ascending ? "ascending" : "descending"} order.`);
+      }
+    }
+    return;
   }
 
   // yande.re
@@ -1108,199 +1170,197 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // EHentai
   else if (hostname === "exhentai.org" || hostname === "e-hentai.org") {
-    return document.addEventListener("DOMContentLoaded", () => {
-      if (src.indexOf("gallerytorrents.php") > -1) {
-        return document.querySelectorAll("#torrentinfo form table tr:nth-child(2)").forEach(tr => {
-          let magnet,
-            a = tr.nextElementSibling.querySelector("a");
-          if (a) {
-            magnet = a.href.replace(/.*?([0-9a-f]{40}).*$/i, "magnet:?xt=urn:btih:$1");
-            if (!magnet || magnet.length !== 60) return;
-          }
-          let td = tr.querySelector("td[rowspan='2']");
-          if (td) {
-            td.setAttribute("rowspan", "1");
-            const newTd = td.cloneNode(true),
-              input = newTd.children[0];
-            input.type = "button";
-            input.value = "Magnet";
-            input.onclick = function () {
-              input.blur();
-              if (input.value === "Copied!") return;
-              GM_setClipboard(magnet);
-              input.value = "Copied!";
-              wait(2000).then(() => (input.value = "Magnet"));
-            };
-            tr.appendChild(newTd);
-          }
-        });
-      } else if (pathname.startsWith("/g/")) {
-        // Add double click tag to open in new tab
-        document.querySelectorAll("#taglist div > a").forEach(e => {
-          e.addEventListener("dblclick", event => {
-            event.preventDefault();
-            window.open(event.target.href, "_blank");
-          });
-        });
-        // Add comment URL hash
-        document.querySelectorAll("div.gdtm > div > a, div.gdtl > a").forEach(a => {
-          if (a.href.indexOf("hentai.org/s/") > -1) {
-            a.setAttribute("target", "_blank");
-          }
-        });
-        document.querySelectorAll("#cdiv div.c3").forEach(el => {
-          let a = el.closest("div.c1").previousSibling;
-          if (a && a.name) {
-            el.innerHTML += ` &nbsp; <a href="#${a.name}">#</a>`;
-          }
-        });
-      } else if (pathname.startsWith("/s/")) {
-        const galleryUrl = document.querySelector("div.sb > a").href,
-          h1 = document.querySelector("h1");
-        h1.outerHTML = `<a href="${galleryUrl}" target="_blank" style="text-decoration:none;">${h1.outerHTML}</a>`;
-      } else if (/^\/(mpv\/|torrents\.php|upld\/|mytags)/.test(pathname));
-      else {
-        // Open Gallery in New Tab
-        [].forEach.call(document.getElementsByClassName("itg"), table => {
-          table.querySelectorAll("a").forEach(a => a.setAttribute("target", "_blank"));
-        });
-        // Add Search in South Plus
-        const inputArea = document.getElementById("f_search");
-        if (inputArea) {
-          inputArea.style.width = "400px";
-          const input = document.createElement("input");
+    if (src.indexOf("gallerytorrents.php") > -1) {
+      return document.querySelectorAll("#torrentinfo form table tr:nth-child(2)").forEach(tr => {
+        let magnet,
+          a = tr.nextElementSibling.querySelector("a");
+        if (a) {
+          magnet = a.href.replace(/.*?([0-9a-f]{40}).*$/i, "magnet:?xt=urn:btih:$1");
+          if (!magnet || magnet.length !== 60) return;
+        }
+        let td = tr.querySelector("td[rowspan='2']");
+        if (td) {
+          td.setAttribute("rowspan", "1");
+          const newTd = td.cloneNode(true),
+            input = newTd.children[0];
           input.type = "button";
-          input.value = "South Plus";
-          input.onclick = () => {
-            const text = inputArea.value;
-            if (text) {
-              window.open(
-                "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-                  encodeURIComponent(text),
-                "_blank"
-              );
-            }
+          input.value = "Magnet";
+          input.onclick = function () {
+            input.blur();
+            if (input.value === "Copied!") return;
+            GM_setClipboard(magnet);
+            input.value = "Copied!";
+            wait(2000).then(() => (input.value = "Magnet"));
           };
-          inputArea.parentNode.appendChild(input);
+          tr.appendChild(newTd);
         }
-        // Add Status
-        const customStyle = document.createElement("style");
-        customStyle.innerText =
-          ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; } " +
-          ".glink { max-width: 1200px !important; display: inline-block; position: relative; padding-right: 4px; } " +
-          "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } " +
-          ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }" +
-          "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }";
-        const pageMode = document.querySelector("#dms select")?.selectedIndex || document.querySelector("div.searchnav select")?.selectedIndex;
-        // Fix Tap link not show preview on Android
-        if (pageMode < 3) {
-          document.querySelectorAll("table.itg td[onmouseover] a").forEach(a => {
-            const td = a.parentElement;
-            a.addEventListener("click", e => {
-              if (!td.canClick) {
-                e.preventDefault();
-                td.canClick = true;
-              }
-            });
-            td.addEventListener("mouseleave", () => {
-              td.canClick = false;
-            });
-          });
+      });
+    } else if (pathname.startsWith("/g/")) {
+      // Add double click tag to open in new tab
+      document.querySelectorAll("#taglist div > a").forEach(e => {
+        e.addEventListener("dblclick", event => {
+          event.preventDefault();
+          window.open(event.target.href, "_blank");
+        });
+      });
+      // Add comment URL hash
+      document.querySelectorAll("div.gdtm > div > a, div.gdtl > a").forEach(a => {
+        if (a.href.indexOf("hentai.org/s/") > -1) {
+          a.setAttribute("target", "_blank");
         }
-        // Add bouncing animation for title
-        if (pageMode < 3) {
-          const hookedFn = unsafeWindow.show_image_pane;
-          unsafeWindow.show_image_pane = function (a) {
-            const tr = document.querySelector("div#ic" + a).parentNode.parentNode.closest("tr");
-            const container = tr.querySelector("td.glname");
-            const text = tr.querySelector("div.glink");
-            if (container.clientWidth < text.scrollWidth && !text.classList.contains("bouncing")) text.classList.add("bouncing");
-            else if (container.clientWidth >= text.scrollWidth && text.classList.contains("bouncing")) text.classList.remove("bouncing");
-            hookedFn(a);
-          };
+      });
+      document.querySelectorAll("#cdiv div.c3").forEach(el => {
+        let a = el.closest("div.c1").previousSibling;
+        if (a && a.name) {
+          el.innerHTML += ` &nbsp; <a href="#${a.name}">#</a>`;
         }
-        document.head.appendChild(customStyle);
-        {
-          // Show translator meta: Not good if use Extended or Thumbnail mode.
-          let needCheckedGalleries = {};
-          let translateRegex = /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
-          let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
-          let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
-          let aiRegex = /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
-          const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
-          let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
-          document.querySelectorAll("div.glink").forEach(e => {
-            let jpTitle = e.innerText;
-            jpTitle = jpTitle.replace(/］/g, "]").replace(/［/g, "[");
-            let matched = jpTitle.match(translateRegex)?.[0];
-            if (matched) {
-              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched);
-              return;
-            }
-            matched = jpTitle.match(cnTsGalleriesRegex)?.[0];
-            if (matched) {
-              e.innerHTML = jpTitle.replace(matched, " ").trim();
-              needCheckedGalleries[e.parentNode.href] = e;
-              return;
-            }
-            matched = jpTitle.match(translateRegexIrregular)?.[0];
-            if (matched) {
-              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[中文]", "#EF5FA7");
-              return;
-            }
-            matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
-            if (matched) {
-              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
-              return;
-            }
-            matched = jpTitle.match(aiRegex)?.[0];
-            if (matched) {
-              e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[AI Generated]", "#FF0000");
-              return;
-            }
-            if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
-              e.innerHTML = e.innerHTML.trim();
-              needCheckedGalleries[e.parentNode.href] = e;
+      });
+    } else if (pathname.startsWith("/s/")) {
+      const galleryUrl = document.querySelector("div.sb > a").href,
+        h1 = document.querySelector("h1");
+      h1.outerHTML = `<a href="${galleryUrl}" target="_blank" style="text-decoration:none;">${h1.outerHTML}</a>`;
+    } else if (/^\/(mpv\/|torrents\.php|upld\/|mytags)/.test(pathname));
+    else {
+      // Open Gallery in New Tab
+      [].forEach.call(document.getElementsByClassName("itg"), table => {
+        table.querySelectorAll("a").forEach(a => a.setAttribute("target", "_blank"));
+      });
+      // Add Search in South Plus
+      const inputArea = document.getElementById("f_search");
+      if (inputArea) {
+        inputArea.style.width = "400px";
+        const input = document.createElement("input");
+        input.type = "button";
+        input.value = "South Plus";
+        input.onclick = () => {
+          const text = inputArea.value;
+          if (text) {
+            window.open(
+              "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
+                encodeURIComponent(text),
+              "_blank"
+            );
+          }
+        };
+        inputArea.parentNode.appendChild(input);
+      }
+      // Add Status
+      const customStyle = document.createElement("style");
+      customStyle.innerText =
+        ".itg a .glink::before { content: '●'; color: #28C940; padding-right: 4px; } .itg a:visited .glink::before { color: #AAA; } " +
+        ".glink { max-width: 1200px !important; display: inline-block; position: relative; padding-right: 4px; } " +
+        "td.glname { max-width: 300px; white-space: nowrap; overflow: hidden; position: relative; } " +
+        ".bouncing { animation: bc 2s infinite alternate linear; } .bouncing:hover { animation-play-state: paused; }" +
+        "@keyframes bc { 0%, 10% { transform: translateX(0%); left: 0%; } 90%, 100% { transform: translateX(-100%); left: 100%; } }";
+      const pageMode = document.querySelector("#dms select")?.selectedIndex || document.querySelector("div.searchnav select")?.selectedIndex;
+      // Fix Tap link not show preview on Android
+      if (pageMode < 3) {
+        document.querySelectorAll("table.itg td[onmouseover] a").forEach(a => {
+          const td = a.parentElement;
+          a.addEventListener("click", e => {
+            if (!td.canClick) {
+              e.preventDefault();
+              td.canClick = true;
             }
           });
-          let gidList = Object.keys(needCheckedGalleries).map(url => url.split("/").splice(4, 2));
-          if (gidList.length === 0) return;
-          let groupedList = [];
-          gidList.forEach((gt, n) => {
-            let g = parseInt(n / 25);
-            if (groupedList[g]) groupedList[g].push(gt);
-            else groupedList[g] = [gt];
+          td.addEventListener("mouseleave", () => {
+            td.canClick = false;
           });
-          let hash = Cookie.get("ipb_pass_hash");
-          if (!hash) {
-            Logger.warn("NO IPB_PASS_HASH FOUND.");
+        });
+      }
+      // Add bouncing animation for title
+      if (pageMode < 3) {
+        const hookedFn = unsafeWindow.show_image_pane;
+        unsafeWindow.show_image_pane = function (a) {
+          const tr = document.querySelector("div#ic" + a).parentNode.parentNode.closest("tr");
+          const container = tr.querySelector("td.glname");
+          const text = tr.querySelector("div.glink");
+          if (container.clientWidth < text.scrollWidth && !text.classList.contains("bouncing")) text.classList.add("bouncing");
+          else if (container.clientWidth >= text.scrollWidth && text.classList.contains("bouncing")) text.classList.remove("bouncing");
+          hookedFn(a);
+        };
+      }
+      document.head.appendChild(customStyle);
+      {
+        // Show translator meta: Not good if use Extended or Thumbnail mode.
+        let needCheckedGalleries = {};
+        let translateRegex = /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
+        let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
+        let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
+        let aiRegex = /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
+        const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
+        let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
+        document.querySelectorAll("div.glink").forEach(e => {
+          let jpTitle = e.innerText;
+          jpTitle = jpTitle.replace(/］/g, "]").replace(/［/g, "[");
+          let matched = jpTitle.match(translateRegex)?.[0];
+          if (matched) {
+            e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched);
             return;
           }
-          for (let group of groupedList) {
-            GM_fetch("https://api.e-hentai.org/api.php", {
-              method: "POST",
-              headers: { Authorization: `Basic ${btoa(hash)}` },
-              body: JSON.stringify({
-                method: "gdata",
-                gidlist: group
-              })
-            }).then(resp => {
-              let json = JSON.parse(resp.responseText);
-              json?.gmetadata?.forEach(({ gid, token, title }) => {
-                let e = needCheckedGalleries[`https://${hostname}/g/${gid}/${token}/`];
-                let matched = title.match(translateRegex)?.[0];
-                if (matched) {
-                  e.innerHTML += addColor(matched);
-                  return;
-                }
-                /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
-              });
-            });
+          matched = jpTitle.match(cnTsGalleriesRegex)?.[0];
+          if (matched) {
+            e.innerHTML = jpTitle.replace(matched, " ").trim();
+            needCheckedGalleries[e.parentNode.href] = e;
+            return;
           }
+          matched = jpTitle.match(translateRegexIrregular)?.[0];
+          if (matched) {
+            e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[中文]", "#EF5FA7");
+            return;
+          }
+          matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
+          if (matched) {
+            e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
+            return;
+          }
+          matched = jpTitle.match(aiRegex)?.[0];
+          if (matched) {
+            e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[AI Generated]", "#FF0000");
+            return;
+          }
+          if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
+            e.innerHTML = e.innerHTML.trim();
+            needCheckedGalleries[e.parentNode.href] = e;
+          }
+        });
+        let gidList = Object.keys(needCheckedGalleries).map(url => url.split("/").splice(4, 2));
+        if (gidList.length === 0) return;
+        let groupedList = [];
+        gidList.forEach((gt, n) => {
+          let g = parseInt(n / 25);
+          if (groupedList[g]) groupedList[g].push(gt);
+          else groupedList[g] = [gt];
+        });
+        let hash = Cookie.get("ipb_pass_hash");
+        if (!hash) {
+          Logger.warn("NO IPB_PASS_HASH FOUND.");
+          return;
         }
-        return;
+        for (let group of groupedList) {
+          GM_fetch("https://api.e-hentai.org/api.php", {
+            method: "POST",
+            headers: { Authorization: `Basic ${btoa(hash)}` },
+            body: JSON.stringify({
+              method: "gdata",
+              gidlist: group
+            })
+          }).then(resp => {
+            let json = JSON.parse(resp.responseText);
+            json?.gmetadata?.forEach(({ gid, token, title }) => {
+              let e = needCheckedGalleries[`https://${hostname}/g/${gid}/${token}/`];
+              let matched = title.match(translateRegex)?.[0];
+              if (matched) {
+                e.innerHTML += addColor(matched);
+                return;
+              }
+              /* e.innerHTML += addColor("[中国翻訳]", "#EF5FA7"); */
+            });
+          });
+        }
       }
-    });
+      return;
+    }
   }
 
   // BlueSky
