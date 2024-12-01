@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Redirector
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.0
+// @version     0.1.2
 // @description Start taking over the world!
 // @author      coo11
-// @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmkteWluLXlhbmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTkuMTY3IDQuNWExLjE2NyAxLjE2NyAwIDEgMS0yLjMzNCAwIDEuMTY3IDEuMTY3IDAgMCAxIDIuMzM0IDBaIi8+CiAgPHBhdGggZD0iTTggMGE4IDggMCAxIDAgMCAxNkE4IDggMCAwIDAgOCAwWk0xIDhhNyA3IDAgMCAxIDctNyAzLjUgMy41IDAgMSAxIDAgNyAzLjUgMy41IDAgMSAwIDAgNyA3IDcgMCAwIDEtNy03Wm03IDQuNjY3YTEuMTY3IDEuMTY3IDAgMSAxIDAtMi4zMzQgMS4xNjcgMS4xNjcgMCAwIDEgMCAyLjMzNFoiLz4KPC9zdmc+
+// @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8ZWxsaXBzZSBjeD0iOCIgY3k9IjgiIHJ4PSI3IiByeT0iNyIgZmlsbD0id2hpdGUiPjwvZWxsaXBzZT4KICA8cGF0aCBkPSJNOS4xNjcgNC41YTEuMTY3IDEuMTY3IDAgMSAxLTIuMzM0IDAgMS4xNjcgMS4xNjcgMCAwIDEgMi4zMzQgMFoiPjwvcGF0aD4KICA8cGF0aCBkPSJNOCAwYTggOCAwIDEgMCAwIDE2QTggOCAwIDAgMCA4IDBaTTEgOGE3IDcgMCAwIDEgNy03IDMuNSAzLjUgMCAxIDEgMCA3IDMuNSAzLjUgMCAxIDAgMCA3IDcgNyAwIDAgMS03LTdabTcgNC42NjdhMS4xNjcgMS4xNjcgMCAxIDEgMC0yLjMzNCAxLjE2NyAxLjE2NyAwIDAgMSAwIDIuMzM0WiIgZmlsbC1vcGFjaXR5PSJpbml0aWFsIj48L3BhdGg+Cjwvc3ZnPg==
 // @run-at      document-start
 // @match       *://link.zhihu.com/?target=*
 // @match       *://link.csdn.net/?target=*
@@ -33,11 +33,11 @@
 // @match       *://t.cn/*
 // @match       *://sinaurl.cn/*
 // @match       *://weibo.cn/sinaurl?*
-// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, Lofter, Mihuashi, BCY
+// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, Lofter, Mihuashi, BCY, Xiaohongshu
 // @match       *://m.weibo.cn/*
 // @match       *://video.h5.weibo.cn/1034:*
 // @match       *://h5.video.weibo.com/show/*
-// @match       *://weibo.com/*
+// @match       *://*.weibo.com/*
 // @match       *://*.sinaimg.cn/*
 // @match       *://*.zhimg.com/*
 // @match       *://*.hdslb.com/*
@@ -55,6 +55,8 @@
 // @match       *://pic-bucket.ws.126.net/*
 // @match       *://image-assets.mihuashi.com/*
 // @match       *://*.bcyimg.com/*
+// @match       *://sns-webpic-qc.xhscdn.com/*
+// @match       *://xhs.coo11.workers.dev/*
 // @ Pixiv, Twitter, YouTube, Google, Artstation, Steam, Pinterest, Discord, Apple, Tumblr, Reddit, NicoSeiga
 // @match       *://i.pximg.net/*
 // @match       *://i-f.pximg.net/*
@@ -98,6 +100,17 @@
 const Logger = new Proxy({},{get:(o,n)=>n in window.console?function(o,...e){let c=`%c${GM_info.script.name}%c`,l="color: #3c89e8; padding: 1px 5px; border-radius: 4px; border: 1px solid #91caff;";"string"==typeof o?console[n](`${c} ${o}`,l,null,...e):console[n](c,l,null,o,...e)}:o[n]});
 
 const isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+const bodyLoaded = cb => {
+  if (document.body) cb(document.body);
+  else {
+    const onContentLoaded = () => {
+      if (document.body) cb(document.body);
+      document.removeEventListener("DOMContentLoaded", onContentLoaded);
+    };
+    document.addEventListener("DOMContentLoaded", onContentLoaded);
+  }
+};
 
 const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -192,12 +205,13 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     const weiboFn = {alphabet:"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",mid2id(r){let s="";for(let n=r.length-4;-4<n;n-=4){let e=n<0?0:n,t=n+4,o=r.substring(e,t);if(o=this.decodeBase62(o).toString(),0<e)for(;o.length<7;)o="0"+o;s=o+s}return s},id2mid(r){let s="";for(let n=(r=String(r)).length-7;-7<n;n-=7){let e=n<0?0:n,t=n+7,o=r.substring(e,t);if(o=this.encodeBase62(o),0<e)for(;o.length<4;)o="0"+o;s=o+s}return s},encodeBase62(e){let t="";for(;0!=e;)t=this.alphabet[e%62]+t,e=Math.floor(e/62);return t},decodeBase62(t){let o=0,n=t.length-1;for(let e=0;e<=n;e++)o+=this.alphabet.indexOf(t.substr(e,1))*Math.pow(62,n-e);return o},openHomepageFromSinaimg(e){const t=e.substr(0,8),o=t.startsWith("00")?this.decodeBase62(t):parseInt(t,16);window.open("https://weibo.com/u/"+o)}};
 
     if (hostname.endsWith(".sinaimg.cn")) {
-      if (document.contentType.startsWith("text")) {
-        document.body.insertAdjacentHTML(
-          "beforeend",
-          '<hr><center><h1><a href="https://weibo.cn/sinaurl?toasturl=' + encodeURIComponent(src) + '">Try</a> to add Weibo referer</h1></center>'
+      if (document.contentType.startsWith("text"))
+        bodyLoaded(body =>
+          body.insertAdjacentHTML(
+            "beforeend",
+            '<hr><center><h1><a href="https://weibo.cn/sinaurl?toasturl=' + encodeURIComponent(src) + '">Try</a> to add Weibo referer</h1></center>'
+          )
         );
-      }
       if (hostname.startsWith("ss")) {
         newSrc = src.replace(/\.sinaimg\.cn\/[^/]*\/+([^/]*)/i, ".sinaimg.cn/orignal/$1");
       } else if (hostname.startsWith("n.")) {
@@ -377,14 +391,26 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     if (newSrc !== src) return redirect(newSrc);
   }
 
+  // Xiaohongshu
+  // No way to remove watermark if image hash is UUID
+  // https://sns-img-bd.xhscdn.com/4da128d7-cb31-6d65-8519-29a70a19c398?imageView2/2/w/1080/format/jpg
+  else if (hostname === "sns-webpic-qc.xhscdn.com") {
+    return redirect("https://xhs.coo11.workers.dev/" + src);
+  } else if (hostname === "xhs.coo11.workers.dev") {
+    GM_registerMenuCommand("ci.xiaohongshu.com", () => {
+      prompt("Fuck Xiaohongshu", "http://ci.xiaohongshu.com" + pathname.slice(0, 41));
+    });
+  }
+
   // Pixiv
   else if (/i(-c?f)?\.pximg\.net/.test(hostname) || hostname === "pixiv.pximg.net") {
-    if (document.contentType.startsWith("text")) {
-      document.body.insertAdjacentHTML(
-        "beforeend",
-        '<hr><center><h1><a href="https://www.pixiv.net/jump.php?url=' + encodeURIComponent(src) + '">Try</a> to add Pixiv referer</h1></center>'
+    if (document.contentType.startsWith("text"))
+      bodyLoaded(body =>
+        body.insertAdjacentHTML(
+          "beforeend",
+          '<hr><center><h1><a href="https://www.pixiv.net/jump.php?url=' + encodeURIComponent(src) + '">Try</a> to add Pixiv referer</h1></center>'
+        )
       );
-    }
     newSrc = src
       .replace(/(\/user-profile\/+img\/.*\/[0-9]+_[0-9a-f]{20,})_[0-9]+(\.[^/.]+)(?:[?#].*)?$/, "$1$2")
       .replace(/\/c\/(?:\d+x\d+(?:_\d+)?(?:_[a-z0-9]+){0,2}|ic\d+:\d+:\d+|([aghquw]\d+_){5}cr[\d.]+:[\d.]+:[\d.]+:[\d.]+)\//, "/")
@@ -434,6 +460,18 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     if (matched) {
       return redirect(`https://video.twimg.com/tweet_video/${matched[1]}.mp4`);
     }
+
+    GM_registerMenuCommand("Get timestamp", () => {
+      let str = prompt("Image URL or filename", src);
+      str = str
+        .split("/")
+        .pop()
+        .replace(/[.?:].*/, "")
+        .replace(/_/g, "/")
+        .replace(/-/g, "+");
+      let pid = new DataView(Uint8Array.from(atob(str), m => m.codePointAt(0)).buffer).getBigUint64();
+      prompt("Image date:", new Date(Number(1288834974657n + (pid >> 22n))).toISOString());
+    });
 
     /**
      * https://pbs.twimg.com/media/Bu4G7k3CcAA6Nx7.jpg

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Aegis
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.82
+// @version     0.1.83
 // @description Start taking over the world for Via!
 // @author      coo11
 // @run-at      document-end
@@ -947,49 +947,60 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     autoSave.init();
     if (pathname.startsWith("/posts/")) {
       const postId = document.body?.dataset["postId"] || document.head.querySelector("meta[name='post-id']").getAttribute("content");
-      const size = document.querySelector("#post-info-size > a:last-child");
-      size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-      const md5 = size.previousElementSibling?.href?.match(/([a-z0-9]{32})\./)[1];
-      if (md5) {
-        document
-          .querySelector("#post-info-id")
-          .insertAdjacentHTML(
-            "beforeend",
-            `<div>&nbsp;<a id="post-on-g" target="_blank" href="https://gelbooru.com/index.php?page=post&s=list&md5=${md5}" style="color:#FFF;background-color:#2A88FE;">&nbsp;G&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-y" target="_blank" href="https://yande.re/post?tags=holds%3Aall+md5%3A${md5}" style="color:#EE8887;background-color:#222;">&nbsp;Y&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-s" target="_blank" href="https://sankaku.app/zh-CN?tags=md5%3A${md5}" style="color:#FFF;background-color:#FF761C;">&nbsp;S&nbsp;</a>&nbsp;|&nbsp;<a id="post-on-l" target="_blank" href="https://lolibooru.moe/post?tags=md5%3A${md5}" style="color:#E0B9B9;background-color:#222;">&nbsp;L&nbsp;</a></div>`
-          );
-        document.head.insertAdjacentHTML(
-          "beforeend",
-          `<style>body[data-current-user-theme=light],html{--booru-border:1px}body[data-current-user-theme=dark]{--booru-border:1px dotted}@media (prefers-color-scheme:dark){body{--booru-border:1px dotted}}#post-info-id>div{display:none}#post-info-id:hover>div{display:inline-block}#post-info-id a{font-weight:700;border:var(--booru-border);border-radius:3px}#post-info-id a:hover{filter:opacity(50%)}</style>`
-        );
-      }
-      const time = document.querySelector("#post-info-date time"),
-        title = time.innerText;
-      time.innerText = time.title;
-      time.title = title;
-      // Add post views
+      // Add more data to info section
       {
+        const size = document.querySelector("#post-info-size > a:last-child");
+        size.previousSibling.data = size.previousSibling.data.replace("x", "×");
+        // Search via MD5 - Deprecated: https://paste.ee/p/QzILE
+        const time = document.querySelector("#post-info-date time");
+        const node = time.parentNode.previousSibling;
+        const span = document.createElement("span");
+        span.textContent = node.textContent;
+        time.closest("li").replaceChild(span, node);
+        span.addEventListener("click", () => {
+          const title = time.title;
+          time.title = time.innerText;
+          time.innerText = title;
+        });
         if (postId) {
-          fetch("https://isshiki.donmai.us/post_views/" + postId)
+          const p1 = fetch("https://isshiki.donmai.us/post_views/" + postId)
             .then(resp => resp.text())
             .then(text => {
               if (/^\d+$/.test(text)) {
                 document.getElementById("post-info-score")?.insertAdjacentHTML("afterend", `<li id="post-info-views">Views: ${text}</li>`);
               }
+              resolve();
             });
-          fetch("/favorite_groups.json?only=id&limit=100&search%5Bpost_ids_include_all%5D=" + postId)
+          const p2 = fetch("/favorite_groups.json?only=id&limit=100&search%5Bpost_ids_include_all%5D=" + postId)
             .then(resp => resp.json())
             .then(json => {
               if (Array.isArray(json)) {
                 let len = json.length;
-                len = len > 100 ? len + "+" : len;
+                len = len === 100 ? len + "+" : len;
+                if (len !== 0)
+                  document
+                    .getElementById("post-info-favorites")
+                    ?.insertAdjacentHTML(
+                      "afterend",
+                      `<li id="post-info-favgroups">Favgroups: <a href="/favorite_groups?search%5Bpost_ids_include_all%5D=${postId}" target="_blank">${len}</a></li>`
+                    );
+              }
+              resolve();
+            });
+          const p3 = fetch("https://danbooru.donmai.us/post_versions.json?limit=2&search%5Bpost_id%5D=" + postId)
+            .then(resp => resp.json())
+            .then(json => {
+              if (Array.isArray(json) && json.length > 1) {
                 document
-                  .getElementById("post-info-favorites")
-                  ?.insertAdjacentHTML(
-                    "afterend",
-                    `<li id="post-info-favgroups">Favgroups: <a href="/favorite_groups?search%5Bpost_ids_include_all%5D=${postId}" target="_blank">${len}</a></li>`
+                  .getElementById("post-info-status")
+                  .insertAdjacentHTML(
+                    "beforebegin",
+                    `<li id="post-info-version" title="Latest update: ${json?.[0].updated_at}">Version: <a href="/post_versions?search%5Bpost_id%5D=${postId}" target="_blank">${json[0].version}</a></li>`
                   );
               }
+              resolve();
             });
+          Promise.allSettled([p1, p2, p3]).then(() => $("#post-information").fadeOut("fast").fadeIn("fast"));
         }
       }
       // Add a button to remove post in a favorite group to the end of the favorite group navi bar
@@ -1052,6 +1063,11 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       // Easier 1up https://gist.github.com/TypeA2/bff1474c0f4ca2188cf21897d4e4b2dd
       const easier1Up = {
         init() {
+          document.querySelectorAll("#related-posts-by-source article").forEach(el => {
+            const div = document.createElement("div");
+            this.addButton(el, div);
+            el.querySelector(".post-preview-container").nextElementSibling.appendChild(div);
+          });
           const similar = document.getElementById("iqdb-similar");
           this.observer = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(this.process.bind(this))));
           this.observer.observe(similar, {
@@ -1063,26 +1079,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           if (node.className !== "iqdb-posts") return;
           for (const post of node.getElementsByTagName("article")) {
             const div = post.querySelector(".iqdb-similarity-score").parentElement;
-            const setParent = document.createElement("a");
-            setParent.classList.add("inactive-link");
-            setParent.href = "#";
-            setParent.innerText = "parent";
-            setParent.addEventListener("click", e => {
-              e.preventDefault();
-              this.copyTags(post, true);
-            });
-            const setChild = document.createElement("a");
-            setChild.classList.add("inactive-link");
-            setChild.href = "#";
-            setChild.innerText = "child";
-            setChild.addEventListener("click", e => {
-              e.preventDefault();
-              this.copyTags(post, false);
-            });
-            div.appendChild(document.createTextNode(" | "));
-            div.appendChild(setParent);
-            div.appendChild(document.createTextNode(" | "));
-            div.appendChild(setChild);
+            this.addButton(post, div);
           }
           this.observer?.disconnect();
         },
@@ -1095,7 +1092,29 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           tagsField.value = tags.join(" ") + " ";
           tagsField.dispatchEvent(new InputEvent("input", { bubbles: true }));
           document.querySelector(".source-tab").click();
-          Danbooru.Utility.notice("Succesfully copied tags. Please check the commentary tags.");
+          Danbooru.Utility.notice("Successfully copied tags. Please check the commentary tags.");
+        },
+        addButton(post, div) {
+          const setParent = document.createElement("a");
+          setParent.classList.add("inactive-link");
+          setParent.href = "#";
+          setParent.innerText = "parent";
+          setParent.addEventListener("click", e => {
+            e.preventDefault();
+            this.copyTags(post, true);
+          });
+          const setChild = document.createElement("a");
+          setChild.classList.add("inactive-link");
+          setChild.href = "#";
+          setChild.innerText = "child";
+          setChild.addEventListener("click", e => {
+            e.preventDefault();
+            this.copyTags(post, false);
+          });
+          div.children.length && div.appendChild(document.createTextNode(" | "));
+          div.appendChild(setParent);
+          div.appendChild(document.createTextNode(" | "));
+          div.appendChild(setChild);
         }
       };
       easier1Up.init();
