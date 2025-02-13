@@ -47,10 +47,6 @@
   engines: {
     Google: {
       d: "https://images.google.com",
-      p: "https://www.google.com/searchbyimage?client=Chrome&image_url="
-    },
-    Lens: {
-      d: "https://images.google.com",
       p: "https://lens.google.com/uploadbyurl?url="
     },
     sauceNAO: {

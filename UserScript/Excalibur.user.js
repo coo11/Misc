@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Excalibur
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.83
+// @version     0.1.86
 // @description Start taking over the world!
 // @author      coo11
 // @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHBhdGggZmlsbD0iI2VmNDU0NiIgZD0iTTQxIDdhMjMuODEgMjMuODEgMCAwIDAtMTctN3YyNFoiLz48cGF0aCBmaWxsPSIjZjc3NzI2IiBkPSJNNDggMjRhMjQgMjQgMCAwIDAtNy0xN0wyNCAyNFoiLz48cGF0aCBmaWxsPSIjZmZkYzM5IiBkPSJNNDEgNDFhMjMuODEgMjMuODEgMCAwIDAgNy0xN0gyNFoiLz48cGF0aCBmaWxsPSIjNTlkNDY0IiBkPSJNMjQgNDhhMjQgMjQgMCAwIDAgMTctN0wyNCAyNFoiLz48cGF0aCBmaWxsPSIjNDg5MGYxIiBkPSJNNyA0MWEyMy44MSAyMy44MSAwIDAgMCAxNyA3VjI0WiIvPjxwYXRoIGZpbGw9IiM1NzcxZWMiIGQ9Ik0wIDI0YTI0IDI0IDAgMCAwIDcgMTdsMTctMTdaIi8+PHBhdGggZmlsbD0iI2E2NDNlNyIgZD0iTTcgN2EyMy44MSAyMy44MSAwIDAgMC03IDE3aDI0WiIvPjxwYXRoIGZpbGw9IiNkYzNmZTciIGQ9Ik0yNCAwQTIzLjgxIDIzLjgxIDAgMCAwIDcgN2wxNyAxN1oiLz48L3N2Zz4=
@@ -19,6 +19,8 @@
 // @match       *://*.gumroad.com/*
 // @match       *://www.patreon.com/*
 // @match       *://x.com/*
+// @match       *://m.facebook.com/*
+// @match       *://www.facebook.com/*
 // @match       *://saucenao.com/search.php*
 // @match       *://danbooru.donmai.us/*
 // @match       *://betabooru.donmai.us/*
@@ -231,16 +233,16 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       GM_registerMenuCommand("查看视频封面", getVideoCover);
     } else if (hostname === "space.bilibili.com") {
       // Fuck Bilibili Article Waterfall
-      if (/^\/\d+\/article/.test(pathname)) {
+      if (/^\/\d+\/upload\/opus/.test(pathname)) {
         GM_registerMenuCommand("Fuck Waterfall", () => {
           // 原本的瀑布流内容是动态加载的。因此每次执行只能重新排序当前屏幕上显示的内容，否则需要刷新页面。
-          let oldCtn = document.querySelector(".waterfall-content .masonry_grid_v2");
+          let oldCtn = document.querySelector(".masonry_grid_v2");
           let newCtn = oldCtn.cloneNode(true);
           newCtn.classList.remove("masonry_grid_v2");
           newCtn.querySelectorAll(".container > .item").forEach(el => el.removeAttribute("style"));
           document.head.insertAdjacentHTML(
             "beforeEnd",
-            `<style>.waterfall-content .container { display: flex; flex-wrap: wrap; justify-content: space-evenly; flex-direction: row; } .waterfall-content .item { width: 160px; margin-bottom: 20px; } .article-card-cover { max-height: 120px; } .article-card-cover:hover .b-img__inner { height: 120px; } .article-card-cover:hover .b-img__inner img { object-fit: contain; }</style>`
+            `<style>.opus-feed .container { display: flex; flex-wrap: wrap; justify-content: flex-start; flex-direction: row; gap: 20px; } .opus-feed .item { width: 160px; margin-bottom: 20px; }</style>`
           );
           oldCtn.replaceWith(newCtn);
         });
@@ -260,6 +262,15 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Lofter
   else if (hostname.endsWith(".lofter.com")) {
+    // Get user permanent link
+    const getUid = () => document.getElementById("control_frame").src.match(/blogId=\d+/)?.[0];
+    GM_registerMenuCommand("Get user permanent link", () => {
+      const uid = getUid();
+      if (!uid) return;
+      const url = "https://www.lofter.com/mentionredirect.do?" + uid;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    });
     // Hover to show image post publish time accurately
     const fetchArchivedPostsByTime = async (uid, t) => {
       const url = "https://www.lofter.com/dwr/call/plaincall/ArchiveBean.getArchivePostByTime.dwr";
@@ -458,7 +469,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       );
     }
     const getUID = (short = true) => {
-      const id = JSON.parse(document.head.querySelector('script[data-testid="UserProfileSchema-test"]')?.textContent || null)?.author?.identifier;
+      const id = JSON.parse(document.head.querySelector('script[data-testid="UserProfileSchema-test"]')?.textContent || null)?.mainEntity?.identifier;
       if (id) {
         const preifx = short ? "https://x.com/i/user/" : "https://x.com/intent/user?user_id=";
         const url = preifx + id;
@@ -644,6 +655,31 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     }).init();
   }
 
+  // Facebook
+  else if (hostname.endsWith(".facebook.com")) {
+    const getUid = () => {
+      let scriptEl = Array.prototype.filter.call(document.getElementsByTagName("script"), el => {
+        return el.innerText.indexOf('"owning_profile_id"') > -1 || el.innerText.indexOf('"pageID"') > -1;
+      })?.[0];
+      let matched = scriptEl?.innerText?.match(/"pageID":\s*?(\d+)|"owning_profile_id":\s*?"(\d+)"/);
+      return matched?.[1] || matched?.[2];
+    };
+    GM_registerMenuCommand("Get profile ID link", () => {
+      const uid = getUid();
+      if (!uid) return;
+      const url = "https://www.facebook.com/" + uid;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    });
+    GM_registerMenuCommand("Get profile ID linkᴸ", () => {
+      const uid = getUid();
+      if (!uid) return;
+      const url = "https://www.facebook.com/profile.php?id=" + uid;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    });
+  }
+
   // SauceNAO
   else if (hostname === "saucenao.com") {
     const tBody = document.body;
@@ -653,12 +689,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         location.href = "/";
       }, 3000);
     }
-    document.querySelectorAll("div#yourimageretrylinks > a").forEach(a => {
-      if (a.children[0].title.indexOf("Google") > -1) {
-        a.href = a.href.replace(/^.*?=/, "https://www.google.com/searchbyimage?client=Chrome&image_url=");
-      }
-      a.setAttribute("target", "_blank");
-    });
+    document.querySelectorAll("div#yourimageretrylinks > a").forEach(a => a.setAttribute("target", "_blank"));
     document.querySelectorAll("div:not(#result-hidden-notification).result").forEach(e => {
       let img = e.querySelector(".resultimage img"),
         desc = img.title,
@@ -827,7 +858,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
                   const classList = ["post-preview", "post-preview-" + postPreviewSize, "post-preview-fit-compact", "blacklisted"];
                   !hideScore && classList.push("post-preview-show-votes");
                   is_pending && classList.push("post-status-pending");
-                  is_pending && classList.push("post-status-flagged");
+                  is_flagged && classList.push("post-status-flagged");
                   is_deleted && classList.push("post-status-deleted");
                   has_children && classList.push("post-status-has-children");
                   parent_id && classList.push("post-status-has-parent");
@@ -878,17 +909,18 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
                         postsLength = posts.length;
                       currentPostIds.forEach((pid, index) => {
                         let htmlToInsert = "";
-                        while (idx < postsLength && posts[idx].id !== pid) {
-                          if (posts[idx].is_banned) {
-                            htmlToInsert += parsingPostData(posts[idx]);
-                            bannedToShow++;
-                          }
-                          idx++;
+                        for (; idx < postsLength; idx++) {
+                          let post = posts[idx];
+                          if (post.id !== pid) {
+                            if (post.is_banned) {
+                              htmlToInsert += parsingPostData(post);
+                              bannedToShow++;
+                            }
+                          } else break;
                         }
-                        idx++;
                         if (htmlToInsert) {
                           if (pid === 0) {
-                            postContainer.insertAdjacentHTML("afterbegin", htmlToInsert);
+                            postContainer.insertAdjacentHTML("beforeend", htmlToInsert);
                           } else currentPosts[index].insertAdjacentHTML("beforebegin", htmlToInsert);
                         }
                       });
@@ -1394,12 +1426,38 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         };
         // Easier 1up https://gist.github.com/TypeA2/bff1474c0f4ca2188cf21897d4e4b2dd
         const easier1Up = {
+          iconHash: document.querySelector("a#close-notice-link use").href.baseVal.split(/-|\./)[1],
+          thumbnail: {
+            id: 23609685,
+            url: "https://cdn.donmai.us/180x180/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",
+            width: 180,
+            height: 135
+          },
           init() {
-            document.querySelectorAll("#related-posts-by-source article").forEach(el => {
-              const div = document.createElement("div");
-              this.addButton(el, div);
-              el.querySelector(".post-preview-container").nextElementSibling.appendChild(div);
-            });
+            const relatedPosts = document.querySelector("#related-posts-by-source p.fineprint a");
+            if (relatedPosts) {
+              const shownCount = Number(relatedPosts.innerText.split(" ")[0]);
+              let articles = document.querySelectorAll("#related-posts-by-source article");
+              const addButton = articles =>
+                articles.forEach(el => {
+                  const div = document.createElement("div");
+                  this.addButton(el, div);
+                  el.querySelector(".post-preview-container").nextElementSibling.appendChild(div);
+                });
+              if ((articles.length === 5 && shownCount > 5) || articles.length === shownCount) addButton(articles);
+              else {
+                const url = new URL(relatedPosts.href);
+                url.pathname = "/posts.json";
+                url.searchParams.append("limit", 5);
+                fetch(url)
+                  .then(resp => resp.json())
+                  .then(json => {
+                    articles = this.updateArticles(json, articles, true);
+                    addButton(articles);
+                  });
+              }
+            }
+
             const similar = document.getElementById("iqdb-similar");
             this.observer = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(this.process.bind(this))));
             this.observer.observe(similar, {
@@ -1407,9 +1465,16 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
               childList: true
             });
           },
-          process(node) {
+          async process(node) {
             if (node.className !== "iqdb-posts") return;
-            for (const post of node.getElementsByTagName("article")) {
+            let articles = node.querySelectorAll("#iqdb-similar article");
+            let shownCount = articles.length;
+            let iqdbNoPostFound = shownCount === 0 && document.querySelector(".post-gallery-grid > p:only-child");
+            if (!iqdbNoPostFound && shownCount !== 5) {
+              let iqdbResults = await this.iqdbReq();
+              if (iqdbResults.length !== shownCount) articles = this.updateArticles(iqdbResults, articles);
+            }
+            for (const post of articles) {
               const div = post.querySelector(".iqdb-similarity-score").parentElement;
               this.addButton(post, div);
             }
@@ -1447,6 +1512,100 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
             div.appendChild(setParent);
             div.appendChild(document.createTextNode(" | "));
             div.appendChild(setChild);
+          },
+          async iqdbReq() {
+            try {
+              let mid = document.getElementById("media_asset_id").value;
+              let resp = await (
+                await fetch(`/iqdb_queries.json?limit=5&search%5Bmedia_asset_id%5D=${mid}&search%5Bsimilarity%5D=50&search%5Bhigh_similarity%5D=70`)
+              ).json();
+              if (Array.isArray(resp)) return resp;
+              else throw new Error(JSON.stringify(resp));
+            } catch (e) {
+              console.error("Error:", e);
+            }
+          },
+          updateArticles(posts, currentPosts, relatedSection = false) {
+            currentPosts = Array.from(currentPosts);
+            const currentPostIds = currentPosts.map(el => {
+              return Number(el.getAttribute("data-id"));
+            });
+            currentPostIds.push(0);
+            let idx = 0,
+              postsLength = posts.length;
+            currentPostIds.forEach((pid, index) => {
+              let htmlToInsert = "";
+              for (; idx < postsLength; idx++) {
+                let post = relatedSection ? posts[idx] : posts[idx].post;
+                if (post.id !== pid) {
+                  if (post.is_banned) htmlToInsert += relatedSection ? this.render(post) : this.render(post, posts[idx].score);
+                } else break;
+              }
+              if (htmlToInsert) {
+                if (pid === 0) {
+                  const prefix = relatedSection ? "#related-posts-by-source" : ".iqdb-posts";
+                  document.querySelector(prefix + " .posts-container").insertAdjacentHTML("beforeend", htmlToInsert);
+                } else currentPosts[index].insertAdjacentHTML("beforebegin", htmlToInsert);
+              }
+            });
+            const prefix = relatedSection ? "#related-posts-by-source" : "#iqdb-similar";
+            return document.querySelectorAll(prefix + " article");
+          },
+          render(
+            {
+              id,
+              uploader_id,
+              score,
+              rating,
+              tag_string,
+              is_pending,
+              is_flagged,
+              is_deleted,
+              has_children,
+              parent_id,
+              source,
+              media_asset: { id: mid, image_width, image_height, file_size, file_ext }
+            },
+            similarity
+          ) {
+            const dataFlag = is_pending ? "pending" : is_flagged ? "flagged" : is_deleted ? "deleted" : "";
+
+            const classList = ["post-preview", "post-preview-fit-compact", "post-preview-180"];
+            is_pending && classList.push("post-status-pending");
+            is_flagged && classList.push("post-status-flagged");
+            is_deleted && classList.push("post-status-deleted");
+            has_children && classList.push("post-status-has-children");
+            parent_id && classList.push("post-status-has-parent");
+            similarity && classList.push(similarity < 70 ? "iqdb-low-similarity hidden" : "iqdb-high-similarity");
+
+            const { url, width, height } = this.thumbnail;
+            const similarityHtml = similarity
+              ? `<div><a class="inactive-link iqdb-similarity-score" href="/iqdb_queries?post_id=${id}">${similarity.toFixed(0)}% similar</a></div>`
+              : "";
+
+            return `<article id="post_${id}" class="${classList.join(
+              " "
+            )}" data-id="${id}" data-tags="${tag_string}" data-rating="${rating}" data-flags="${dataFlag}" data-score="${score}" data-uploader-id="${uploader_id}">
+        <div class="post-preview-container">
+        <a class="post-preview-link" draggable="false" href="/posts/${id}">
+        <picture><img src="${url}" width="${width}" height="${height}" class="post-preview-image" title="" alt="post #${id}"draggable="false" aria-expanded="false" data-title="${tag_string} rating:${rating} score:${score}"></picture>
+        </a></div><div class="text-xs text-center mt-1"><div>
+        <a rel="external noreferrer nofollow" title="${source}" class="inline-block align-top" href="${source}">
+        <svg class="icon svg-icon globe-icon h-4" viewBox="0 0 512 512"><use fill="currentColor" href="/packs/static/icons-${
+          this.iconHash
+        }.svg#globe"></use></svg>
+        </a>
+        <a href="/media_assets/${mid}">${this.formatBytes(file_size)} .${file_ext}, ${image_width}×${image_height}</a></div>${similarityHtml}</div>
+        </article>`;
+          },
+          formatBytes(bytes) {
+            if (bytes === 0) return "0 Bytes";
+            const units = ["Bytes", "KB", "MB"];
+            const k = 1024;
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            const value = bytes / Math.pow(k, i);
+            const formattedValue = value % 1 === 0 ? value.toFixed(0) : value.toFixed(2);
+            return `${formattedValue} ${units[i]}`;
           }
         };
         easier1Up.init();

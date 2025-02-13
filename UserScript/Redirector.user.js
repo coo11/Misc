@@ -11,7 +11,6 @@
 // @match       *://www.oschina.net/action/GoToLink?url=*
 // @match       *://www.pixiv.net/jump.php?*
 // @match       *://www.jianshu.com/go-wild*
-// @match       *://www.bilibili.com/opus/*
 // @match       *://nga.178.com/*
 // @match       *://ngabbs.com/*
 // @match       *://g.nga.cn/*
@@ -143,13 +142,6 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   // NGA
   else if (hostname === "nga.178.com" || hostname === "ngabbs.com" || hostname === "g.nga.cn") {
     window.location.hostname = "bbs.nga.cn";
-    return;
-  }
-
-  // Bilibili
-  else if (hostname.endsWith(".bilibili.com") && pathname.startsWith("/opus/")) {
-    matched = pathname.match(/\/opus\/(\d+)/)?.[1];
-    if (matched) window.location.href = "https://t.bilibili.com/" + matched;
     return;
   }
 
@@ -398,7 +390,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     return redirect("https://xhs.coo11.workers.dev/" + src);
   } else if (hostname === "xhs.coo11.workers.dev") {
     GM_registerMenuCommand("ci.xiaohongshu.com", () => {
-      prompt("Fuck Xiaohongshu", "http://ci.xiaohongshu.com" + pathname.slice(0, 41));
+      prompt("Fuck Xiaohongshu", "http://ci.xiaohongshu.com" + pathname.split(".")[0]);
     });
   }
 
