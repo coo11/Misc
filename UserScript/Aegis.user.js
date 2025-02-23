@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Aegis
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.86
+// @version     0.1.87
 // @description Start taking over the world for Via!
 // @author      coo11
 // @run-at      document-end
@@ -20,6 +20,7 @@
 // @match       *://m.facebook.com/*
 // @match       *://www.facebook.com/*
 // @match       *://saucenao.com/search.php*
+// @match       *://yandex.com/images/*
 // @match       *://danbooru.donmai.us/*
 // @match       *://betabooru.donmai.us/*
 // @match       *://files.yande.re/*
@@ -583,6 +584,48 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         }
       }
     });
+  }
+
+  // Yandex Image Search
+  else if (hostname === "yandex.com") {
+    // Disable content filter
+    const mode = Cookie.get("yp")?.split("sp.family:")?.[1]?.[0];
+    if (mode !== "0") {
+      let tip = "Search Mode: ";
+      if (mode === "2") tip += "Family mode 🔴";
+      if (!mode) tip += "Moderate filter 🟡";
+      GM_toast(tip);
+      fetch("https://yandex.com/tune/search")
+        .then(r => r.text())
+        .then(html => {
+          let sk = html.match(/&quot;sk&quot;:&quot;(\w{33})&quot;/)?.[1];
+          if (sk) {
+            fetch("https://yandex.com/portal/set/tune/", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              body: "family=0&fields=my_request_in_suggest%2Cfamily&sk=" + sk,
+              method: "POST"
+            }).then(async r => {
+              if (r.ok) {
+                GM_toast("Search Mode changed.");
+                await wait(1000).then(() => location.reload());
+              }
+            });
+          } else GM_toast("Error: `sk` not found.");
+        });
+    }
+    // Region Fix
+    if (document.querySelector("body > h1")?.innerText?.startsWith("The\u00A0service\u00A0is under construction.")) {
+      fetch("https://yandex.com/tune/geo")
+        .then(r => r.text())
+        .then(html => {
+          let sk = html.match(/&quot;sk&quot;:&quot;(\w{33})&quot;/)?.[1];
+          if (sk) {
+            return redirect(`https://yandex.com/portal/set/region/?name=Tokyo&id=10636&sk=${sk}&retpath=${encodeURIComponent(src)}`);
+          }
+        });
+    }
   }
 
   // Danbooru Ehance

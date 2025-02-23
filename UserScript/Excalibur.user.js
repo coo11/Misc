@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Excalibur
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.86
+// @version     0.1.87
 // @description Start taking over the world!
 // @author      coo11
 // @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHBhdGggZmlsbD0iI2VmNDU0NiIgZD0iTTQxIDdhMjMuODEgMjMuODEgMCAwIDAtMTctN3YyNFoiLz48cGF0aCBmaWxsPSIjZjc3NzI2IiBkPSJNNDggMjRhMjQgMjQgMCAwIDAtNy0xN0wyNCAyNFoiLz48cGF0aCBmaWxsPSIjZmZkYzM5IiBkPSJNNDEgNDFhMjMuODEgMjMuODEgMCAwIDAgNy0xN0gyNFoiLz48cGF0aCBmaWxsPSIjNTlkNDY0IiBkPSJNMjQgNDhhMjQgMjQgMCAwIDAgMTctN0wyNCAyNFoiLz48cGF0aCBmaWxsPSIjNDg5MGYxIiBkPSJNNyA0MWEyMy44MSAyMy44MSAwIDAgMCAxNyA3VjI0WiIvPjxwYXRoIGZpbGw9IiM1NzcxZWMiIGQ9Ik0wIDI0YTI0IDI0IDAgMCAwIDcgMTdsMTctMTdaIi8+PHBhdGggZmlsbD0iI2E2NDNlNyIgZD0iTTcgN2EyMy44MSAyMy44MSAwIDAgMC03IDE3aDI0WiIvPjxwYXRoIGZpbGw9IiNkYzNmZTciIGQ9Ik0yNCAwQTIzLjgxIDIzLjgxIDAgMCAwIDcgN2wxNyAxN1oiLz48L3N2Zz4=
@@ -22,6 +22,7 @@
 // @match       *://m.facebook.com/*
 // @match       *://www.facebook.com/*
 // @match       *://saucenao.com/search.php*
+// @match       *://yandex.com/images/*
 // @match       *://danbooru.donmai.us/*
 // @match       *://betabooru.donmai.us/*
 // @match       *://yande.re/*
@@ -752,6 +753,48 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         }
       }
     });
+  }
+
+  // Yandex Image Search
+  else if (hostname === "yandex.com") {
+    // Disable content filter
+    const mode = Cookie.get("yp")?.split("sp.family:")?.[1]?.[0];
+    if (mode !== "0") {
+      let tip = "Search Mode: ";
+      if (mode === "2") tip += "Family mode 🔴";
+      if (!mode) tip += "Moderate filter 🟡";
+      GM_toast(tip);
+      fetch("https://yandex.com/tune/search")
+        .then(r => r.text())
+        .then(html => {
+          let sk = html.match(/&quot;sk&quot;:&quot;(\w{33})&quot;/)?.[1];
+          if (sk) {
+            fetch("https://yandex.com/portal/set/tune/", {
+              headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+              body: "family=0&fields=my_request_in_suggest%2Cfamily&sk=" + sk,
+              method: "POST"
+            }).then(async r => {
+              if (r.ok) {
+                GM_toast("Search Mode changed.");
+                await wait(1000).then(() => location.reload());
+              }
+            });
+          } else GM_toast("Error: `sk` not found.");
+        });
+    }
+    // Region Fix
+    if (document.querySelector("body > h1")?.innerText?.startsWith("The\u00A0service\u00A0is under construction.")) {
+      fetch("https://yandex.com/tune/geo")
+        .then(r => r.text())
+        .then(html => {
+          let sk = html.match(/&quot;sk&quot;:&quot;(\w{33})&quot;/)?.[1];
+          if (sk) {
+            return redirect(`https://yandex.com/portal/set/region/?name=Tokyo&id=10636&sk=${sk}&retpath=${encodeURIComponent(src)}`);
+          }
+        });
+    }
   }
 
   // Danbooru Ehance
