@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Aegis
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.87
+// @version     0.1.89
 // @description Start taking over the world for Via!
 // @author      coo11
 // @run-at      document-end
@@ -10,6 +10,7 @@
 // @match       *://*.bilibili.com/s/video/*
 // @match       *://live.bilibili.com/*
 // @match       *://*.lofter.com/*
+// @match       *://www.xiaohongshu.com/*
 // @match       *://www.pixiv.net/*
 // @match       *://*.fanbox.cc/*
 // @match       *://fantia.jp/posts/*
@@ -17,6 +18,7 @@
 // @match       *://*.gumroad.com/*
 // @match       *://www.patreon.com/*
 // @match       *://x.com/*
+// @match       *://github.com/*
 // @match       *://m.facebook.com/*
 // @match       *://www.facebook.com/*
 // @match       *://saucenao.com/search.php*
@@ -29,6 +31,8 @@
 // @match       *://exhentai.org/*
 // @match       *://e-hentai.org/*
 // @match       *://bsky.app/*
+// @match       *://web-cdn.bsky.app/*
+// @match       *://poipiku.com/*
 // @grant       GM_setClipboard
 // @grant       GM_registerMenuCommand
 // @grant       GM_xmlhttpRequest
@@ -73,6 +77,8 @@ const GM_toast = input => {
 };
 
 const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
+
+if (typeof unsafeWindow === "undefined") globalThis.unsafeWindow = window;
 
 (async () => {
   "use strict";
@@ -180,6 +186,22 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     });
   }
 
+  // Xiaohongshu
+  else if (hostname === "www.xiaohongshu.com") {
+    GM_registerMenuCommand("Get purged URL", () => {
+      let url = new URL(window.location.href),
+        xt = url.searchParams.get("xsec_token");
+      if (xt) {
+        url.search = "";
+        url.searchParams.set("xsec_token", xt);
+        url = url.href;
+        GM_setClipboard(url);
+        window.history.replaceState(null, "", url);
+        GM_toast(url + " Copied.");
+      }
+    });
+  }
+
   // Pixiv
   else if (hostname === "www.pixiv.net") {
     const getUID = () => location.href.match(/\/users\/(\d+)/)?.[1];
@@ -274,7 +296,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         "beforeend",
         "<style>" +
           // Hide annoying button or tab
-          'a[href="/i/grok"], a[href="/i/premium_sign_up"], a[href="/jobs"], a[href="/settings/monetization"], a[href="https://ads.x.com/?ref=gl-tw-tw-twitter-ads-rweb"], div[role=presentation]:has(a[href*="/highlights"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/verified-choose"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/trends"]) { display: none !important; } ' +
+          'a[href="/i/premium_sign_up"], a[href="/jobs"], a[href="/settings/monetization"], a[href="https://ads.x.com/?ref=gl-tw-tw-twitter-ads-rweb"], div[role=presentation]:has(a[href*="/highlights"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/verified-choose"]), div[data-testid=sidebarColumn] div[tabindex="0"] > div > div:has(a[href="/i/trends"]) { display: none !important; } ' +
           // Blink multiple images media grid
           '@keyframes colorCycle{0%,100%{fill:black}50%{fill:white}}[id^=verticalGridItem-][id$="-profile-grid-0"] a svg{animation:2s infinite colorCycle}' +
           "</style>"
@@ -302,7 +324,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         }
       }
     });
-    // Twitter Video Downloader - Deprecated: https://paste.ee/p/AtvoT
+    // Twitter Video Downloader - Legacy code: https://paste.ee/p/AtvoT
     // Reference: https://greasyfork.org/scripts/495368/code
     {
       const TVD = {
@@ -321,6 +343,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
               this.addButton(article);
             } else if (!article.dataset.detected) {
               article.dataset.detected = "true";
+              this.blockAnalyticsButton(article);
               this.addButton(article);
             }
           }
@@ -397,9 +420,9 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           button.classList.add(css);
         },
         async fetchTweet(tid) {
-          let baseUrl = `https://${hostname}/i/api/graphql/NmCeCgkVlsRGS1cAwqtgmw/TweetDetail`;
+          let baseUrl = `https://${hostname}/i/api/graphql/2ICDjqPd81tulZcYrtpTuQ/TweetResultByRestId`;
           let variables = {
-            focalTweetId: tid,
+            tweetId: tid,
             with_rux_injections: false,
             includePromotedContent: true,
             withCommunity: true,
@@ -438,8 +461,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
             "x-csrf-token": Cookie.get("ct0")
           };
           let tweetDetail = await fetch(url, { headers: headers }).then(result => result.json());
-          let tweetEntry = tweetDetail.data.threaded_conversation_with_injections_v2.instructions[0].entries.find(n => n.entryId == `tweet-${tid}`);
-          let result = tweetEntry.content.itemContent.tweet_results.result;
+          let result = tweetDetail.data.tweetResult.result;
           return result.tweet || result;
         },
         css: `
@@ -454,7 +476,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   .twvf.fetch g.fetch, .twvf.loading g.loading {display: unset;}
   .twvf.loading svg {animation: spin 1s linear infinite;}
   @keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
-  .twvf-dialog {position: absolute; z-index: 0; transform: translateX(10vw); width: 80vw; max-width: fit-content; height: auto; left: 0; border-radius: 12px; padding: 0 12px; background-color: white; box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;}
+  .twvf-dialog {position: absolute; z-index: 0; transform: translateX(10vw); width: 80vw; max-width: fit-content; height: auto; left: 0; border-radius: 12px; padding: 12px; background-color: white; box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;}
   .twvf-dialog > p {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
   .twvf-dialog a {text-decoration: none; color: rgb(29, 155, 240);}
   .twvf-dialog a:hover {text-decoration: underline;}
@@ -464,7 +486,14 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         svg: `
   <g class="fetch"><path d="M18.36 5.64a4.985 4.985 0 0 0-7.07 0L9.88 7.05 8.46 5.64l1.42-1.42c2.73-2.73 7.16-2.73 9.9 0 2.73 2.74 2.73 7.17 0 9.9l-1.42 1.42-1.41-1.42 1.41-1.41a4.985 4.985 0 0 0 0-7.07zm-2.12 3.53-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-12.02.71 1.42-1.42 1.41 1.42-1.41 1.41a4.985 4.985 0 0 0 0 7.07 4.985 4.985 0 0 0 7.07 0l1.41-1.41 1.42 1.41-1.42 1.42c-2.73 2.73-7.16 2.73-9.9 0-2.73-2.74-2.73-7.17 0-9.9z"/></g>
   <g class="loading"><circle cx="12" cy="12" r="10" fill="none" stroke="#1DA1F2" stroke-width="4" opacity="0.4" /><path d="M12,2 a10,10 0 0 1 10,10" fill="none" stroke="#1DA1F2" stroke-width="4" stroke-linecap="round" /></g>
-  `
+  `,
+        blockAnalyticsButton(article) {
+          const a = article.querySelector("a[href$='/analytics']");
+          if (a) {
+            a.href = "javascript:void(0);";
+            a.addEventListener("click", e => e.preventDefault());
+          }
+        }
       };
       try {
         TVD.init();
@@ -472,6 +501,85 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         GM_toast(e.message);
       }
     }
+  }
+
+  // Github
+  else if (hostname === "github.com") {
+    {
+      const checkMark =
+        "M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z";
+      document.addEventListener("click", e => {
+        const target = e.target,
+          tagName = e.target.tagName;
+        const path = tagName === "svg" ? target.querySelector("path") : tagName === "path" ? target : null;
+        if (path) {
+          const div = target.closest("div.react-directory-filename-column");
+          if (div) {
+            const d = path.getAttribute("d");
+            if (d === checkMark) return;
+            const name = div.querySelector("div.react-directory-filename-cell a");
+            GM_setClipboard(name.textContent);
+            console.log(name);
+            path.setAttribute("d", checkMark);
+            setTimeout(() => {
+              path.setAttribute("d", d);
+            }, 1e3);
+          }
+        }
+      });
+    }
+    const generateCmd = shellType => {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      let owner,
+        repo,
+        branch,
+        basePath = "";
+
+      if (parts.length === 2) {
+        // https://github.com/user/repo
+        [owner, repo] = parts;
+        branch = document.querySelector("div.ref-selector-button-text-container span")?.textContent?.trim();
+        if (!branch) return GM_toast("Can't find branch info.");
+      } else if (parts.length >= 4 && parts[2] === "tree") {
+        // https://github.com/user/repo/tree/branch[/optional/path]
+        [owner, repo, , branch] = parts;
+        basePath = parts.slice(4).join("/");
+      } else return GM_toast("Unsupported page.");
+
+      const ruleInput = prompt(
+        "Please enter the path (which can be a file or directory) you want to sparse-checkout (separated by spaces):",
+        basePath || ""
+      ).trim();
+      if (!ruleInput) return;
+
+      const rules = ruleInput
+        .split(/\s+/)
+        .map(r => r.trim())
+        .filter(Boolean);
+      const joinedRules = rules
+        .map(s => {
+          if (shellType === "bash") return `"${s.replace(/"/g, '\\"')}"`;
+          return `"${s}"`;
+        })
+        .join(shellType === "powershell" ? "`n" : " ");
+      const EOL = shellType === "cmd" ? "\r\n" : "\n";
+      const cd = shellType === "powershell" ? `Set-Location "${repo}"` : `cd "${repo}"`;
+
+      const scriptLines = [
+        `git clone -n --depth=1 --filter=tree:0 https://github.com/${owner}/${repo}.git`,
+        cd,
+        `git sparse-checkout init --no-cone`,
+        `git sparse-checkout set ${joinedRules}`,
+        `git checkout ${branch}`
+      ];
+      const finalScript = scriptLines.join(EOL);
+      GM_setClipboard(finalScript);
+      GM_toast("Sparse-checkout command copied.");
+    };
+
+    GM_registerMenuCommand("git sparse-checkout (CMD)", () => generateCmd("cmd"));
+    GM_registerMenuCommand("git sparse-checkout (PowerShell)", () => generateCmd("powershell"));
+    GM_registerMenuCommand("git sparse-checkout (Git Bash)", () => generateCmd("bash"));
   }
 
   // Facebook
@@ -849,71 +957,39 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       }
     });
     // Convert full-width characters to half-width in search bar or tag edit textbox
+    // Legacy code: https://paste.ee/p/Eds99Iey
     {
-      function hasFullWidthSearchChar(data) {
-        return (
-          data &&
-          (data.indexOf("\uFF1A") > -1 ||
-            data.indexOf("\uFF08") > -1 ||
-            data.indexOf("\uFF09") > -1 ||
-            data.indexOf("\u201C") > -1 ||
-            data.indexOf("\u201D") > -1 ||
-            data.indexOf("\u2018") > -1 ||
-            data.indexOf("\u2019") > -1 ||
-            data.indexOf("\u2014\u2014") > -1)
-        );
-      }
-      function replaceFullWidthChar(data) {
-        return data
-          .replace(/\uFF1A/g, ":")
-          .replace(/\uFF08/g, "(")
-          .replace(/\uFF09/g, ")")
-          .replace(/\u201C|\u201D/g, '"')
-          .replace(/\u2018|\u2019/g, "'")
-          .replace(/\u2014\u2014/g, "_");
-      }
-
+      const replacementMap = new Map([
+        ["——", "_"],
+        ["（", "("],
+        ["）", ")"],
+        ["：", ":"],
+        ["‘", "'"],
+        ["’", "'"],
+        ["“", '"'],
+        ["”", '"']
+      ]);
+      const maxMatchLength = Math.max(...[...replacementMap.keys()].map(k => k.length));
       const contentEditableElements = document.querySelectorAll("input[data-autocomplete='tag-query'], textarea[data-autocomplete='tag-edit']");
-
       contentEditableElements.forEach(el => {
-        el.addEventListener("beforeinput", e => {
-          const { inputType, data, target } = e;
-          const { value, selectionStart, selectionEnd } = target;
-          let beginning = value.slice(0, selectionStart);
-          let ending = value.slice(selectionEnd);
+        el.addEventListener("input", function (e) {
+          if (e.inputType && e.inputType.startsWith("delete")) return;
+          const target = e.target;
+          setTimeout(() => {
+            let value = target.value;
+            const cursorPos = target.selectionStart;
 
-          if (inputType === "insertFromPaste" && data && hasFullWidthSearchChar(data)) {
-            let newData = replaceFullWidthChar(data);
-            let cursor = beginning.length + newData.length;
-            inputElement.value = beginning + newData + ending;
-            inputElement.selectionStart = inputElement.selectionEnd = cursor;
-            return false;
-          }
-        });
-        el.addEventListener("input", e => {
-          // data here is null if inputType is insertFromPaste in Windows Chrome.
-          // So we need to replace it in beforeinput event.
-          const { inputType, data, target } = e;
-          const { value, selectionStart, selectionEnd } = target;
-          let beginning = value.slice(0, selectionStart);
-          let ending = value.slice(selectionEnd);
-
-          if (inputType?.startsWith("insert") && data && hasFullWidthSearchChar(data)) {
-            beginning = beginning.slice(0, -data.length);
-            let newData = replaceFullWidthChar(data);
-            let cursor = beginning.length + newData.length;
-            target.value = beginning + newData + ending;
-
-            // Android Webview and Chrome for Android has no insertCompositionText inputType.
-            if (inputType === "insertCompositionText") target.hasInsertCompositionText = true;
-            // An extra insertText event will be triggered in Windows Chrome.
-            if (inputType === "insertText" && target.hasInsertCompositionText) {
-              cursor = beginning.length;
-              target.value = beginning + ending;
+            for (let len = Math.min(maxMatchLength, cursorPos); len >= 1; len--) {
+              const before = value.slice(cursorPos - len, cursorPos);
+              if (replacementMap.has(before)) {
+                const replacement = replacementMap.get(before);
+                value = value.slice(0, cursorPos - len) + replacement + value.slice(cursorPos);
+                target.value = value;
+                cursorPos = cursorPos - len + replacement.length;
+                target.setSelectionRange(cursorPos, cursorPos);
+              }
             }
-
-            target.selectionStart = target.selectionEnd = cursor;
-          }
+          }, 0);
         });
       });
     }
@@ -1198,10 +1274,8 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         },
         copyTags(post, isParent) {
           const tags = post.dataset.tags.split(" ").filter(t => t === "social_commentary" || t.indexOf("commentary") == -1);
+          tags.push((isParent ? "parent:" : "child:") + post.dataset.id);
           document.querySelector(`input.radio_buttons[value='${post.dataset.rating}']`).checked = true;
-          if (isParent) {
-            document.getElementById("post_parent_id").value = post.dataset.id;
-          } else tags.push("child:" + post.dataset.id);
           tagsField.value = tags.join(" ") + " ";
           tagsField.dispatchEvent(new InputEvent("input", { bubbles: true }));
           document.querySelector(".source-tab").click();
@@ -1513,7 +1587,6 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         let translateRegex = /\s*\[[^\[]*?(?:汉化|漢化|翻译|翻譯|製作室|機翻|机翻|重嵌|渣翻)[^\[]*?\]\s*/;
         let translateRegexIrregular = /\s*(\(|（|【|\[)(Chinese|中文)(\)|）|】|\])\s*/i;
         let cnTsGalleriesRegex = /\s*\[中国翻訳\]\s*/;
-        let aiRegex = /\s*(\(|（|【|\[)(AI\s?生成|AI(-|\s)Generated?)(\)|）|】|\])\s*/i;
         const defaultColor = hostname === "e-hentai.org" ? "blueviolet" : "cyan";
         let addColor = (text, color = defaultColor) => `&nbsp;<span style="color:${color};">${text.trim()}</span>`;
         document.querySelectorAll("div.glink").forEach(e => {
@@ -1538,11 +1611,6 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           matched = jpTitle.match(/\s*\[中国語\]\s*/)?.[0];
           if (matched) {
             e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor(matched, "#EF5FA7");
-            return;
-          }
-          matched = jpTitle.match(aiRegex)?.[0];
-          if (matched) {
-            e.innerHTML = jpTitle.replace(matched, " ").trim() + addColor("[AI Generated]", "#FF0000");
             return;
           }
           if (e.nextElementSibling?.querySelector("div.gt[title='language:chinese']")) {
@@ -1590,7 +1658,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // BlueSky
-  else if (hostname === "bsky.app") {
+  else if (hostname === "bsky.app" || hostname === "web-cdn.bsky.app") {
     GM_registerMenuCommand("Get user permanent link", () => {
       const dids = document.querySelectorAll("div[data-testid='profileHeaderAviButton'] img");
       const did = dids?.[dids.length - 1]?.src?.match(/did:plc:\w+/)?.[0];
@@ -1600,5 +1668,18 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         GM_toast(url + " Copied.");
       } else GM_toast("did:plc: not found.");
     });
+  }
+
+  // Poipiku
+  else if (hostname === "poipiku.com") {
+    document.head.insertAdjacentHTML(
+      "beforeend",
+      `<style>section.UserInfoUser>.UserInfoCmd:not(:has(.UserInfoCmdFollow)),.IllustItemResList,.IllustItemResBtnList,.PcSideBar,.HeaderPoiPassAd,.SideBarMidInfScroll{display:none !important;}#IllustItemList{width:100%;flex:1;}</style>`
+    );
+    unsafeWindow.contentPageToClipboard = (a, b) => {
+      const url = `https://poipiku.com/${a}/${b}.html`;
+      GM_setClipboard(url);
+      GM_toast(url + " Copied.");
+    };
   }
 })();

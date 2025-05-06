@@ -1,85 +1,120 @@
-({
-  id: "ImageReverseSearch",
-  get el() {
-    return document.getElementById(this.id);
-  },
-  init() {
-    let id = this.id,
-      el = this.el;
-    if (el) {
-      el.style.left = "unset";
-      el.style.right = 0;
-      return;
-    }
-    if ("about:blank" !== location.href) {
-      const div = document.createElement("div"),
-        options = Object.keys(this.engines)
-          .map(i => `<option value="${i}">${i}</option>`)
-          .join("");
-      div.id = id;
-      // prettier-ignore
-      div.innerHTML = `<span>使用</span><select>${options}</select><a>搜索</a><style>#${id}{background-color:rgba(20,20,20,.4);position:fixed;z-index:calc(9e999);left:0;top:0;padding:2px 2px 2px 0;border-radius:.25em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}#${id} :not(style){display:inline-block;font-family:Verdana,Helvetica,sans-serif;font-size:clamp(16px,2vmax,2vh);float:none;line-height:initial;color:#fff;margin:2px;text-align:center;text-decoration:none;vertical-align:middle;user-select:none;-webkit-user-select:none}#${id}>:not(style):not(span){border:1px solid rgba(20,20,20,.4);border-radius:.2em;background-color:rgba(50,50,50,.4)}#${id}>select{width:fit-content;height:fit-content;box-shadow:0 0 2px 0 #bbb inset;outline:0;padding:initial;-webkit-appearance:auto}#${id} option{background-color:darkgrey}#${id}>a{padding:0 4px}#${id}>a:focus,#${id}>a:hover{background-color:rgba(150,150,150,.4)}</style>`;
-      document.body.appendChild(div);
-      document.addEventListener("click", this, true);
-      div.children[2].onclick = () => {
-        const n = div.children[1].value;
-        window.open(this.engines[n].d, "_blank");
-        div.parentNode.removeChild(div);
-      };
-    }
-  },
-  handleEvent(event) {
-    let element = event.target,
-      el = this.el;
-    if (el.contains(element)) return;
-    document.removeEventListener("click", this, true);
-    event.stopImmediatePropagation(); // 阻止绑定在同一元素的其它事件
-    event.preventDefault(); // 阻止默认事件
-    if (element.tagName === "IMG") {
-      event.stopPropagation(); // 阻止捕获和冒泡事件传播
-      const engine = el.children[1].value;
-      const { d, p } = this.engines[engine];
-      const prefix = p.startsWith("/") ? d + p : p;
-      window.open(encodeURI(prefix + element.src), "_blank");
-    }
-    document.body.removeChild(el);
-  },
-  engines: {
-    Google: {
-      d: "https://images.google.com",
-      p: "https://www.google.com/searchbyimage?client=Chrome&image_url="
-    },
-    Lens: {
-      d: "https://images.google.com",
-      p: "https://lens.google.com/uploadbyurl?url="
-    },
-    sauceNAO: {
-      d: "https://saucenao.com",
-      p: "/search.php?db=999&url="
-    },
-    ASCII2D: {
-      d: "https://ascii2d.net",
-      p: "/search/url/"
-    },
-    Yandex: {
-      d: "https://yandex.com/images",
-      p: "/search?rpt=imageview&url="
-    },
-    Baidu: {
-      d: "https://image.baidu.com",
-      p: "https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData%5bisLogoShow%5d=1&image="
-    },
-    Bing: {
-      d: "https://www.bing.com",
-      p: "/images/search?view=detailv2&iss=sbi&q=imgurl%3A"
-    },
-    IQDB: {
-      d: "http://iqdb.org",
-      p: "/?url="
-    },
-    WAIT: {
-      d: "https://trace.moe",
-      p: "/?auto&url="
-    }
+// Legacy Code - https://paste.ee/p/ZMSDCl4p
+(() => {
+  if (location.href === 'about:blank') return;
+
+  const id = 'ImageReverseSearch';
+  if (document.getElementById(id)) {
+    // 如果已存在，只调整位置
+    const host = document.getElementById(id);
+    host.style.left = 'unset';
+    host.style.right = '0';
+    return;
   }
-}).init();
+
+  // 搜索引擎列表
+  const engines = {
+    Google: { d: 'https://images.google.com', p: 'https://www.google.com/searchbyimage?client=Chrome&image_url=' },
+    Lens:   { d: 'https://images.google.com', p: 'https://lens.google.com/uploadbyurl?url=' },
+    sauceNAO: { d: 'https://saucenao.com', p: '/search.php?db=999&url=' },
+    ASCII2D: { d: 'https://ascii2d.net', p: '/search/url/' },
+    Danbooru: { d: 'https://danbooru.donmai.us', p: '/iqdb_queries?search[url]=' },
+    Yandex: { d: 'https://yandex.com/images', p: '/search?rpt=imageview&url=' },
+    Baidu: { d: 'https://image.baidu.com', p: 'https://graph.baidu.com/details?isfromtusoupc=1&tn=pc&carousel=0&promotion_name=pc_image_shituindex&extUiData[isLogoShow]=1&image=' },
+    Bing: { d: 'https://www.bing.com', p: '/images/search?view=detailv2&iss=sbi&q=imgurl:' },
+    IQDB: { d: 'http://iqdb.org', p: '/?url=' },
+    WAIT: { d: 'https://trace.moe', p: '/?auto&url=' }
+  };
+
+  // 创建宿主容器并添加到文档
+  const host = document.createElement('div');
+  host.id = id;
+  host.style.position = 'fixed';
+  host.style.top = '0';
+  host.style.left = '0';
+  host.style.zIndex = '999999999';
+  // 建立 Shadow Root
+  const shadow = host.attachShadow({ mode: 'open' });
+
+  // 样式
+  const style = document.createElement('style');
+  style.textContent = `
+    :host {
+      background-color: rgba(20,20,20,.4);
+      padding: 2px;
+      border-radius: .25em;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-family: Verdana, Helvetica, sans-serif;
+      font-size: clamp(16px, 2vmax, 2vh);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    select, a {
+      border: 1px solid rgba(20,20,20,.4);
+      border-radius: .2em;
+      background-color: rgba(50,50,50,.4);
+      color: #fff;
+      padding: 2px 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    select {
+      font-size: inherit;
+      -webkit-appearance: auto;
+      outline: none;
+      text-align: center;
+    }
+    a:hover {
+      background-color: rgba(150,150,150,.4);
+    }
+    span {
+      color: #fff;
+    }
+  `;
+
+  // 文本和控件
+  const label = document.createElement('span');
+  label.textContent = '使用';
+
+  const select = document.createElement('select');
+  for (const name in engines) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+
+  const button = document.createElement('a');
+  button.textContent = '搜索';
+  button.href = 'javascript:void(0)';
+
+  // 组装 Shadow DOM
+  shadow.append(style, label, select, button);
+  document.body.appendChild(host);
+
+  // 点击“搜索”按钮时打开默认引擎首页
+  button.addEventListener('click', e => {
+    const eng = select.value;
+    window.open(engines[eng].d, '_blank');
+    host.remove();
+  });
+
+  // 全局点击拦截：选择图片后以图搜图
+  const clickHandler = evt => {
+    const el = evt.target;
+    if (host.contains(el)) return;
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    document.removeEventListener('click', clickHandler, true);
+
+    if (el.tagName === 'IMG') {
+      const eng = select.value;
+      const { d, p } = engines[eng];
+      const prefix = p.startsWith('/') ? d + p : p;
+      window.open(encodeURI(prefix + el.src), '_blank');
+    }
+    host.remove();
+  };
+  document.addEventListener('click', clickHandler, true);
+})();

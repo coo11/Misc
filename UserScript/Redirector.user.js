@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Redirector
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.2
+// @version     0.1.4
 // @description Start taking over the world!
 // @author      coo11
 // @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8ZWxsaXBzZSBjeD0iOCIgY3k9IjgiIHJ4PSI3IiByeT0iNyIgZmlsbD0id2hpdGUiPjwvZWxsaXBzZT4KICA8cGF0aCBkPSJNOS4xNjcgNC41YTEuMTY3IDEuMTY3IDAgMSAxLTIuMzM0IDAgMS4xNjcgMS4xNjcgMCAwIDEgMi4zMzQgMFoiPjwvcGF0aD4KICA8cGF0aCBkPSJNOCAwYTggOCAwIDEgMCAwIDE2QTggOCAwIDAgMCA4IDBaTTEgOGE3IDcgMCAwIDEgNy03IDMuNSAzLjUgMCAxIDEgMCA3IDMuNSAzLjUgMCAxIDAgMCA3IDcgNyAwIDAgMS03LTdabTcgNC42NjdhMS4xNjcgMS4xNjcgMCAxIDEgMC0yLjMzNCAxLjE2NyAxLjE2NyAwIDAgMSAwIDIuMzM0WiIgZmlsbC1vcGFjaXR5PSJpbml0aWFsIj48L3BhdGg+Cjwvc3ZnPg==
@@ -61,6 +61,8 @@
 // @match       *://i-f.pximg.net/*
 // @match       *://i-cf.pximg.net/*
 // @match       *://pixiv.pximg.net/*
+// @match       *://booth.pximg.net/*
+// @match       *://*.booth.pm/*
 // @match       *://downloads.fanbox.cc/*
 // @match       *://*.twimg.com/*
 // @match       *://www.youtube.com/watch?v=*
@@ -88,6 +90,7 @@
 // @match       *://www.reddit.com/media?url=*
 // @match       *://lohas.nicoseiga.jp/thumb/*
 // @match       *://lohas.nicoseiga.jp//thumb/*
+// @match       *://deliver.cdn.nicomanga.jp/thumb/*
 // @match       *://*.us.archive.org/*
 // @match       *://coverartarchive.org/*
 // @grant       GM_registerMenuCommand
@@ -220,7 +223,21 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     } else {
       if (hostname === "m.weibo.cn")
         // Prevent from popuping PWA installation
-        document.head.querySelector('link[rel="manifest"]').remove();
+        document.head?.querySelector('link[rel="manifest"]')?.remove();
+      // Weibo Snapshot
+      if (hostname.endsWith("weibo.com")) {
+        GM_registerMenuCommand("🍑 Peachring.com", () => {
+          const p = window.location.pathname;
+          let matched = p.match(/^\/u\/(\d+)$/)?.[1];
+          if (matched) window.open(`https://peachring.com/u/${matched}/`);
+          matched = p.match(/^\/(\d+)\/([A-z0-9]+)$/);
+          if (matched) {
+            let [, uid, tid] = matched;
+            if (!/^\d+$/.test(tid)) tid = weiboFn.mid2id(tid);
+            window.open(`https://peachring.com/u/${uid}/?next=${tid}`);
+          }
+        });
+      }
       GM_registerMenuCommand("Base62 Converter", () => {
         const input = prompt("Input String to execute Base 62 encode/decode:");
         if (!input) {
@@ -307,6 +324,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         .replace(/(:\/\/[^/]*\/)\d+_\d+\//, "$1")
         .replace(/(?:@|%40)[^/]*$/, "")
         .replace(/(\/[0-9a-f]{20,}\.[^/._]+)_\d+x\d+\.[^/]+(?:[?#].*)?$/, "$1")
+        .replace(/\?width=\d+&height=\d+/, "")
     );
   }
 
@@ -394,7 +412,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     });
   }
 
-  // Pixiv
+  // Pixiv, Fanbox, Booth
   else if (/i(-c?f)?\.pximg\.net/.test(hostname) || hostname === "pixiv.pximg.net") {
     if (document.contentType.startsWith("text"))
       bodyLoaded(body =>
@@ -423,6 +441,13 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   } else if (hostname === "downloads.fanbox.cc") {
     newSrc = src.replace(/\/(c|w)\/\d+(x\d+)?\//, "/");
     if (newSrc !== src) return redirect(addExts(newSrc, ["png", "jpeg"]));
+  } else if (hostname.match(/s[0-9]*\.booth\.pm$/) || hostname === "booth.pximg.net") {
+    newSrc = src.replace(/\/c\/[a-z]_[0-9]+\//, "/").replace(/_c_[0-9]+x[0-9]+(\.[^/.]*)$/, "$1");
+    if (newSrc !== src) return redirect(addExts(newSrc));
+    newSrc = src.replace(/(:\/\/[^/]*\/)c\/[0-9]+x[0-9]+(?:_[^/]*)?\//, "$1");
+    if (newSrc !== src) return redirect(addExts(newSrc));
+    newSrc = src.replace(/(\/[-0-9a-f]+)_[^/.]*(\.[^/.]*)$/, "$1$2");
+    if (newSrc !== src) return redirect(addExts(newSrc));
   }
 
   // Twitter
@@ -616,12 +641,12 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     } else {
       newSrc = noSuffix.replace(/(:\/\/[^/]*\/)[^/]*(\/.*\/[^/]*\.[^/.]*)$/, "$1originals$2");
     }
-    return redirect(addExts(newSrc));
+    return redirect(addExts(newSrc, ["gif", "png", "jpg"]));
   }
 
   // Discord
   else if (/\bdiscordapp\b/.test(hostname)) {
-    if ((hostname === "media.discordapp.net" && /\/attachments\//.test(src)) || hostname === "images.discordapp.net") {
+    if (hostname === "images.discordapp.net") {
       return redirect(src.replace(/\?.*$/, ""));
     }
     if (hostname === "cdn.discordapp.com") {
@@ -632,7 +657,16 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       );
     }
     if (hostname === "media.discordapp.net") {
-      return redirect(src.replace(/(\/stickers\/+[0-9]{5,}\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096"));
+      newSrc = src.replace(/(\/stickers\/+[0-9]{5,}\.[^/.?#]+)(?:[?#].*)?$/, "$1?size=4096");
+      if (newSrc !== src) return redirect();
+      if (/\/attachments\/+[0-9]+\/+/.test(src)) {
+        let queries = getQueries(src);
+        let keptQueries = {};
+        ["ex", "is", "hm"].forEach(k => {
+          keptQueries[k] = queries[k];
+        });
+        return redirect(addQueries(src.replace(/\?.*$/, ""), keptQueries));
+      }
     }
     if (hostname.endsWith("discordapp.net") && hostname.match(/images-ext-[0-9]*\.discordapp\.net/)) {
       return redirect(decodeURIComponent(src.replace(/.*\/external\/[^/]*\/(?:([^/]*)\/)?(https?)\/(.*?)(?:\?[^/]*)?$/, "$2://$3$1")));
@@ -698,6 +732,13 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     let pid = pathname.match(/thumb\/(\d+)/)?.[1];
     // Need Login
     if (pid) return redirect("https://sp.seiga.nicovideo.jp/image/source/" + pid);
+  } else if (hostname === "deliver.cdn.nicomanga.jp") {
+    let b64 = pathname.match(/thumb\/([A-Za-z0-9+/]+)\./)?.[1];
+    // Need Login
+    if (b64) {
+      let sp = new URL(atob(b64)).searchParams;
+      return redirect(`https://deliver.cdn.nicomanga.jp/priv/${sp.get("h")}/${sp.get("e")}/${sp.get("id")}`);
+    }
   }
 
   // Web Archive
@@ -715,7 +756,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
    * @param {String} obj - url(s) to edit suffix
    * @param {Array} extList - Extensions list
    */
-  function addExts(obj, extList = ["gif", "png", "jpg"]) {
+  function addExts(obj, extList = ["jpg", "jpeg", "png", "gif", "webp", "avif", "JPG", "JPEG", "PNG", "GIF"]) {
     let results = [];
     if (!Array.isArray(obj)) {
       obj = [obj];

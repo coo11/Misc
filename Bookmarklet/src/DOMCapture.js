@@ -3,7 +3,7 @@
   let d = document,
     a = d.createElement("script");
   a.src =
-    "//cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js";
+    "//cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
   d.body.appendChild(a);
   a.onload = function () {
     let t = prompt("Enter a DOM Object or just Selector:");
