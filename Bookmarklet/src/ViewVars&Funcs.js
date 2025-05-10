@@ -1,41 +1,31 @@
 (() => {
   const newWin = open(),
     newDoc = newWin.document,
-    parse = str =>
-      str
-        .replace(/&/g, "&amp;")
-        .replace(/>/g, "&gt;")
-        .replace(/</g, "&lt;")
-        .replace(/"/g, "&quot;");
+    parse = str => str.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   newDoc.open();
-  newDoc.write(
-    '<style>body { font-size: 87.5%; font-family: "Verdana", "Helvetica", sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; word-break: break-all; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } td:nth-child(2) { word-break: keep-all; text-align: center; } td:nth-child(3) { width: 80%; } .re { color: green; } .er { color: red; } .ar { color: purple; } pre { white-space: pre-wrap; }</style><table onclick=""><tbody><tr><th>Variable</th><th>Type</th><th>Value as string</th></tr>'
-  );
+  let headContent =
+    '<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body,code,pre{font-size:87.5%}table,td:first-child,td:nth-child(2){word-break:break-all}body{font-family:Verdana,Helvetica,sans-serif}code,pre{font-family:Monaco,Menlo,Consolas,"Courier New",Courier,monospace}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%}tbody tr:hover{background:#e1e8ff}tr:nth-child(2n){background:#e8e8ec}td:first-child{min-width:144px}td:nth-child(2){min-width:72px;text-align:center}td:nth-child(3){max-width:calc(100% - 216px)}@media screen and (max-width:660px){td:first-child{min-width:56px}td:nth-child(3){max-width:calc(100% - 128px)}}.re{color:green}.er{color:red}.ar{color:purple}pre{white-space:pre-wrap}</style>';
+  let bodyContent = '<table onclick=""><tbody><tr><th>Name</th><th>Type</th><th>Value as string</th></tr>';
   for (let i in window) {
     if (i in newWin) continue;
     let value = window[i];
-    newDoc.write(
-      `<tr><td><code>${parse(
-        i
-      )}</code></td><td><code>${typeof value}</code></td><td><pre>`
-    );
-    if (value === null || value === undefined || typeof value === "boolean")
-      newDoc.write(`<b>${value}</b>`);
-    else if (value instanceof RegExp)
-      newDoc.write(`<span class="re">${value.toString()}</span>`);
-    else if (Array.isArray(value))
-      newDoc.write(`<span class="ar">${JSON.stringify(value)}</span>`);
+    let tr = `<tr><td><code>${parse(i)}</code></td><td><code>${typeof value}</code></td><td><pre>`;
+    if (value === null || value === undefined || typeof value === "boolean") tr += `<b>${value}</b>`;
+    else if (value instanceof RegExp) tr += `<span class="re">${value.toString()}</span>`;
+    else if (Array.isArray(value)) tr += `<span class="ar">${JSON.stringify(value)}</span>`;
     else
       try {
         value = value.toString();
-        if (value.length) newDoc.write(parse(value));
-        else newDoc.write(" ");
+        if (value.length) tr += parse(value);
+        else tr += " ";
       } catch (e) {
-        newDoc.write(`<span class="er">${parse(e.toString())}</span>`);
+        tr += `<span class="er">${parse(e.toString())}</span>`;
       }
-    newDoc.write("</pre></td></tr>");
+    tr += "</pre></td></tr>";
+    bodyContent += tr;
   }
-  newDoc.write("</tbody></table>");
+  bodyContent += "</tbody></table>";
+  newDoc.write(`<html><head>${headContent}</head><body>${bodyContent}</body></html>`);
   newDoc.title = document.title;
   newDoc.close();
 })();
