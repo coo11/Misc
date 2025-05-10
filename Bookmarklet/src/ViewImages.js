@@ -1,7 +1,7 @@
 (() => {
   let caption = document.querySelector("caption.mvis");
   if (caption) {
-    caption.innerText = caption.innerText.split("Found")[0] + " Found";
+    caption.innerHTML = caption.innerHTML.split(" (")[0];
     return document.querySelectorAll("img").forEach(e => {
       let code = e.nextElementSibling.children[0];
       let text = code.innerText.replace(/[\d.]+×[\d.]+/, "").trim();
@@ -11,109 +11,103 @@
       else code.innerText = text + ": " + size;
     });
   }
-  let images = new Set(),
-    content = "";
+  const safeBtoa = t => btoa(Array.from(new TextEncoder().encode(t), byte => String.fromCharCode(byte)).join(""));
+  const urlEscape = t => t.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  let images = new Set();
+  let content = ["", "", ""];
   globalThis.hasCSP = true;
   let s = document.createElement("script");
   s.textContent = "globalThis.hasCSP = false;";
   document.body.appendChild(s);
   s.remove();
   let csp = globalThis.hasCSP;
-  const parseImg = (image, isSrc = true) => {
-    let url, desc;
-    if (typeof image === "string") {
-      url = image.replace(
-        /\\?"/g,
-        "%2522"
-      ); /* In console, there must be "\%22" https://t.me/iv?url=.... */
-      desc = "From CSS";
-      if (!csp) desc += ": ";
-    } else if (image.tagName === "svg") {
-      let src = new XMLSerializer().serializeToString(image);
-      if (src && !images.has(src)) {
-        images.add(src);
-        url = encodeURI(
-          "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(src)))
-        );
-        desc = "Inline SVG: ";
-        if (csp) {
-          let rect = image.getBoundingClientRect();
-          desc += `${rect.width}×${rect.height}`;
-        }
-      } else return "";
-    } else if (image.tagName === "IMG") {
-      /* encodeURI: https://web.telegram.org/z/#.... */
-      url = image[isSrc ? "src" : "currentSrc"];
-      /* url = encodeURI(decodeURI(image[isSrc ? "src" : "currentSrc"])); */
-      desc = isSrc ? "" : "currentSrc: ";
-      if (csp) desc += `${image.naturalWidth}×${image.naturalHeight}`;
+  const parseImg = (image, type = "src") => {
+    let url, desc, sort;
+    switch (type) {
+      case "src":
+      case "currentSrc":
+        url = image[type];
+        if (!url || (type === "currentSrc" && url === image.src)) return;
+        desc = type === "src" ? "" : type + ": ";
+        if (csp) desc += `${image.naturalWidth}×${image.naturalHeight}`;
+        sort = 0;
+        break;
+      case "string":
+        if (!image) return;
+        url = image.replace(/\\?"/g, encodeURI('"')); /* Fix double encode issue */
+        desc = "From CSS";
+        if (!csp) desc += ": ";
+        sort = 1;
+        break;
+      case "svgElement": {
+        let src = new XMLSerializer().serializeToString(image);
+        if (src) {
+          url = "data:image/svg+xml;base64," + safeBtoa(src);
+          desc = "Inline SVG: ";
+          if (csp) {
+            let rect = image.getBoundingClientRect();
+            desc += `${rect.width}×${rect.height}`;
+          }
+          sort = 2;
+        } else return;
+        break;
+      }
+      default:
+        break;
     }
-    let codeUrl =
-      url /* https://developer.android.com/studio/command-line/adb */
-        .replace(/&/g, "&amp;")
-        .replace(/>/g, "&gt;")
-        .replace(/</g, "&lt;")
-        .replace(/"/g, "&quot;");
-    if (codeUrl.length > 3200)
-      codeUrl = `<details><summary><code>Collapsed because of too many characters (${codeUrl.length})</code></summary><code>${codeUrl}</code></details>`;
-    else codeUrl = `<code>${codeUrl}</code>`;
-    return `<tr><td><img ${
-      csp ? "" : 'onload="load(this)" '
-    }src="${url}"><p><code>${desc}</code></p></td><td>${codeUrl}</td></tr>`;
+    if (!images.has(url)) {
+      images.add(url);
+      let escaped = `<code>${urlEscape(url)}</code>`;
+      if (escaped.length > 3213)
+        escaped = `<details><summary><code>Collapsed because of too many characters (${escaped.length - 13})</code></summary>${escaped}</details>`;
+      let finalHtml = `<tr><td><img${csp ? " " : ' onload="load(this)"'} src="${url}"><p><code>${desc}</code></p></td><td>${escaped}</td></tr>`;
+      content[sort] += finalHtml;
+    }
   };
-  const getComputedUrl = (elmStyle, prop, e) => {
+  const getComputedUrl = (elmStyle, prop) => {
     const regex = /url\((['"]?)(.*?)\1\)/;
     const url = elmStyle.getPropertyValue(prop).match(regex)?.[2];
-    if (url && !images.has(url)) {
-      images.add(url);
-      content += parseImg(url);
-    }
+    parseImg(url, "string");
   };
-  document.querySelectorAll("*").forEach(element => {
+  document.body.querySelectorAll("*").forEach(element => {
     if (element.tagName === "IMG") {
-      let src = element.src,
-        curSrc = element.currentSrc;
-      /* currentSrc: apps.apple.com/app/id; src: www.instagram.com/p */
-      if (src && !images.has(src)) {
-        images.add(src);
-        content += parseImg(element);
-      }
-      if (curSrc && curSrc !== src && !images.has(curSrc)) {
-        images.add(curSrc);
-        content += parseImg(element, false);
-      }
-    } else if (element.tagName === "svg") {
-      content += parseImg(element);
-    } else {
+      parseImg(element, "src");
+      parseImg(element, "currentSrc"); /* currentSrc: apps.apple.com/app/id; src: www.instagram.com/p */
+    } else if (element.tagName === "svg") parseImg(element, "svgElement");
+    else
       [null, "::after", "::before"].forEach(pseudo => {
         let style = getComputedStyle(element, pseudo);
         getComputedUrl(style, "background-image");
         getComputedUrl(style, "border-image-source");
         getComputedUrl(style, "content");
       });
-    }
   });
   if (content) {
-    let win = window.open("", "_blank"),
-      doc = win.document,
-      tip = "Run me again in current page to refetch images size",
-      cap =
-        images.size +
-        " Image(s) Found" +
-        (csp
-          ? ` <span style="color:red;">(CSP Detected. ${tip})</span>`
-          : ` (${tip})`),
-      script = csp
-        ? ""
-        : '<script>function load(e){e.nextElementSibling.children[0].insertAdjacentText("beforeEnd",e.naturalWidth+"×"+e.naturalHeight)}</script>',
-      //Deprecated: https://jsfiddle.net/yau5crm6/
-      viewerjs =
-        '<link href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js"></script><script>const gallery=new Viewer(document.getElementsByTagName("tbody")[0],{navbar:false,toolbar:{rotateLeft:"large",rotateRight:"large",flipHorizontal:"large",flipVertical:"large"}});</script>';
-    doc.write(
-      `<style>body { font-size: 87.5%; font-family: Verdana, Helvetica, sans-serif; } table,td,th { border: 1px solid #ccc; } table { border-collapse: collapse; width: 100%; } caption { margin-bottom: 0.5em; } tbody tr { border-bottom: 1px solid #d1d1da; } tbody tr:hover { background: #e1e8ff; } tr:nth-child(even) { background: #e8e8ec; } tr img { max-width:320px; box-shadow:5px 5px 5px #BBB; } tr:hover img { max-width:320px; box-shadow:-5px 5px 5px #BBB; } td:nth-child(1) { text-align: center; } td:nth-child(2) { word-break: break-all; } summary { color: purple; font-weight: bold; }</style>${script}<table onclick="" cellpadding=10><caption class="mvis">${cap}</caption><tbody><tr><th>Image</th><th>URL</th></tr>${content}</tbody></table>`
-    );
-    if (!csp) doc.write(viewerjs);
-    doc.title = document.title;
-    doc.close();
+    let imageWindow = window.open("", "_blank"),
+      dom = imageWindow.document;
+    let headContent =
+      "<style>body{font-size:87.5%;font-family:Verdana,Helvetica,sans-serif}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%}caption{margin-bottom:.5em}tbody tr{border-bottom:1px solid #d1d1da}tbody tr:hover{background:#e1e8ff}tr:nth-child(2n){background:#e8e8ec}tr img{max-width:320px;box-shadow:5px 5px 5px #bbb}tr:hover img{max-width:320px;box-shadow:-5px 5px 5px #bbb}td:first-child{text-align:center}td:nth-child(2){word-break:break-all}summary{color:purple;font-weight:700}</style>";
+    let bodyContent = "";
+    let caption = images.size + " Image" + (images.size === 1 ? "" : "s");
+    caption += " Found (Run me again to refetch images size)";
+    if (!csp) {
+      headContent +=
+        '<script>function load(e){e.nextElementSibling.children[0].insertAdjacentText("beforeEnd",e.naturalWidth+"×"+e.naturalHeight)}</script>' +
+        '<link rel="stylesheet" href="https://cdnjs.snrat.com/ajax/libs/viewerjs/1.11.7/viewer.min.css"></link>';
+      bodyContent =
+        '<script type="module">import Viewer from"https://cdnjs.snrat.com/ajax/libs/viewerjs/1.11.7/viewer.esm.min.js";const gallery=new Viewer(document.getElementsByTagName("tbody")[0],{navbar:false,toolbar:{rotateLeft:"large",rotateRight:"large",flipHorizontal:"large",flipVertical:"large"}}),caption=document.querySelector(".mvis");caption.innerHTML=\'<span style="color:green;">[ViewerJS Loaded] </span>\'+caption.innerHTML;</script>';
+    } else {
+      caption = '<span style="color:red;">[CSP Detected] </span>' + caption;
+    }
+    bodyContent =
+      '<table onclick="" cellpadding=10><caption class="mvis">' +
+      caption +
+      "</caption><tbody><tr><th>Image</th><th>URL</th></tr>" +
+      content.join("") +
+      "</tbody></table>" +
+      bodyContent;
+    dom.write(`<head>${headContent}</head><body>${bodyContent}</body>`);
+    dom.title = document.title;
+    dom.close();
   } else alert("No images!");
 })();

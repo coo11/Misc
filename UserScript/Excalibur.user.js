@@ -1096,6 +1096,22 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         }
       }
     }
+    // Top search-box
+    {
+      const searchBox = document.getElementById("search-box");
+      if (searchBox) {
+        let searchForm = document.getElementById("search-box-form");
+        document.getElementById("app-name").replaceWith(searchForm);
+        document.getElementById("app-logo").remove();
+        document.getElementById("search-box").remove();
+        document.querySelector('#post-sections a[href="#search-box"]')?.remove();
+        let divHeader = document.getElementById("app-name-header");
+        divHeader.classList.remove("font-bold", "font-header");
+        const style = document.createElement("style");
+        document.head.appendChild(style);
+        style.innerHTML = `header#top #app-name-header{font-size:unset;align-items:center}#search-box-form{min-width:180px;max-width:80vw;width:50vw}@media screen and (max-width:660px){header#top{margin-top:0!important}header#top #app-name-header{margin:.25rem 1.5rem .25rem .5rem}header#top #maintoggle{top:.3rem}#search-box-form{width:70vw}#search-box-form input#tags{min-width:180px}}`;
+      }
+    }
     document.querySelectorAll("a.post-preview-link").forEach(a => (a.draggable = true)); // Fix for gesture plugin
     // Enable non-view mode on current page only
     document.querySelector("#mode-box select")?.addEventListener("change", () => setTimeout(() => localStorage.setItem("mode", "view")));
@@ -1408,7 +1424,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         },
         loadScript() {
           let script = unsafeWindow.document.createElement("script");
-          script.src = "//unpkg.com/panzoom@9.4.3/dist/panzoom.min.js";
+          script.src = "//registry.npmmirror.com/panzoom/9.4.3/files/dist/panzoom.min.js";
           unsafeWindow.document.head.appendChild(script);
           script.onload = () => {
             if (this.initCheck && !this.isDashed) {
