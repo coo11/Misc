@@ -86,7 +86,7 @@
     let imageWindow = window.open("", "_blank"),
       dom = imageWindow.document;
     let headContent =
-      "<style>body{font-size:87.5%;font-family:Verdana,Helvetica,sans-serif}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%}caption{margin-bottom:.5em}tbody tr{border-bottom:1px solid #d1d1da}tbody tr:hover{background:#e1e8ff}tr:nth-child(2n){background:#e8e8ec}tr img{max-width:320px;box-shadow:5px 5px 5px #bbb}tr:hover img{max-width:320px;box-shadow:-5px 5px 5px #bbb}td:first-child{text-align:center}td:nth-child(2){word-break:break-all}summary{color:purple;font-weight:700}</style>";
+      '<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body,code{font-size:87.5%}tr img,tr:hover img{max-width:calc(36vw - 8px)}body{font-family:Verdana,Helvetica,sans-serif}code{font-family:Monaco,Menlo,Consolas,"Courier New",Courier,monospace}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%}caption{margin-bottom:.5em}tbody tr{border-bottom:1px solid #d1d1da}tbody tr:hover{background:#e1e8ff}tr>:first-child{max-width:calc(36vw - 4px)}tr:nth-child(2n){background:#e8e8ec}tr img{box-shadow:5px 5px 5px #bbb}tr:hover img{box-shadow:-5px 5px 5px #bbb}td:first-child{text-align:center}td:nth-child(2){word-break:break-all}summary{color:purple;font-weight:700}</style>';
     let bodyContent = "";
     let caption = images.size + " Image" + (images.size === 1 ? "" : "s");
     caption += " Found (Run me again to refetch images size)";
@@ -106,7 +106,7 @@
       content.join("") +
       "</tbody></table>" +
       bodyContent;
-    dom.write(`<head>${headContent}</head><body>${bodyContent}</body>`);
+    dom.write(`<html><head>${headContent}</head><body>${bodyContent}</body></html>`);
     dom.title = document.title;
     dom.close();
   } else alert("No images!");
