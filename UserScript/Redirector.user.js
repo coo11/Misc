@@ -4,13 +4,15 @@
 // @version     0.1.4
 // @description Start taking over the world!
 // @author      coo11
-// @icon        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8ZWxsaXBzZSBjeD0iOCIgY3k9IjgiIHJ4PSI3IiByeT0iNyIgZmlsbD0id2hpdGUiPjwvZWxsaXBzZT4KICA8cGF0aCBkPSJNOS4xNjcgNC41YTEuMTY3IDEuMTY3IDAgMSAxLTIuMzM0IDAgMS4xNjcgMS4xNjcgMCAwIDEgMi4zMzQgMFoiPjwvcGF0aD4KICA8cGF0aCBkPSJNOCAwYTggOCAwIDEgMCAwIDE2QTggOCAwIDAgMCA4IDBaTTEgOGE3IDcgMCAwIDEgNy03IDMuNSAzLjUgMCAxIDEgMCA3IDMuNSAzLjUgMCAxIDAgMCA3IDcgNyAwIDAgMS03LTdabTcgNC42NjdhMS4xNjcgMS4xNjcgMCAxIDEgMC0yLjMzNCAxLjE2NyAxLjE2NyAwIDAgMSAwIDIuMzM0WiIgZmlsbC1vcGFjaXR5PSJpbml0aWFsIj48L3BhdGg+Cjwvc3ZnPg==
+// @icon        data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' fill='%23fff' r='7'/%3E%3Cpath d='M9.167 4.5a1.167 1.167 0 1 1-2.334 0 1.167 1.167 0 0 1 2.334 0Z'/%3E%3Cpath d='M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0ZM1 8a7 7 0 0 1 7-7 3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 0 0 7 7 7 0 0 1-7-7Zm7 4.667a1.167 1.167 0 1 1 0-2.334 1.167 1.167 0 0 1 0 2.334Z' fill-opacity='initial'/%3E%3C/svg%3E
 // @run-at      document-start
 // @match       *://link.zhihu.com/?target=*
+// @match       *://www.douban.com/link2/?url=*
 // @match       *://link.csdn.net/?target=*
 // @match       *://www.oschina.net/action/GoToLink?url=*
 // @match       *://www.pixiv.net/jump.php?*
 // @match       *://www.jianshu.com/go-wild*
+// @match       *://ref.gamer.com.tw/redir.php?url=*
 // @match       *://nga.178.com/*
 // @match       *://ngabbs.com/*
 // @match       *://g.nga.cn/*
@@ -32,7 +34,7 @@
 // @match       *://t.cn/*
 // @match       *://sinaurl.cn/*
 // @match       *://weibo.cn/sinaurl?*
-// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, Lofter, Mihuashi, BCY, Xiaohongshu
+// @ Weibo, Zhihu, Bilibili, Alibaba, Baidu, NGA, Tencent, Lofter, Mihuashi, BCY
 // @match       *://m.weibo.cn/*
 // @match       *://video.h5.weibo.cn/1034:*
 // @match       *://h5.video.weibo.com/show/*
@@ -54,9 +56,7 @@
 // @match       *://pic-bucket.ws.126.net/*
 // @match       *://image-assets.mihuashi.com/*
 // @match       *://*.bcyimg.com/*
-// @match       *://sns-webpic-qc.xhscdn.com/*
-// @match       *://xhs.coo11.workers.dev/*
-// @ Pixiv, Twitter, YouTube, Google, Artstation, Steam, Pinterest, Discord, Apple, Tumblr, Reddit, NicoSeiga
+// @ Pixiv, Twitter, YouTube, Google, Artstation, Steam, Pinterest, Discord, Apple, Tumblr, Reddit, NicoSeiga, Foriio
 // @match       *://i.pximg.net/*
 // @match       *://i-f.pximg.net/*
 // @match       *://i-cf.pximg.net/*
@@ -74,6 +74,7 @@
 // @match       *://www.google.com/search*tbs=sbi%3A*
 // @match       *://cdna.artstation.com/*
 // @match       *://cdnb.artstation.com/*
+// @match       *://www.artstation.com/*
 // @match       *://steamusercontent-a.akamaihd.net/*
 // @match       *://steamuserimages-a.akamaihd.net/*
 // @match       *://steamcdn-a.akamaihd.net/*
@@ -91,6 +92,8 @@
 // @match       *://lohas.nicoseiga.jp/thumb/*
 // @match       *://lohas.nicoseiga.jp//thumb/*
 // @match       *://deliver.cdn.nicomanga.jp/thumb/*
+// @match       *://imgx.foriio.com/*
+// @match       *://foriio.imgix.net/*
 // @match       *://*.us.archive.org/*
 // @match       *://coverartarchive.org/*
 // @grant       GM_registerMenuCommand
@@ -126,10 +129,12 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   // Jump to 3rd website
   if (
     hostname === "link.zhihu.com" ||
+    hostname === "www.douban.com" ||
     hostname === "link.csdn.net" ||
     hostname === "www.oschina.net" ||
     (hostname === "www.pixiv.net" && src.indexOf("/jump.php?url=") > -1) ||
-    (hostname === "www.jianshu.com" && src.indexOf("/go-wild?") > -1)
+    (hostname === "www.jianshu.com" && src.indexOf("/go-wild?") > -1) ||
+    (hostname === "ref.gamer.com.tw" && src.indexOf("/redir.php?url=") > -1)
   ) {
     matched = src.match(/.*?(?:target|url)=(.*)/);
     if (matched && matched[1]) {
@@ -253,7 +258,8 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         /\/\/m\.weibo\.cn\/s\/video\/index.*?(?:blog_mid|segment_id)=(\d+)/i,
         /\/\/h5\.video\.weibo\.com\/show\/1034:(\d+)/i,
         /\/\/video\.h5\.weibo\.cn\/1034:(\d+)\/\d+/i,
-        /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i
+        /\/\/weibo\.com\/tv\/show\/1034:(\d+)/i,
+        /\/\/service\.account\.weibo\.com\/reportspamobile/
       ];
       let i = 0;
       while (!(matched = src.match(regex[i]))) i++;
@@ -306,6 +312,11 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           return (isMobileDevice ? "https://h5.video.weibo.com/show/1034:" : "https://weibo.com/tv/show/1034:") + matched[1];
         case 4:
           return GM_registerMenuCommand("Open Base62 URL", () => openUrl(false));
+        case 5:
+          return GM_registerMenuCommand("View Weibo", () => {
+            let rid = src.split("rid=")?.[1]?.split("&")?.[0];
+            rid && window.open("https://m.weibo.cn/status/" + rid);
+          });
         default:
           break;
       }
@@ -399,17 +410,6 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   else if (hostname.endsWith(".bcyimg.com")) {
     newSrc = src.replace(/p\d-bcy-sign(.*?~).*/, "p3-bcy$1tplv-banciyuan-obj.image");
     if (newSrc !== src) return redirect(newSrc);
-  }
-
-  // Xiaohongshu
-  // No way to remove watermark if image hash is UUID
-  // https://sns-img-bd.xhscdn.com/4da128d7-cb31-6d65-8519-29a70a19c398?imageView2/2/w/1080/format/jpg
-  else if (hostname === "sns-webpic-qc.xhscdn.com") {
-    return redirect("https://xhs.coo11.workers.dev/" + src);
-  } else if (hostname === "xhs.coo11.workers.dev") {
-    GM_registerMenuCommand("ci.xiaohongshu.com", () => {
-      prompt("Fuck Xiaohongshu", "http://ci.xiaohongshu.com" + pathname.split(".")[0]);
-    });
   }
 
   // Pixiv, Fanbox, Booth
@@ -605,6 +605,11 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
     if (regex.test(src)) {
       return redirect([src.replace(regex, "$1original/$2"), src.replace(regex, "$14k/$2"), src.replace(regex, "$1large/$2")]);
     }
+  } else if (hostname === "www.artstation.com") {
+    GM_registerMenuCommand("View JSON", () => {
+      const matched = location.pathname.match(/\/artwork\/([0-9A-Za-z]+)/)?.[1];
+      if (matched) window.open(`/projects/${matched}.json`);
+    });
   }
 
   // Steam
@@ -739,6 +744,14 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       let sp = new URL(atob(b64)).searchParams;
       return redirect(`https://deliver.cdn.nicomanga.jp/priv/${sp.get("h")}/${sp.get("e")}/${sp.get("id")}`);
     }
+  }
+
+  // Foriio
+  else if (hostname === "imgx.foriio.com" || hostname === "foriio.imgix.net") {
+    const matched = src.match(/\/store\/[0-9a-f]{32}\.(?:png|jpg|webp)/)?.[0];
+    newSrc = "foriio.imgix.net" + matched;
+    // dyci7co52mbcc.cloudfront.net
+    if (matched) return redirect("https://foriio.imgix.net" + matched);
   }
 
   // Web Archive

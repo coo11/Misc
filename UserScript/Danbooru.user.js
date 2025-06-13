@@ -3,7 +3,7 @@
 // @namespace   https://github.com/coo11/Misc/tree/master/UserScript
 // @match       *://*.donmai.us/*
 // @grant       none
-// @version     1.0
+// @version     1.03
 // @author      coo11
 // @icon        data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='a' gradientTransform='rotate(85)'%3E%3Cstop offset='.49' stop-color='%23ba9570'/%3E%3Cstop offset='.67' stop-color='%23a4815f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg stroke='%23000'%3E%3Cpath d='M1.5 14.5V4.25L4.25 1.5H14.5v10.25l-2.75 2.75z' fill='url(%23a)'/%3E%3Cpath d='M1.5 4.5h10v10m0-10 3-3' fill='none'/%3E%3C/g%3E%3C/svg%3E
 // @run-at      document-end
@@ -39,7 +39,7 @@ const BOORU = {
   searchParams: new URLSearchParams(location.search),
   iconUri: document.querySelector("a#close-notice-link use").href.baseVal.split("#")[0],
   tagBox: document.getElementById("post_tag_string"),
-  isMobile: unsafeWindow.Danbooru.Utility.test_max_width(660),
+  isMobile: window.matchMedia("(max-width: 660px)").matches,
   async init() {
     if (document.title.startsWith("Page Removed") || this.action === "error") {
       if (this.pathname === "/posts") {
@@ -92,6 +92,9 @@ const BOORU = {
         break;
       case "iqdb-queries":
         bannedPostsHelper.handleIqdbQueries();
+        break;
+      case "static":
+        if (this.action === "not-found") fakeTagBox();
         break;
       default:
         break;
@@ -179,7 +182,7 @@ const bannedPostsHelper = {
                 .catch(() => $(a).html('<i style="color:var(--error-color)">Failure</i>'));
             });
             document.getElementById("show-posts-link").closest("li").insertAdjacentElement("beforeend", a);
-            Danbooru.Shortcuts.initialize_data_shortcuts();
+            unsafeWindow.Danbooru.Shortcuts.initialize_data_shortcuts();
           }
         }
       }
@@ -187,7 +190,7 @@ const bannedPostsHelper = {
   },
   fetchAllPosts(postContainer) {
     const tags = this.searchParams.get("tags");
-    const showDeleted = /\bstatus:(deleted|any|all)\b/.test(tags) || Danbooru.CurrentUser.data("show-deleted-posts");
+    const showDeleted = /\bstatus:(deleted|any|all)\b/.test(tags) || unsafeWindow.Danbooru.CurrentUser.data("show-deleted-posts");
     return fetch("/posts.json?" + this.searchParams.toString())
       .then(response => response.json())
       .then(posts => {
@@ -206,8 +209,9 @@ const bannedPostsHelper = {
               msg += ` ${bannedPostsCount} posts found in total.`;
             }
           }
-          Danbooru.Utility.notice(msg);
+          unsafeWindow.Danbooru.Utility.notice(msg);
           BOORU.isMobile && tooltipHelper.touchScreenTooltipFixer(postContainer);
+          this.fixBlacklist(postContainer);
         });
       })
       .catch(e => {
@@ -238,6 +242,28 @@ const bannedPostsHelper = {
       }
       callback?.(bannedToShow);
     });
+  },
+  fixBlacklist(container) {
+    const articles = container.querySelectorAll("article:not(.blacklisted)");
+    if (articles.length) {
+      const blacklistEl = document.getElementById("blacklist-box");
+      const blacklistObj = blacklistEl.blacklist;
+      articles.forEach(article => {
+        const post = new Danbooru.Blacklist.Post(article, blacklistObj);
+        post.applyRules();
+        blacklistObj.posts.push(post);
+      });
+      blacklistEl.querySelectorAll("#blacklist-box>a, li").forEach(el => {
+        let posts = el._x_dataStack?.[0]?.rule.posts;
+        if (el.tagName === "A" || posts) {
+          el._x_runEffects();
+          if (posts?.size) {
+            el.children[1]._x_runEffects();
+          }
+        }
+      });
+      blacklistObj.rules.some(rule => rule.posts.size > 0) && blacklistEl._x_doShow();
+    }
   },
   handleIqdbQueries() {
     const hasParam = ["search[post_id", "search[url]", "search[hash]", "hash"].some(param => BOORU.searchParams.has(param));
@@ -276,7 +302,7 @@ const bannedPostsHelper = {
       return info.type === sizeMap[this.postPreviewSize];
     })[0];
     const dataFlag = is_pending ? "pending" : is_flagged ? "flagged" : is_deleted ? "deleted" : "";
-    const classList = ["post-preview", "post-preview-" + this.postPreviewSize, "post-preview-fit-compact", "blacklisted"];
+    const classList = ["post-preview", "post-preview-" + this.postPreviewSize, "post-preview-fit-compact"];
     is_pending && classList.push("post-status-pending");
     is_flagged && classList.push("post-status-flagged");
     is_deleted && classList.push("post-status-deleted");
@@ -285,24 +311,6 @@ const bannedPostsHelper = {
 
     let bottomPart = "";
     if (BOORU.controller === "posts") {
-      classList.push("blacklisted");
-      const isBlacklisted = Danbooru.Blacklist.entries.some(entry => {
-        if (entry.disabled) {
-          return false;
-        }
-        let tags = Danbooru.Utility.splitWords(tag_string);
-        tags.push("rating:" + rating);
-        tags.push("uploaderid:" + uploader_id);
-        tags.push("status:" + dataFlag);
-        let score_test = entry.min_score === null || score < entry.min_score;
-        return (
-          Danbooru.Utility.is_subset(tags, entry.require) &&
-          score_test &&
-          (!entry.optional.length || Danbooru.Utility.intersect(tags, entry.optional).length) &&
-          !Danbooru.Utility.intersect(tags, entry.exclude).length
-        );
-      });
-      isBlacklisted && classList.push("blacklisted-active");
       const hideScore = Danbooru.Cookie.get("post_preview_show_votes") === "false";
       if (!hideScore) {
         classList.push("post-preview-show-votes");
@@ -719,16 +727,18 @@ const easierOneUp = {
   async process(node) {
     if (node.className !== "iqdb-posts") return;
     let container = node.querySelector("#iqdb-similar .posts-container");
-    let articles = container.children;
-    let shownCount = articles.length;
-    let iqdbNoPostFound = shownCount === 0 && document.querySelector(".post-gallery-grid > p:only-child");
-    if (!iqdbNoPostFound && shownCount !== 5) {
-      let iqdbResults = await this.iqdbReq();
-      if (iqdbResults.length !== shownCount) bannedPostsHelper.insertBannedPosts(container, Array.from(articles), iqdbResults);
-    }
-    for (const post of articles) {
-      const div = post.querySelector(".iqdb-similarity-score").parentElement;
-      this.addButton(post, div);
+    if (container) {
+      let articles = container.children;
+      let shownCount = articles.length;
+      let iqdbNoPostFound = shownCount === 0 && document.querySelector(".post-gallery-grid > p:only-child");
+      if (!iqdbNoPostFound && shownCount !== 5) {
+        let iqdbResults = await this.iqdbReq();
+        if (iqdbResults.length !== shownCount) bannedPostsHelper.insertBannedPosts(container, Array.from(articles), iqdbResults);
+      }
+      for (const post of articles) {
+        const div = post.querySelector(".iqdb-similarity-score").parentElement;
+        this.addButton(post, div);
+      }
     }
     this.observer?.disconnect();
   },
@@ -883,7 +893,7 @@ const autoSaver = {
     unsafeWindow.Danbooru.Autocomplete.insert_completion = function () {
       fn.apply(this, arguments);
       // jQuery trigger('input') does not fire native JavaScript input event
-      tagsField.dispatchEvent(new InputEvent("input", { bubbles: true }));
+      BOORU.tagBox.dispatchEvent(new InputEvent("input", { bubbles: true }));
     };
   }
 };
@@ -1025,29 +1035,55 @@ const dragElement = el => {
     return false;
   });
 };
+const fakeTagBox = () => {
+  document.getElementById(
+    "page"
+  ).innerHTML = `<div class="fake-tag-box w-full h-full"><div class="flex justify-between"><label for="post_tag_string">Tags</label> <span data-tag-counter="" data-for="#post_tag_string" class="text-muted text-sm"><span class="tag-count"></span></span></div><div class="input text optional post_tag_string w-full h-full"><textarea data-autocomplete="tag-edit" data-shortcut="e" class="text optional ui-autocomplete-input" name="post[tag_string]" id="post_tag_string" autocomplete="off" title="Shortcut is e" placeholder="Page not found" style="width:100%;height:100%"></textarea></div></div>`;
+  unsafeWindow.Danbooru.Autocomplete.initialize_all();
+  const countElement = document.querySelector(".fake-tag-box [data-tag-counter]");
+  if (!countElement.innerText) new unsafeWindow.Danbooru.TagCounter($(countElement));
+};
 
 function enhancePage() {
   !BOORU.isMobile && document.querySelectorAll("a.post-preview-link").forEach(a => (a.draggable = true)); // Fix for gesture plugin
   // Copy tags
-  $(".tag-list,#related-tags-container,#tag-table>tbody").on("click", ":not(.ui-menu-item-wrapper)>span.post-count", function () {
+  $(".tag-list,#related-tags-container,#tag-table>tbody,#c-artists>#a-show>div:first-child").on("click", "span.post-count", function () {
     const tagString = this.parentElement.dataset.tagName || this.previousElementSibling.innerText.replace(/\s+/g, "_");
     if (tagString) unsafeWindow.Danbooru.Utility.copyToClipboard(tagString, `Tag <b><i>${tagString}</i></b> copied.`);
   });
   // Top search-box
-  if (!BOORU.isMobile) {
-    const searchBox = document.getElementById("search-box");
-    if (searchBox) {
-      let searchForm = document.getElementById("search-box-form");
-      document.getElementById("app-name").replaceWith(searchForm);
-      document.getElementById("app-logo").remove();
-      document.getElementById("search-box").remove();
-      document.querySelector('#post-sections a[href="#search-box"]')?.remove();
-      let divHeader = document.getElementById("app-name-header");
-      divHeader.classList.remove("font-bold", "font-header");
-      const style = document.createElement("style");
-      document.head.appendChild(style);
-      style.innerHTML = `header#top #app-name-header{font-size:unset;align-items:center}#search-box-form{min-width:180px;max-width:80vw;width:50vw}@media screen and (max-width:660px){header#top{margin-top:0!important}header#top #app-name-header{margin:.25rem 1.5rem .25rem .5rem}header#top #maintoggle{top:.3rem}#search-box-form{width:70vw}#search-box-form input#tags{min-width:180px}}`;
-    }
+  const searchBox = document.getElementById("search-box");
+  if (searchBox) {
+    let searchForm = document.getElementById("search-box-form"),
+      input = document.getElementById("tags"),
+      header = document.getElementById("top"),
+      div = document.createElement("div");
+    div.id = "search-header";
+    document.body.insertBefore(div, header);
+    div.appendChild(searchForm);
+    document.getElementById("app-name").remove();
+    document.querySelector('#post-sections a[href="#search-box"]')?.remove();
+    searchBox.remove();
+    setTimeout(() => $(input).autocomplete("option", "appendTo", "#search-header"), 0);
+    const style = document.createElement("style");
+    document.head.appendChild(style);
+    style.innerHTML = `body{height:unset}#search-header{position:sticky;top:0;z-index:2;background-color:var(--body-background-color)}#search-box-form{min-width:180px;width:50vw;margin:0 30px;padding:.5rem 0}#search-box-form input{height:26px}#app-name-header{display:none}#notice{top:calc(1rem + 26px)}#main-menu a{outline-offset:-1px}header#top,header#top>nav{margin-top:0!important}@media screen and (max-width:660px){header#top{z-index:2;position:sticky;top:calc(26px + 1.5rem)}header#top>div{display:block;margin:0}#app-name-header{display:block;position:fixed;top:.3rem;left:.5rem}header#top>div>a{position:fixed;top:.7rem;right:.5rem}#search-box-form{width:70vw;margin:0 auto;padding:.75rem 0}#search-box-form input#tags{min-width:180px}#search-header .ui-menu{width:70vw!important}#notice{top:calc(1.5rem + 26px)}}`;
+    document.getElementById("app-logo").addEventListener("click", e => {
+      e.preventDefault();
+      e.currentTarget.blur();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    !BOORU.isMobile &&
+      input.addEventListener("keydown", function (event) {
+        if (event.altKey && event.key === "Enter") {
+          event.preventDefault();
+          const query = encodeURIComponent(this.value.trim());
+          if (query) {
+            const searchUrl = `/posts?tags=${query}`;
+            window.open(searchUrl, "_blank");
+          }
+        }
+      });
   }
 }
 function enhanceIndexPage() {

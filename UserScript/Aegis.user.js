@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Aegis
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.90
+// @version     0.1.91
 // @description Start taking over the world for Via!
 // @author      coo11
 // @run-at      document-end
@@ -196,6 +196,75 @@ if (typeof unsafeWindow === "undefined") globalThis.unsafeWindow = window;
         GM_setClipboard(url);
         window.history.replaceState(null, "", url);
         GM_toast(url + " Copied.");
+      }
+    });
+    const mediaModal = resources => {
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.top = "0";
+      container.style.left = "0";
+      container.style.width = "100vw";
+      container.style.height = "100vh";
+      container.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      container.style.zIndex = "9999";
+      container.addEventListener("click", e => {
+        e.target === container && container.remove();
+      });
+      const shadowHost = document.createElement("div");
+      const shadow = shadowHost.attachShadow({ mode: "open" });
+
+      const cells = resources
+        .map(
+          r => `<div class="cell">
+    <a href="${r.prv}" target="_blank">${r.type === "livephoto" ? '<div class="mark">LIVE</div>' : ""}<img src="${r.thumb}" alt="thumbnail"></a>
+    <a href="${r.url}" target="_blank">⬇️</a>
+</div>`
+        )
+        .join("");
+
+      const html = `<style>
+  .content,.modal{max-height:80vh}.cell,.modal{padding:10px}.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;width:min(80vw,660px);box-shadow:0 0 20px rgba(0,0,0,.3);font-family:sans-serif}.content{overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;border-top:1px solid #ccc;border-left:1px solid #ccc}.cell{border-right:1px solid #ccc;border-bottom:1px solid #ccc;border-top:none;border-left:none;background-color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;box-sizing:border-box}.mark{color:#fff;background-color:rgba(0 0 0 / 70%);padding:.25rem;margin:.25rem;border-radius:.25rem;left:.125rem;top:.125rem;position:absolute;line-height:1;font-weight:700;font-size:.6875rem}.cell:hover{background-color:#e8e8ec}.cell img{max-width:100%;max-height:120px;object-fit:cover;border-radius:4px;cursor:pointer}.cell a{position:relative;margin-top:8px;font-size:13px;text-decoration:none;color:#07c}@media (prefers-color-scheme:dark){.modal{background:#1e1e1e;color:#ddd;border:1px solid #444}.grid{border-top:1px solid #444;border-left:1px solid #444}.cell{background:#2b2b2b;border-right:1px solid #444;border-bottom:1px solid #444}.cell:hover{background-color:#333}.cell a{color:#6af}}
+</style>
+<div class="modal">
+  <div class="content">
+    <div class="grid">${cells}</div>
+  </div>
+</div>`;
+
+      shadow.innerHTML = html;
+      container.appendChild(shadowHost);
+      document.body.appendChild(container);
+    };
+    GM_registerMenuCommand("View Media", () => {
+      if (location.pathname.startsWith("/explore/")) {
+        const postId = location.pathname.split("/").pop();
+        if (postId) {
+          const postData = unsafeWindow.__INITIAL_STATE__?.note.noteDetailMap?.[postId]?.note;
+          if (postData) {
+            const getPrv = stream => {
+              console.log(stream);
+              const format = ["av1", "h266", "h265", "h264"].find(fmt => stream[fmt].length);
+              return stream[format][stream[format].length - 1].masterUrl.split("?")[0].replace(/sns-video-\w+\.xhscdn\.com/, "sns-video-bd.xhscdn.com");
+            };
+            if (postData.type === "video") {
+              const thumb = postData.imageList[0].urlPre,
+                url = "https://sns-video-bd.xhscdn.com/" + postData.video.consumer.originVideoKey,
+                prv = getPrv(postData.video.media.stream);
+              mediaModal([{ type: "video", thumb, url, prv }]);
+            } else {
+              const mediaItems = [],
+                regex = /sns-webpic-qc\.xhscdn.com\/\d+\/[0-9a-z]+\/(\S+)!/;
+              for (const img of postData.imageList) {
+                const type = img.livePhoto ? "livephoto" : "image",
+                  thumb = img.urlPre,
+                  url = "https://ci.xiaohongshu.com/" + img.urlPre.match(regex)[1],
+                  prv = img.livePhoto ? getPrv(img.stream) : url + "?imageView2/format/webp";
+                mediaItems.push({ type, thumb, url, prv });
+              }
+              mediaModal(mediaItems);
+            }
+          }
+        }
       }
     });
   }
