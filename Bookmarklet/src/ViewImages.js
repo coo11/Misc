@@ -58,8 +58,7 @@
     if (!images.has(url)) {
       images.add(url);
       let escaped = `<code>${urlEscape(url)}</code>`;
-      if (escaped.length > 3213)
-        escaped = `<details><summary><code>Collapsed because of too many characters (${escaped.length - 13})</code></summary>${escaped}</details>`;
+      if (escaped.length > 3213) escaped = `<details><summary><code>Collapsed because of too many characters (${escaped.length - 13})</code></summary>${escaped}</details>`;
       let finalHtml = `<tr><td><img${csp ? " " : ' onload="load(this)"'} src="${url}"><p><code>${desc}</code></p></td><td>${escaped}</td></tr>`;
       content[sort] += finalHtml;
     }
@@ -69,24 +68,25 @@
     const url = elmStyle.getPropertyValue(prop).match(regex)?.[2];
     parseImg(url, "string");
   };
-  document.body.querySelectorAll("*").forEach(element => {
+  const handleEl = element => {
     if (element.tagName === "IMG") {
       parseImg(element, "src");
       parseImg(element, "currentSrc"); /* currentSrc: apps.apple.com/app/id; src: www.instagram.com/p */
     } else if (element.tagName === "svg") parseImg(element, "svgElement");
-    else
+    else if (element.tagName === "IFRAME") {
+      element.contentDocument?.body.querySelectorAll("*").forEach(handleEl);
+    } else
       [null, "::after", "::before"].forEach(pseudo => {
         let style = getComputedStyle(element, pseudo);
         getComputedUrl(style, "background-image");
         getComputedUrl(style, "border-image-source");
         getComputedUrl(style, "content");
       });
-  });
+  };
+  document.body.querySelectorAll("*").forEach(handleEl);
   if (content) {
-    let imageWindow = window.open("", "_blank"),
-      dom = imageWindow.document;
     let headContent =
-      '<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body,code{font-size:87.5%}body{font-family:Verdana,Helvetica,sans-serif}code{font-family:Monaco,Menlo,Consolas,"Courier New",Courier,monospace}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%}caption{margin-bottom:.5em}tbody tr{border-bottom:1px solid #d1d1da}tbody tr:hover{background:#e1e8ff}tr>:first-child{width:320px}@media screen and (max-width:660px){tr>:first-child{max-width:calc(36vw - 4px)}tr img{max-width:calc(36vw - 8px)}}tr:nth-child(2n){background:#e8e8ec}tr img{box-shadow:5px 5px 5px #bbb}tr:hover img{box-shadow:-5px 5px 5px #bbb}td:first-child{text-align:center}td:nth-child(2){word-break:break-all}summary{color:purple;font-weight:700}</style>';
+      '<meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body,code{font-size:87.5%;margin:8px}body{font-family:Verdana,Helvetica,sans-serif}code{font-family:Monaco,Menlo,Consolas,"Courier New",Courier,monospace}table,td,th{border:1px solid #ccc}table{border-collapse:collapse;width:100%;overflow-x:hidden;}caption{margin-bottom:.5em}tbody tr{border-bottom:1px solid #d1d1da}tbody tr:hover{background:#e1e8ff}tr img{max-width:calc(36vw - 8px);box-shadow:5px 5px 5px #bbb}tr>:last-child{max-width:calc(64vw - 56px)}tr:nth-child(2n){background:#e8e8ec}tr:hover img{box-shadow:-5px 5px 5px #bbb}td:first-child{text-align:center}td:nth-child(2){word-break:break-all}summary{color:purple;font-weight:700}</style>';
     let bodyContent = "";
     let caption = images.size + " Image" + (images.size === 1 ? "" : "s");
     caption += " Found (Run me again to refetch images size)";
@@ -100,14 +100,33 @@
       caption = '<span style="color:red;">[CSP Detected] </span>' + caption;
     }
     bodyContent =
-      '<table onclick="" cellpadding=10><caption class="mvis">' +
+      '<table onclick="" cellpadding=8><caption class="mvis">' +
       caption +
       "</caption><tbody><tr><th>Image</th><th>URL</th></tr>" +
       content.join("") +
       "</tbody></table>" +
       bodyContent;
-    dom.write(`<html><head>${headContent}</head><body>${bodyContent}</body></html>`);
-    dom.title = document.title;
-    dom.close();
+    const finalHtml = `<html><head>${headContent}</head><body>${bodyContent}</body></html>`;
+    /* const blob = new Blob([finalHtml], { type: "text/html; charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+    const newTab = window.open(blobUrl, "_blank");
+    newTab.onload = () => URL.revokeObjectURL(blobUrl); */
+    let opener = window.open;
+    if (globalThis.needfixWinObj) {
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+      opener = iframe.contentWindow.open.bind(window);
+      document.body.removeChild(iframe);
+    }
+    try {
+      const newTab = opener("", "_blank");
+      const dom = newTab.document;
+      dom.write(finalHtml);
+      dom.title = document.title;
+      dom.close();
+    } catch (e) {
+      globalThis.needfixWinObj = true;
+    }
   } else alert("No images!");
 })();

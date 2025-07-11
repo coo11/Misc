@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Excalibur
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.91
+// @version     0.1.92
 // @description Start taking over the world!
 // @author      coo11
 // @icon        data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23ef4546' d='M41 7a23.81 23.81 0 0 0-17-7v24Z'/%3E%3Cpath fill='%23f77726' d='M48 24a24 24 0 0 0-7-17L24 24Z'/%3E%3Cpath fill='%23ffdc39' d='M41 41a23.81 23.81 0 0 0 7-17H24Z'/%3E%3Cpath fill='%2359d464' d='M24 48a24 24 0 0 0 17-7L24 24Z'/%3E%3Cpath fill='%234890f1' d='M7 41a23.81 23.81 0 0 0 17 7V24Z'/%3E%3Cpath fill='%235771ec' d='M0 24a24 24 0 0 0 7 17l17-17Z'/%3E%3Cpath fill='%23a643e7' d='M7 7a23.81 23.81 0 0 0-7 17h24Z'/%3E%3Cpath fill='%23dc3fe7' d='M24 0A23.81 23.81 0 0 0 7 7l17 17Z'/%3E%3C/svg%3E
@@ -559,7 +559,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         ];
         let hasVideoMedia = article.querySelector(mediaSelector.join(", "));
         if (hasVideoMedia) {
-          let tweetId = article.querySelector('a[href*="/status/"]').href.split("/status/").pop().split("/").shift();
+          let tweetId = article.querySelector('a[href*="/status/"]:not([href*="/photo/"])').href.split("/status/").pop().split("/").shift();
           let buttonGroup = article.querySelector('div[role="group"]:last-of-type');
           let lastButton = Array.from(buttonGroup.querySelectorAll(":scope>div>div")).pop().parentNode;
           let buttonToShow = lastButton.cloneNode(true);
@@ -736,10 +736,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         basePath = parts.slice(4).join("/");
       } else return GM_toast("Unsupported page.");
 
-      const ruleInput = prompt(
-        "Please enter the path (which can be a file or directory) you want to sparse-checkout (separated by spaces):",
-        basePath || ""
-      ).trim();
+      const ruleInput = prompt("Please enter the path (which can be a file or directory) you want to sparse-checkout (separated by spaces):", basePath || "").trim();
       if (!ruleInput) return;
 
       const rules = ruleInput
@@ -1068,9 +1065,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
       let hookedFn = unsafeWindow.apply_json_state;
       unsafeWindow.apply_json_state = function (a) {
         let apOnClikck = a.n.match(/prev.*?(return.*?)"/)[1];
-        a.i3 = a.i3
-          .replace(/href.*?"/, "")
-          .replace(/(^.*?onclick.*?\)")(.*?>)(<img.*?\/>)(.*?$)/, `<a onclick="${apOnClikck}" style="${apCss}">$4$1 style="${aCss}"$2$4$3`);
+        a.i3 = a.i3.replace(/href.*?"/, "").replace(/(^.*?onclick.*?\)")(.*?>)(<img.*?\/>)(.*?$)/, `<a onclick="${apOnClikck}" style="${apCss}">$4$1 style="${aCss}"$2$4$3`);
         hookedFn(a);
       };
     } else if (/^\/(mpv\/|torrents\.php|upld\/|mytags)/.test(pathname));
@@ -1090,8 +1085,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
           const text = inputArea.value;
           if (text) {
             window.open(
-              "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" +
-                encodeURIComponent(text),
+              "https://bbs.imoutolove.me/search.php?step=2&method=AND&sch_area=0&f_fid=all&sch_time=all&orderway=postdate&asc=DESC&keyword=" + encodeURIComponent(text),
               "_blank"
             );
           }
@@ -1198,14 +1192,20 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // BlueSky
   else if (hostname === "bsky.app" || hostname === "web-cdn.bsky.app") {
-    GM_registerMenuCommand("Get user permanent link", () => {
-      const dids = document.querySelectorAll("div[data-testid='profileHeaderAviButton'] img");
-      const did = dids?.[dids.length - 1]?.src?.match(/did:plc:\w+/)?.[0];
-      if (did) {
-        const url = "https://bsky.app/profile/" + did;
-        GM_setClipboard(url);
-        GM_toast(url + " Copied.");
-      } else GM_toast("did:plc: not found.");
+    GM_registerMenuCommand("Get Handle or DID", () => {
+      const handleOrDid = location.pathname.match(/profile\/([^/]+)/)[1];
+      const isDid = handleOrDid.startsWith("did:plc:");
+      const api = isDid ? "app.bsky.actor.getProfile?actor=" : "com.atproto.identity.resolveHandle?handle=";
+      fetch(`https://public.api.bsky.app/xrpc/${api}${handleOrDid}`)
+        .then(resp => resp.json())
+        .then(data => {
+          const didOrHandle = isDid ? data.handle : data.did;
+          if (didOrHandle) {
+            const url = "https://bsky.app/profile/" + (data.handle || data.did);
+            GM_setClipboard(url);
+            GM_toast(url + " Copied.");
+          } else GM_toast((isDid ? "Handle" : "DID") + " not found in response.");
+        });
     });
   }
 

@@ -14,32 +14,30 @@
 // @description FuckMIUIAlias
 // ==/UserScript==
 
-const GM_getFont = name => GM_getResourceURL(name).replace(/\s+/g, "");
-
 GM_addStyle(`@font-face {
     font-family: Verdana;
-    src: url('${GM_getFont("verdana")}') format('woff2');
+    src: url('${GM_getResourceURL("verdana")}') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap
 }
 @font-face {
     font-family:  Verdana;
-    src: url('${GM_getFont("verdanab")}') format('woff2');
+    src: url('${GM_getResourceURL("verdanab")}') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap
 }
 @font-face {
     font-family: Verdana;
-    src: url('${GM_getFont("verdanai")}') format('woff2');
+    src: url('${GM_getResourceURL("verdanai")}') format('woff2');
     font-weight: 400;
     font-style: italic;
     font-display: swap
 }
 @font-face {
     font-family: Verdana;
-    src: url('${GM_getFont("verdanaz")}') format('woff2');
+    src: url('${GM_getResourceURL("verdanaz")}') format('woff2');
     font-weight: 700;
     font-style: italic;
     font-display: swap

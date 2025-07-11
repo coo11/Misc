@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Redirector
 // @namespace   https://github.com/coo11/Backup/tree/master/UserScript
-// @version     0.1.4
+// @version     0.1.5
 // @description Start taking over the world!
 // @author      coo11
 // @icon        data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' fill='%23fff' r='7'/%3E%3Cpath d='M9.167 4.5a1.167 1.167 0 1 1-2.334 0 1.167 1.167 0 0 1 2.334 0Z'/%3E%3Cpath d='M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0ZM1 8a7 7 0 0 1 7-7 3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 0 0 7 7 7 0 0 1-7-7Zm7 4.667a1.167 1.167 0 1 1 0-2.334 1.167 1.167 0 0 1 0 2.334Z' fill-opacity='initial'/%3E%3C/svg%3E
@@ -270,7 +270,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         if (currentOid && currentOid[1] !== oid) {
           oid = currentOid[1];
         }
-        fetch(`https://weibo.com/tv/api/component?page=%2Ftv%2Fshow%2F1034%3A${oid}`, {
+        fetch(`https://h5.video.weibo.com/api/component?page=%2Fshow%2F1034%3A${oid}`, {
           headers: {
             "content-type": "application/x-www-form-urlencoded"
           },
@@ -299,7 +299,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
             if (/^\d+$/.test(currentPid)) currentPid = weiboFn.id2mid(currentPid);
             const avatar = document.querySelector("div.main div.m-avatar-box a");
             // https://m.weibo.cn/profile/00000000
-            const uid = avatar.href.split("/")[4];
+            const uid = avatar.href.split(/\/|\?/)[4];
             const b62Url = `https://weibo.com/${uid}/${currentPid}`;
             if (isMobileDevice) prompt("Base62 URL:", b62Url);
             else window.open(b62Url);
@@ -600,8 +600,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Artstation
   else if (/^cdn(?:a|b)\.artstation\.com$/.test(hostname)) {
-    const regex =
-      /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
+    const regex = /(\/assets\/+(?:images|covers)\/+images\/+[0-9]{3}\/+[0-9]{3}\/+[0-9]{3}\/+)(?:[0-9]+\/+)?(?:small(?:er)?|micro|medium|large|4k)(?:_square)?\/([^/]*)$/;
     if (regex.test(src)) {
       return redirect([src.replace(regex, "$1original/$2"), src.replace(regex, "$14k/$2"), src.replace(regex, "$1large/$2")]);
     }
@@ -725,10 +724,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Reddit
   else if (hostname === "www.reddit.com" && src.indexOf("/media?url=") > -1) {
-    newSrc = getQueries(src, true)?.url?.replace(
-      /:\/\/preview\.redd\.it\/(award_images\/t[0-9]*_[0-9a-z]+\/)?(?:[-0-9a-z]+-)*([^-/.]+\.[^.?]*)\?.*$/,
-      "://i.redd.it/$1$2"
-    );
+    newSrc = getQueries(src, true)?.url?.replace(/:\/\/preview\.redd\.it\/(award_images\/t[0-9]*_[0-9a-z]+\/)?(?:[-0-9a-z]+-)*([^-/.]+\.[^.?]*)\?.*$/, "://i.redd.it/$1$2");
     return redirect("https://www.reddit.com/media?url=" + encodeURIComponent(newSrc));
   }
 

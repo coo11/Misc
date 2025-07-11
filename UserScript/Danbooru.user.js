@@ -1,13 +1,15 @@
 // ==UserScript==
-// @name        Danbooru
-// @namespace   https://github.com/coo11/Misc/tree/master/UserScript
-// @match       *://*.donmai.us/*
-// @grant       none
-// @version     1.03
-// @author      coo11
-// @icon        data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='a' gradientTransform='rotate(85)'%3E%3Cstop offset='.49' stop-color='%23ba9570'/%3E%3Cstop offset='.67' stop-color='%23a4815f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg stroke='%23000'%3E%3Cpath d='M1.5 14.5V4.25L4.25 1.5H14.5v10.25l-2.75 2.75z' fill='url(%23a)'/%3E%3Cpath d='M1.5 4.5h10v10m0-10 3-3' fill='none'/%3E%3C/g%3E%3C/svg%3E
-// @run-at      document-end
-// @description Start taking over the world!
+// @name          Danbooru
+// @namespace     https://github.com/coo11/Misc/tree/master/UserScript
+// @match         *://*.donmai.us/*
+// @exclude-match *://cdn.donmai.us/*
+// @version       1.10
+// @author        coo11
+// @icon          data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='a' gradientTransform='rotate(85)'%3E%3Cstop offset='.49' stop-color='%23ba9570'/%3E%3Cstop offset='.67' stop-color='%23a4815f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg stroke='%23000'%3E%3Cpath d='M1.5 14.5V4.25L4.25 1.5H14.5v10.25l-2.75 2.75z' fill='url(%23a)'/%3E%3Cpath d='M1.5 4.5h10v10m0-10 3-3' fill='none'/%3E%3C/g%3E%3C/svg%3E
+// @run-at        document-end
+// @resource      panzoom https://registry.npmmirror.com/panzoom/9.4.3/files/dist/panzoom.min.js
+// @grant         GM_getResourceText
+// @description   Start taking over the world!
 // ==/UserScript==
 
 if (typeof unsafeWindow === "undefined") globalThis.unsafeWindow = window;
@@ -65,6 +67,7 @@ const BOORU = {
     switch (this.controller) {
       case "artists":
         if (this.action === "show" || this.action === "edit") addPostChangesButtonToArtistPage();
+        bannedPostsHelper.setArtistPagePostsLink();
         break;
       case "upload-media-assets":
       case "uploads":
@@ -82,8 +85,10 @@ const BOORU = {
         if (this.action === "edit") initFavgroupSorter();
         break;
       case "posts":
-        if (this.action === "index") bannedPostsHelper.handleBannedPosts();
-        else if (this.action === "show") {
+        if (this.action === "index") {
+          document.querySelector("#mode-box select")?.addEventListener("change", () => setTimeout(() => localStorage.setItem("mode", "view")));
+          bannedPostsHelper.handleBannedPosts();
+        } else if (this.action === "show") {
           tooltipHelper.initFavgroupCountTooltip();
           autoSaver.init(false);
           hookNoteBoxChanges.init();
@@ -106,9 +111,27 @@ const bannedPostsHelper = {
   thumbnailData: {
     // /media_assets/23609685
     variants: [
-      { type: "180x180", url: "https://cdn.donmai.us/180x180/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg", width: 180, height: 135, file_ext: "jpg" },
-      { type: "360x360", url: "https://cdn.donmai.us/360x360/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg", width: 360, height: 270, file_ext: "jpg" },
-      { type: "720x720", url: "https://cdn.donmai.us/720x720/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.webp", width: 720, height: 540, file_ext: "webp" }
+      {
+        type: "180x180",
+        url: "https://cdn.donmai.us/180x180/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",
+        width: 180,
+        height: 135,
+        file_ext: "jpg"
+      },
+      {
+        type: "360x360",
+        url: "https://cdn.donmai.us/360x360/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.jpg",
+        width: 360,
+        height: 270,
+        file_ext: "jpg"
+      },
+      {
+        type: "720x720",
+        url: "https://cdn.donmai.us/720x720/3e/3c/3e3c7baac2a12a0936ba1f62a46a3478.webp",
+        width: 720,
+        height: 540,
+        file_ext: "webp"
+      }
     ]
   },
   postPreviewSize: BOORU.controller === "posts" ? Danbooru.Cookie.get("post_preview_size") || "180" : "180",
@@ -116,7 +139,6 @@ const bannedPostsHelper = {
     const p = document.querySelector("#page > p:last-child");
     return p?.innerText === "This page has been removed because of a takedown request." ? p : {};
   },
-  currentArtist: "",
   userPerPage: Danbooru.CurrentUser.data("per-page"),
   searchParams: new URLSearchParams({ tags: "" }),
   initSearchParams() {
@@ -230,7 +252,10 @@ const bannedPostsHelper = {
         let post = posts[idx].post || posts[idx];
         if (post.id !== pid) {
           if (post.is_banned) {
-            htmlToInsert += this.renderPreviewData({ similarity: posts[idx].score, ...post });
+            htmlToInsert += this.renderPreviewData({
+              similarity: posts[idx].score,
+              ...post
+            });
             bannedToShow++;
           }
         } else break;
@@ -240,56 +265,67 @@ const bannedPostsHelper = {
           container.insertAdjacentHTML("beforeend", htmlToInsert);
         } else currentPosts[index].insertAdjacentHTML("beforebegin", htmlToInsert);
       }
-      callback?.(bannedToShow);
     });
+    callback?.(bannedToShow);
+  },
+  setArtistPagePostsLink() {
+    const isBannedArtist = document.getElementsByClassName("banned-artist-label").length;
+    if (isBannedArtist) {
+      const a = document.getElementById("subnav-posts");
+      a.href = a.href + "+-1#show-banned";
+    }
   },
   fixBlacklist(container) {
-    const articles = container.querySelectorAll("article:not(.blacklisted)");
+    const articles = container.querySelectorAll("article:not(.blacklist-initialized)");
     if (articles.length) {
       const blacklistEl = document.getElementById("blacklist-box");
       const blacklistObj = blacklistEl.blacklist;
       articles.forEach(article => {
         const post = new Danbooru.Blacklist.Post(article, blacklistObj);
         post.applyRules();
+        if (post.rules.size) blacklistObj.blacklistedPosts?.push(post);
         blacklistObj.posts.push(post);
       });
-      blacklistEl.querySelectorAll("#blacklist-box>a, li").forEach(el => {
+      blacklistEl.querySelectorAll("div:nth-child(2)>div").forEach(el => {
         let posts = el._x_dataStack?.[0]?.rule.posts;
-        if (el.tagName === "A" || posts) {
-          el._x_runEffects();
-          if (posts?.size) {
-            el.children[1]._x_runEffects();
-          }
-        }
+        el._x_runEffects();
+        if (posts?.size) el.children[2]._x_runEffects();
       });
+      blacklistEl.querySelector("label>input")._x_runEffects();
+      blacklistEl.children[0].children[1]._x_runEffects();
       blacklistObj.rules.some(rule => rule.posts.size > 0) && blacklistEl._x_doShow();
     }
   },
   handleIqdbQueries() {
-    const hasParam = ["search[post_id", "search[url]", "search[hash]", "hash"].some(param => BOORU.searchParams.has(param));
+    // app/logical/iqdb_client.rb
+    // Priority: hash, file, url, id
+    let params = ["search[hash]", "search[file]", "search[url]", "search[post_id]", "search[media_asset_id]", "hash", "file", "url", "post_id", "media_asset_id"];
+    document.querySelector("#c-iqdb-queries form").addEventListener("submit", e => {
+      const data = new FormData(e.currentTarget);
+      for (let key of params.slice(0, 4)) {
+        const val = data.get(key);
+        if (val) {
+          if (key === "search[file]") {
+            console.warn("TODO: Find way to get file's iqdb_hash.");
+          } else {
+            e.preventDefault();
+            location.href = `/iqdb_queries?${key}=${val}`;
+            break;
+          }
+        }
+      }
+    });
+    const hasParam = params.some(param => BOORU.searchParams.has(param));
     if (!hasParam) return;
     fetch("/iqdb_queries.json?" + BOORU.searchParams.toString())
       .then(resp => resp.json())
       .then(json => {
         const container = document.querySelector("div.iqdb-posts div.posts-container");
         this.insertBannedPosts(container, Array.from(container.children), json);
+        this.fixBlacklist(container);
       });
   },
-  renderPreviewData({
-    id,
-    uploader_id,
-    score,
-    rating,
-    tag_string,
-    is_pending,
-    is_flagged,
-    is_deleted,
-    has_children,
-    parent_id,
-    media_asset,
-    source,
-    similarity
-  }) {
+  renderPreviewData({ id, uploader_id, score, rating, tag_string, is_pending, is_flagged, is_deleted, has_children, parent_id, media_asset, source, similarity }) {
     const { width, height, url } = this.thumbnailData.variants.filter(info => {
       const sizeMap = {
         150: "180x180",
@@ -328,9 +364,7 @@ const bannedPostsHelper = {
       }
     } else {
       similarity && classList.push(similarity < 70 ? "iqdb-low-similarity hidden" : "iqdb-high-similarity");
-      const similarityHtml = similarity
-        ? `<div><a class="inactive-link iqdb-similarity-score" href="/iqdb_queries?post_id=${id}">${similarity.toFixed(0)}% similar</a></div>`
-        : "";
+      const similarityHtml = similarity ? `<div><a class="inactive-link iqdb-similarity-score" href="/iqdb_queries?post_id=${id}">${similarity.toFixed(0)}% similar</a></div>` : "";
       const { id: mid, image_width, image_height, file_size, file_ext } = media_asset;
       bottomPart = `<div class="text-xs text-center mt-1"><div>
 <a rel="external noreferrer nofollow" title="${source}" class="inline-block align-top" href="${source}">
@@ -372,17 +406,16 @@ const tooltipHelper = {
         `table.stt-favgroup thead tr{border-bottom:2px solid var(--table-header-border-color)}table.stt-favgroup tbody tr{border-bottom:1px solid var(--table-row-border-color)}table.stt-favgroup tbody tr:hover{background:var(--table-row-hover-background)}table.stt-favgroup tr:nth-child(2n){background:var(--table-even-row-background)}table.stt-favgroup td,table.stt-favgroup th{line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;padding-right:.5rem}table.stt-favgroup th{text-align:center}table.stt-favgroup td,table.stt-favgroup th:first-child{text-align:left}</style>`
     );
 
-    // Simple Tooltip - Forked from [tipso](https://github.com/object505/tipso) v1.0.8
+    // Simple Tooltip v1.0.10 - Forked from [tipso](https://github.com/object505/tipso)
     // prettier-ignore
-    (t=>{const e="stt",i={background:null,titleBackground:null,titleContent:"",width:200,content:null,fetchContentUrl:null,fetchContentBuffer:0,contentElementId:null,useTitle:!1,templateEngineFunc:null,onBeforeShow:null,onShow:null,onHide:null};class s{constructor(e,s){this.element=e,this.$element=t(this.element),this.doc=t(document),this.win=t(window),this.settings={...i,...s,...this.$element.data("stt")},this._title=this.$element.attr("title"),this.mode="hide",this.init()}init(){const t=this.$element;t.addClass("stt-style").removeAttr("title");let i=null,s=null;t.on(`mouseover.${e}`,(t=>{t.ctrlKey||t.altKey||(clearTimeout(i),clearTimeout(s),s=setTimeout((()=>this.show()),150))})).on(`mouseout.${e}`,(()=>{clearTimeout(i),clearTimeout(s),i=setTimeout((()=>this.hide()),150),this.tooltip().on(`mouseenter.${e}`,(()=>{this.mode="tooltipHover"})).on(`mouseleave.${e}`,(()=>{this.mode="show",clearTimeout(i),i=setTimeout((()=>this.hide()),150)}))})),this.settings.fetchContentUrl&&(this.fetchContent=null)}tooltip(){return this.stt_bubble||(this.stt_bubble=t('<div class="stt-bubble"><div class="stt-title"></div><div class="stt-content"></div><div class="stt-arrow"></div></div>')),this.stt_bubble}async show(){const t=this.tooltip(),i=this.win;"function"==typeof this.settings.onBeforeShow&&this.settings.onBeforeShow(this.$element,this.element,this);const s=this.settings.width?{width:this.settings.width}:{width:200};if(t.css({"--stt-bgcolor":this.settings.background,"--stt-title-bgcolor":this.settings.titleBackground,...s}),this.mode="show",t.find(".stt-content").html(await this.content()),t.find(".stt-title").html(this.titleContent()),n(this),i.on(`resize.${e}`,(()=>n(this))),clearTimeout(this.timeout),"hide"===this.mode)return this.hide(!0);this.timeout=setTimeout((()=>{t.appendTo("body").stop(!0,!0).fadeIn(200,(()=>{"function"==typeof this.settings.onShow&&this.settings.onShow(this.$element,this.element,this)}))}),200)}hide(t=!1){const i=this.tooltip(),s=t?0:50;clearTimeout(this.timeout),this.timeout=setTimeout((()=>{"tooltipHover"!==this.mode&&i.stop(!0,!0).fadeOut(200,(()=>{i.remove(),"function"==typeof this.settings.onHide&&"show"===this.mode&&this.settings.onHide(this.$element,this.element,this),this.mode="hide",this.win.off(`resize.${e}`)}))}),s)}close(){this.hide(!0)}destroy(){this.$element.off(`.${e}`).removeData(e).removeClass("stt-style").attr("title",this._title),this.win.off(`resize.${e}`)}titleContent(){return this.settings.titleContent||this.$element.data("stt-title")}async content(){let e;return this.settings.fetchContentUrl?this._fetchContent?e=this._fetchContent:(e=await(await fetch(this.settings.fetchContentUrl)).text(),this.settings.fetchContentBuffer>0?(this._fetchContent=e,setTimeout((()=>{this._fetchContent=null}),this.settings.fetchContentBuffer)):this._fetchContent=null):e=this.settings.contentElementId?t(`#${this.settings.contentElementId}`).text():this.settings.content?this.settings.content:this.settings.useTitle?this._title:this.$element.data("stt"),this.settings.templateEngineFunc&&(e=this.settings.templateEngineFunc(e,this)),e}update(t,e){if(!e)return this.settings[t];this.settings[t]=e}}function n(e){const i=e.tooltip(),s=e.$element,n=t(window);let{width:o,height:h}=function(t){const e=t.clone().css("visibility","hidden").appendTo("body"),i=e.outerHeight(),s=e.outerWidth();return e.remove(),{width:s,height:i}}(i),l=s.offset().left+s.outerWidth()/2-o/2,r=s.offset().top-h-10;const c=e.titleContent()?"var(--stt-title-bgcolor)":"var(--stt-bgcolor)";if(i.find(".stt-arrow").css({marginLeft:-7,marginTop:""}),r<n.scrollTop()?(r=s.offset().top+s.outerHeight()+10,i.css({"--stt-arrow-color":c}).removeClass("top bottom").addClass("bottom")):i.css({"--stt-arrow-color":"var(--stt-bgcolor)"}).removeClass("top bottom").addClass("top"),l<n.scrollLeft()&&(i.find(".stt-arrow").css({marginLeft:l-7}),l=10),l+o>n.innerWidth()){const t=n.innerWidth()-(l+o);i.find(".stt-arrow").css({marginLeft:-t-7,marginTop:""}),l+=t-10}i.css({left:l,top:r})}t.fn[e]=function(i){if("object"==typeof i||void 0===i)return this.each((function(){t.data(this,`plugin_${e}`)||t.data(this,`plugin_${e}`,new s(this,i))}));if("string"==typeof i&&"_"!==i[0]&&"init"!==i){let n;return this.each((function(){const o=t.data(this,`plugin_${e}`);o instanceof s&&"function"==typeof o[i]&&(n=o[i].apply(o,Array.prototype.slice.call(arguments,1))),"destroy"===i&&t.data(this,`plugin_${e}`,null)})),void 0!==n?n:this}}})(jQuery)
+    ((t,e)=>{const i="stt",s={background:null,titleBackground:null,titleContent:"",width:200,content:null,fetchContentUrl:null,fetchContentBuffer:0,contentElementId:null,useTitle:!1,templateEngineFunc:null,onBeforeShow:null,onShow:null,onHide:null};class n{constructor(i,n){this.element=i,this.$element=t(this.element),this.doc=t(document),this.win=t(e),this.settings={...s,...n,...this.$element.data("stt")},this._title=this.$element.attr("title"),this.mode="hide",this.init()}init(){const t=this.$element;t.addClass("stt-style").removeAttr("title");let e=null,s=null;t.on(`mouseover.${i}`,(t=>{t.ctrlKey||t.altKey||(clearTimeout(e),clearTimeout(s),s=setTimeout((()=>this.show()),150))})).on(`mouseout.${i}`,(()=>{clearTimeout(e),clearTimeout(s),e=setTimeout((()=>this.hide()),150),this.tooltip().on(`mouseenter.${i}`,(()=>{this.mode="tooltipHover"})).on(`mouseleave.${i}`,(()=>{this.mode="show",clearTimeout(e),e=setTimeout((()=>this.hide()),150)})).on(`contextmenu.${i}`,(()=>{this.isContextMenuOpen=!0,this.win.on(`mouseover.${i}`,(t=>{this.tooltip()[0].contains(t.target)||(this.isContextMenuOpen=!1,this.mode="show",this.hide())}))}))})),this.settings.fetchContentUrl&&(this.fetchContent=null)}tooltip(){return this.stt_bubble||(this.stt_bubble=t('<div class="stt-bubble"><div class="stt-title"></div><div class="stt-content"></div><div class="stt-arrow"></div></div>')),this.stt_bubble}async show(){const t=this.tooltip(),e=this.win;"function"==typeof this.settings.onBeforeShow&&this.settings.onBeforeShow(this.$element,this.element,this);const s=this.settings.width?{width:this.settings.width}:{width:200};if(t.css({"--stt-bgcolor":this.settings.background,"--stt-title-bgcolor":this.settings.titleBackground,...s}),this.mode="show",t.find(".stt-content").html(await this.content()),t.find(".stt-title").html(this.titleContent()),o(this),e.on(`resize.${i}`,(()=>o(this))),clearTimeout(this.timeout),"hide"===this.mode)return this.hide(!0);this.timeout=setTimeout((()=>{t.appendTo("body").stop(!0,!0).fadeIn(200,(()=>{"function"==typeof this.settings.onShow&&this.settings.onShow(this.$element,this.element,this)}))}),200)}hide(t=!1){const e=this.tooltip(),s=t?0:50;clearTimeout(this.timeout),this.timeout=setTimeout((()=>{"tooltipHover"===this.mode||this.isContextMenuOpen||e.stop(!0,!0).fadeOut(200,(()=>{e.remove(),"function"==typeof this.settings.onHide&&"show"===this.mode&&this.settings.onHide(this.$element,this.element,this),this.mode="hide",this.win.off(`.${i}`)}))}),s)}close(){this.hide(!0)}destroy(){this.$element.off(`.${i}`).removeData(i).removeClass("stt-style").attr("title",this._title),this.win.off(`.${i}`)}titleContent(){return this.settings.titleContent||this.$element.data("stt-title")}async content(){let e;return this.settings.fetchContentUrl?this._fetchContent?e=this._fetchContent:(e=await(await fetch(this.settings.fetchContentUrl)).text(),this.settings.fetchContentBuffer>0?(this._fetchContent=e,setTimeout((()=>{this._fetchContent=null}),this.settings.fetchContentBuffer)):this._fetchContent=null):e=this.settings.contentElementId?t(`#${this.settings.contentElementId}`).text():this.settings.content?this.settings.content:this.settings.useTitle?this._title:this.$element.data("stt"),this.settings.templateEngineFunc&&(e=this.settings.templateEngineFunc(e,this)),e}update(t,e){if(!e)return this.settings[t];this.settings[t]=e}}function o(e){const i=e.tooltip(),s=e.$element,n=t(window);let{width:o,height:h}=function(t){const e=t.clone().css("visibility","hidden").appendTo("body"),i=e.outerHeight(),s=e.outerWidth();return e.remove(),{width:s,height:i}}(i),l=s.offset().left+s.outerWidth()/2-o/2,r=s.offset().top-h-10;const c=e.titleContent()?"var(--stt-title-bgcolor)":"var(--stt-bgcolor)";if(i.find(".stt-arrow").css({marginLeft:-7,marginTop:""}),r<n.scrollTop()?(r=s.offset().top+s.outerHeight()+10,i.css({"--stt-arrow-color":c}).removeClass("top bottom").addClass("bottom")):i.css({"--stt-arrow-color":"var(--stt-bgcolor)"}).removeClass("top bottom").addClass("top"),l<n.scrollLeft()&&(i.find(".stt-arrow").css({marginLeft:l-7}),l=10),l+o>n.innerWidth()){const t=n.innerWidth()-(l+o);i.find(".stt-arrow").css({marginLeft:-t-7,marginTop:""}),l+=t-10}i.css({left:l,top:r})}t.fn[i]=function(e){if("object"==typeof e||void 0===e)return this.each((function(){t.data(this,`plugin_${i}`)||t.data(this,`plugin_${i}`,new n(this,e))}));if("string"==typeof e&&"_"!==e[0]&&"init"!==e){let s;return this.each((function(){const o=t.data(this,`plugin_${i}`);o instanceof n&&"function"==typeof o[e]&&(s=o[e].apply(o,Array.prototype.slice.call(arguments,1))),"destroy"===e&&t.data(this,`plugin_${i}`,null)})),void 0!==s?s:this}}})(jQuery,"undefined"!=typeof unsafeWindow&&unsafeWindow&&unsafeWindow!==window?unsafeWindow:window)
 
     this.bindTooltipsToElements();
     this.hookDtextPreview();
   },
   globalTooltipConfig: [
     {
-      selector:
-        ".tag-type-1 a:not([href*='banned_artist&z=']), a.dtext-wiki-link.tag-type-1:not([href$='name=banned_artist']), a.dtext-artist-id-link:not([href='/artists/418212'])",
+      selector: ".tag-type-1 a, a.dtext-wiki-link.tag-type-1, a.dtext-artist-id-link",
       options: {
         width: 360,
         fetchContentBuffer: 15e3,
@@ -441,10 +474,7 @@ const tooltipHelper = {
               gap: ".2rem",
               height: "1.3rem"
             });
-            return instance.update(
-              "fetchContentUrl",
-              `/media_assets/${assetId}.json?only=md5,file_ext,file_size,image_width,image_height,duration,variants,post[id]`
-            );
+            return instance.update("fetchContentUrl", `/media_assets/${assetId}.json?only=md5,file_ext,file_size,image_width,image_height,duration,variants,post[id]`);
           }
           instance.destroy();
         },
@@ -487,11 +517,12 @@ const tooltipHelper = {
     BOORU.isMobile && this.touchScreenTooltipFixer(container);
   },
   hookDtextPreview() {
-    const fn = unsafeWindow.Danbooru.Dtext.call_preview,
+    const fn = Danbooru.DTextEditor.prototype.html,
       that = this;
-    unsafeWindow.Danbooru.Dtext.call_preview = async function () {
-      await fn.apply(this, arguments);
-      that.bindTooltipsToElements(arguments[3]);
+    Danbooru.DTextEditor.prototype.html = async function () {
+      const html = await fn.apply(this, arguments);
+      setTimeout(() => that.bindTooltipsToElements(arguments[3]));
+      return html;
     };
   },
   initFavgroupCountTooltip() {
@@ -556,42 +587,24 @@ const tooltipHelper = {
   }
 };
 const mediaAssetPanzoom = {
-  ready: false,
   get media() {
     return document.querySelector(".media-asset-image");
-  },
-  init() {
-    this.initMedia();
-    this.initPanzoom();
   },
   get initCheck() {
     if (!this._initCheck) {
       this._initCheck =
         document.querySelector(".media-asset-component")?.dataset?.dynamicHeightInitialized === "true" &&
-        ((this.media?.tagName === "VIDEO" && this.media.readyState === 4) ||
-          (this.media?.tagName === "IMG" && this.media.complete === true && this.media.naturalHeight !== 0));
+        ((this.media?.tagName === "VIDEO" && this.media.readyState === 4) || (this.media?.tagName === "IMG" && this.media.complete === true && this.media.naturalHeight !== 0));
     }
     return this._initCheck;
   },
-  initPanzoom() {
-    let script = unsafeWindow.document.createElement("script");
-    script.src = "//registry.npmmirror.com/panzoom/9.4.3/files/dist/panzoom.min.js";
-    unsafeWindow.document.head.appendChild(script);
-    script.onload = () => {
-      if (this.initCheck && !this.ready) {
-        this.ready = true;
-        return this.load();
-      }
-    };
-  },
-  initMedia() {
+  init() {
+    let lib = GM_getResourceText("panzoom");
+    new Function(lib)();
     const initDelay = setInterval(() => {
-      if (this.initCheck && unsafeWindow.panzoom) {
+      if (this.initCheck) {
         clearInterval(initDelay);
-        if (!this.ready) {
-          this.ready = true;
-          return this.load();
-        }
+        return this.load();
       }
     });
   },
@@ -698,7 +711,7 @@ const easierOneUp = {
       let container = document.querySelector("#related-posts-by-source .posts-container");
       let articles = container.children;
       const addButton = articles =>
-        articles.forEach(el => {
+        [...articles].forEach(el => {
           const div = document.createElement("div");
           this.addButton(el, div);
           el.querySelector(".post-preview-container").nextElementSibling.appendChild(div);
@@ -715,6 +728,7 @@ const easierOneUp = {
             addButton(articles);
           });
       }
+      bannedPostsHelper.fixBlacklist(container);
     }
 
     const similar = document.getElementById("iqdb-similar");
@@ -739,6 +753,7 @@ const easierOneUp = {
         const div = post.querySelector(".iqdb-similarity-score").parentElement;
         this.addButton(post, div);
       }
+      bannedPostsHelper.fixBlacklist(container);
     }
     this.observer?.disconnect();
   },
@@ -776,9 +791,7 @@ const easierOneUp = {
   async iqdbReq() {
     try {
       let mid = document.getElementById("media_asset_id").value;
-      let resp = await (
-        await fetch(`/iqdb_queries.json?limit=5&search%5Bmedia_asset_id%5D=${mid}&search%5Bsimilarity%5D=50&search%5Bhigh_similarity%5D=70`)
-      ).json();
+      let resp = await (await fetch(`/iqdb_queries.json?limit=5&search%5Bmedia_asset_id%5D=${mid}&search%5Bsimilarity%5D=50&search%5Bhigh_similarity%5D=70`)).json();
       if (Array.isArray(resp)) return resp;
       else throw new Error(JSON.stringify(resp));
     } catch (e) {
@@ -793,7 +806,7 @@ const autoSaver = {
   async init(uploadingPage = true) {
     if (!uploadingPage) {
       this.assetId =
-        document.getElementById("related-tags-container").dataset.mediaAssetId ||
+        document.querySelector("#related-tags-container")?.getAttribute("data-media-asset-id") ||
         document.querySelector("#post-info-size > a[href^='/media_assets/']")?.href.split("/").pop();
       await this.openDB();
       this.remove(this.assetId);
@@ -904,12 +917,8 @@ const hookNoteBoxChanges = {
       unsafeWindow.Danbooru.Note.Box.prototype[methodName] = function () {
         fn.apply(this, arguments);
         const { id, x, y, w, h } = this.note;
-        const prefix = id
-          ? `<a href="/notes/${id}" target="_blank">Note #${id}</a> <a href="/note_versions?search%5Bnote_id%5D=${id}" target="_blank">»</a>`
-          : "Current note";
-        unsafeWindow.Danbooru.Utility.notice(
-          `${prefix} changed: <code style="background-color: transparent;">x: ${x}, y: ${y}, w: ${w}, h: ${h}</code></span>`
-        );
+        const prefix = id ? `<a href="/notes/${id}" target="_blank">Note #${id}</a> <a href="/note_versions?search%5Bnote_id%5D=${id}" target="_blank">»</a>` : "Current note";
+        unsafeWindow.Danbooru.Utility.notice(`${prefix} changed: <code style="background-color: transparent;">x: ${x}, y: ${y}, w: ${w}, h: ${h}</code></span>`);
       };
     }
   },
@@ -940,9 +949,9 @@ const initFavgroupSorter = () => {
   }
 };
 const addPostChangesButtonToArtistPage = () => {
-  const el = document.querySelector("li#subnav-posts");
-  const url = el.children[0].href.replace("posts?tags=", "post_versions?search%5Bchanged_tags%5D=");
-  if (url) el.insertAdjacentHTML("afterend", '<li id="subnav-postchanges"><a id="subnav-postchanges-link" href="' + url + '">Post changes</a></li>');
+  const el = document.querySelector("a#subnav-posts");
+  const url = el.href.replace("posts?tags=", "post_versions?search%5Bchanged_tags%5D=");
+  if (url) el.insertAdjacentHTML("beforebegin", '<a id="subnav-postchanges" class="py-1.5 px-3" href="' + url + '">Post changes</a>');
 };
 const full2HalfWidthChar = () => {
   // Convert full-width characters to half-width in search bar or tag edit textbox
@@ -1153,7 +1162,9 @@ function enhancePostPage() {
       favName.lastElementChild.addEventListener("click", () => {
         fetch(`${pre}/remove_post.js?post_id=${BOORU.postId}`, {
           method: "PUT",
-          headers: { "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token") }
+          headers: {
+            "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token")
+          }
         })
           .then(resp => resp.text())
           .then(text => {
