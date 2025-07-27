@@ -391,7 +391,7 @@ if (typeof unsafeWindow === "undefined") globalThis.unsafeWindow = window;
         }
       }
     });
-    // Twitter Video Downloader - Legacy code: https://paste.ee/p/AtvoT
+    // Twitter Video Downloader - Legacy code: https://pastee.dev/p/AtvoT
     // Reference: https://greasyfork.org/scripts/495368/code
     {
       const TVD = {

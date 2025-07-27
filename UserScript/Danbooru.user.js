@@ -3,11 +3,12 @@
 // @namespace     https://github.com/coo11/Misc/tree/master/UserScript
 // @match         *://*.donmai.us/*
 // @exclude-match *://cdn.donmai.us/*
-// @version       1.10
+// @version       1.13
 // @author        coo11
 // @icon          data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='a' gradientTransform='rotate(85)'%3E%3Cstop offset='.49' stop-color='%23ba9570'/%3E%3Cstop offset='.67' stop-color='%23a4815f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg stroke='%23000'%3E%3Cpath d='M1.5 14.5V4.25L4.25 1.5H14.5v10.25l-2.75 2.75z' fill='url(%23a)'/%3E%3Cpath d='M1.5 4.5h10v10m0-10 3-3' fill='none'/%3E%3C/g%3E%3C/svg%3E
 // @run-at        document-end
 // @resource      panzoom https://registry.npmmirror.com/panzoom/9.4.3/files/dist/panzoom.min.js
+// @grant         GM_addStyle
 // @grant         GM_getResourceText
 // @description   Start taking over the world!
 // ==/UserScript==
@@ -30,6 +31,19 @@ const secondsToMinutes = seconds => {
   const minutes = Math.floor(seconds / 60);
   const sec = seconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(sec).padStart(2, "0")}`.slice(0, 5);
+};
+
+const createElement = (tag, props = {}, dataset = {}) => {
+  const el = document.createElement(tag);
+  Object.assign(el, props);
+  Object.assign(el.dataset, dataset);
+  return el;
+};
+
+const decodeHtml = html => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
 };
 
 const BOORU = {
@@ -231,7 +245,7 @@ const bannedPostsHelper = {
               msg += ` ${bannedPostsCount} posts found in total.`;
             }
           }
-          unsafeWindow.Danbooru.Utility.notice(msg);
+          unsafeWindow.Danbooru.Notice.info(msg);
           BOORU.isMobile && tooltipHelper.touchScreenTooltipFixer(postContainer);
           this.fixBlacklist(postContainer);
         });
@@ -399,11 +413,10 @@ data-id="${id}" data-tags="${tag_string}" data-rating="${rating}" data-flags="${
 };
 const tooltipHelper = {
   init() {
-    document.head.insertAdjacentHTML(
-      "beforeend",
-      `<style>.stt-bubble,.stt-bubble>.stt-arrow{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.stt-bubble{--stt-bgcolor:var(--post-tooltip-background-color);--stt-title-bgcolor:var(--post-tooltip-header-background-color);--stt-arrow-color:var(--stt-bgcolor);background:var(--stt-bgcolor);border:1px solid var(--post-tooltip-border-color);position:absolute;text-align:center;border-radius:4px;z-index:9999;box-shadow:var(--shadow-lg)}.stt-style{cursor:help;border-bottom:1px dotted}.stt-bubble .stt-title{background:var(--stt-title-bgcolor);font-size:10px;border-radius:3px 3px 0 0}.stt-content{word-wrap:break-word;padding:.5em}.stt-bubble>.stt-arrow{position:absolute;border-width:0;pointer-events:none;left:50%;margin-left:0}.stt-bubble>.stt-arrow::after,.stt-bubble>.stt-arrow::before{content:'';position:absolute;left:0;border-style:solid;border-color:transparent}.stt-bubble.top>.stt-arrow{top:100%}.stt-bubble.top>.stt-arrow::before{top:0;border-width:7px 7px 0;border-top-color:var(--stt-arrow-color)}.stt-bubble.top>.stt-arrow::after{top:1px;border-width:7px 7px 0;border-top-color:var(--post-tooltip-border-color);z-index:-1}.stt-bubble.bottom>.stt-arrow{bottom:100%}.stt-bubble.bottom>.stt-arrow::before{bottom:0;border-width:0 7px 7px;border-bottom-color:var(--stt-arrow-color)}.stt-bubble.bottom>.stt-arrow::after{bottom:1px;border-width:0 7px 7px;border-bottom-color:var(--post-tooltip-border-color);z-index:-1}` +
+    GM_addStyle(
+      `.stt-bubble,.stt-bubble>.stt-arrow{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.stt-bubble{--stt-bgcolor:var(--post-tooltip-background-color);--stt-title-bgcolor:var(--post-tooltip-header-background-color);--stt-arrow-color:var(--stt-bgcolor);background:var(--stt-bgcolor);border:1px solid var(--post-tooltip-border-color);position:absolute;text-align:center;border-radius:4px;z-index:9999;box-shadow:var(--shadow-lg)}.stt-style{cursor:help;border-bottom:1px dotted}.stt-bubble .stt-title{background:var(--stt-title-bgcolor);font-size:10px;border-radius:3px 3px 0 0}.stt-content{word-wrap:break-word;padding:.5em}.stt-bubble>.stt-arrow{position:absolute;border-width:0;pointer-events:none;left:50%;margin-left:0}.stt-bubble>.stt-arrow::after,.stt-bubble>.stt-arrow::before{content:'';position:absolute;left:0;border-style:solid;border-color:transparent}.stt-bubble.top>.stt-arrow{top:100%}.stt-bubble.top>.stt-arrow::before{top:0;border-width:7px 7px 0;border-top-color:var(--stt-arrow-color)}.stt-bubble.top>.stt-arrow::after{top:1px;border-width:7px 7px 0;border-top-color:var(--post-tooltip-border-color);z-index:-1}.stt-bubble.bottom>.stt-arrow{bottom:100%}.stt-bubble.bottom>.stt-arrow::before{bottom:0;border-width:0 7px 7px;border-bottom-color:var(--stt-arrow-color)}.stt-bubble.bottom>.stt-arrow::after{bottom:1px;border-width:0 7px 7px;border-bottom-color:var(--post-tooltip-border-color);z-index:-1}` +
         `.stt-content>div.artist-info{display:flex;flex-direction:column}.stt-content>div.artist-info>ul{max-height:240px;padding-right:.2rem;margin-bottom:.3rem;text-align:left}.stt-content>div.artist-info li{line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stt-bubble div.artist-info>p:last-of-type{display:inline-block;text-align:left;margin:0}.stt-content>div.artist-info>p>span:last-of-type{float:right;margin-right:.3rem;color:var(--muted-text-color)}` +
-        `table.stt-favgroup thead tr{border-bottom:2px solid var(--table-header-border-color)}table.stt-favgroup tbody tr{border-bottom:1px solid var(--table-row-border-color)}table.stt-favgroup tbody tr:hover{background:var(--table-row-hover-background)}table.stt-favgroup tr:nth-child(2n){background:var(--table-even-row-background)}table.stt-favgroup td,table.stt-favgroup th{line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;padding-right:.5rem}table.stt-favgroup th{text-align:center}table.stt-favgroup td,table.stt-favgroup th:first-child{text-align:left}</style>`
+        `table.stt-favgroup thead tr{border-bottom:2px solid var(--table-header-border-color)}table.stt-favgroup tbody tr{border-bottom:1px solid var(--table-row-border-color)}table.stt-favgroup tbody tr:hover{background:var(--table-row-hover-background)}table.stt-favgroup tr:nth-child(2n){background:var(--table-even-row-background)}table.stt-favgroup td,table.stt-favgroup th{line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;padding-right:.5rem}table.stt-favgroup th{text-align:center}table.stt-favgroup td,table.stt-favgroup th:first-child{text-align:left}`
     );
 
     // Simple Tooltip v1.0.10 - Forked from [tipso](https://github.com/object505/tipso)
@@ -764,7 +777,7 @@ const easierOneUp = {
     BOORU.tagBox.value = tags.join(" ") + " ";
     BOORU.tagBox.dispatchEvent(new InputEvent("input", { bubbles: true }));
     document.querySelector(".source-tab").click();
-    Danbooru.Utility.notice("Successfully copied tags. Please check the commentary tags.");
+    Danbooru.Notice.info("Successfully copied tags. Please check the commentary tags.");
   },
   addButton(post, div) {
     const setParent = document.createElement("a");
@@ -918,7 +931,7 @@ const hookNoteBoxChanges = {
         fn.apply(this, arguments);
         const { id, x, y, w, h } = this.note;
         const prefix = id ? `<a href="/notes/${id}" target="_blank">Note #${id}</a> <a href="/note_versions?search%5Bnote_id%5D=${id}" target="_blank">»</a>` : "Current note";
-        unsafeWindow.Danbooru.Utility.notice(`${prefix} changed: <code style="background-color: transparent;">x: ${x}, y: ${y}, w: ${w}, h: ${h}</code></span>`);
+        unsafeWindow.Danbooru.Notice.info(`${prefix} changed: <code style="background-color: transparent;">x: ${x}, y: ${y}, w: ${w}, h: ${h}</code></span>`);
       };
     }
   },
@@ -931,22 +944,23 @@ const hookNoteBoxChanges = {
 };
 
 const initFavgroupSorter = () => {
-  let textAreaLabel = document.querySelector(".favorite_group_post_ids_string > label");
-  textAreaLabel.insertAdjacentHTML(
-    "beforeend",
-    `<span class="text-xxs text-center" style="font-weight:normal;">&nbsp;&nbsp;<a class="ids_ascending">Ascending</a>&nbsp;|&nbsp;<a class="ids_descending">Descending</a></span>`
-  );
-  textAreaLabel.querySelector("a.ids_ascending").addEventListener("click", () => sortIds());
-  textAreaLabel.querySelector("a.ids_descending").addEventListener("click", () => sortIds(false));
-  function sortIds(ascending = true) {
+  const sortIds = (ascending = true) => {
     let tArea = document.querySelector("#favorite_group_post_ids_string"),
       ids = tArea.value.trim(),
       idsArr = ids.split(/\s+/).filter(id => /^\d+$/.test(id));
     idsArr = [...new Set(idsArr)];
     idsArr.sort((a, b) => (ascending ? a - b : b - a));
     tArea.value = idsArr.join(" ");
-    unsafeWindow.Danbooru.notice(`Sort in ${ascending ? "ascending" : "descending"} order.`);
-  }
+    Danbooru.Notice.info(`Sort in ${ascending ? "ascending" : "descending"} order.`);
+  };
+  const label = document.querySelector(".favorite_group_post_ids_string > label");
+  const span = createElement("span", { classList: "text-xxs text-center", style: "font-weight:normal" });
+  const aA = createElement("a", { textContent: "Ascending" });
+  const aD = createElement("a", { textContent: "Descending" });
+  span.append("  ", aA, " | ", aD);
+  label.append(span);
+  aA.addEventListener("click", () => sortIds());
+  aD.addEventListener("click", () => sortIds(false));
 };
 const addPostChangesButtonToArtistPage = () => {
   const el = document.querySelector("a#subnav-posts");
@@ -955,7 +969,7 @@ const addPostChangesButtonToArtistPage = () => {
 };
 const full2HalfWidthChar = () => {
   // Convert full-width characters to half-width in search bar or tag edit textbox
-  // Legacy code: https://paste.ee/p/Eds99Iey
+  // Legacy code: https://pastee.dev/p/Eds99Iey
   const replacementMap = new Map([
     ["——", "_"],
     ["（", "("],
@@ -1045,45 +1059,82 @@ const dragElement = el => {
   });
 };
 const fakeTagBox = () => {
+  GM_addStyle("#post_tag_string{width:100%;height:60vh}#post_tag_string::placeholder{padding:initial}");
   document.getElementById(
     "page"
-  ).innerHTML = `<div class="fake-tag-box w-full h-full"><div class="flex justify-between"><label for="post_tag_string">Tags</label> <span data-tag-counter="" data-for="#post_tag_string" class="text-muted text-sm"><span class="tag-count"></span></span></div><div class="input text optional post_tag_string w-full h-full"><textarea data-autocomplete="tag-edit" data-shortcut="e" class="text optional ui-autocomplete-input" name="post[tag_string]" id="post_tag_string" autocomplete="off" title="Shortcut is e" placeholder="Page not found" style="width:100%;height:100%"></textarea></div></div>`;
-  unsafeWindow.Danbooru.Autocomplete.initialize_all();
-  const countElement = document.querySelector(".fake-tag-box [data-tag-counter]");
-  if (!countElement.innerText) new unsafeWindow.Danbooru.TagCounter($(countElement));
+  ).innerHTML = `<div class="fake-tag-box w-full h-full"><div class="flex justify-between"><label for="post_tag_string">Tags</label> <span data-tag-counter="" data-for="#post_tag_string" class="text-muted text-sm"><span class="tag-count"></span></span></div><div class="input text optional post_tag_string w-full h-full"><textarea data-autocomplete="tag-edit" data-shortcut="e" class="text optional ui-autocomplete-input" name="post[tag_string]" id="post_tag_string" autocomplete="off" title="Shortcut is e" placeholder="Page not found" style=""></textarea></div></div>`;
+  setTimeout(() => {
+    Danbooru.Autocomplete.initialize_tag_autocomplete();
+    const countElement = document.querySelector(".fake-tag-box [data-tag-counter]");
+    if (!countElement.innerText) new Danbooru.TagCounter($(countElement));
+  }, 0);
 };
 
 function enhancePage() {
   !BOORU.isMobile && document.querySelectorAll("a.post-preview-link").forEach(a => (a.draggable = true)); // Fix for gesture plugin
   // Copy tags
-  $(".tag-list,#related-tags-container,#tag-table>tbody,#c-artists>#a-show>div:first-child").on("click", "span.post-count", function () {
-    const tagString = this.parentElement.dataset.tagName || this.previousElementSibling.innerText.replace(/\s+/g, "_");
+  $("#page").on("click", "span.post-count", function () {
+    const tagString = this.parentElement.dataset.tagName || this.previousElementSibling.textContent.replace(/\s+/g, "_");
     if (tagString) unsafeWindow.Danbooru.Utility.copyToClipboard(tagString, `Tag <b><i>${tagString}</i></b> copied.`);
   });
   // Top search-box
-  const searchBox = document.getElementById("search-box");
-  if (searchBox) {
+  {
     let searchForm = document.getElementById("search-box-form"),
-      input = document.getElementById("tags"),
-      header = document.getElementById("top"),
+      searchInput;
+    if (searchForm) {
+      searchInput = document.getElementById("tags");
+    } else {
+      searchForm = createElement("form", { id: "search-box-form", className: "flex", action: "/posts", "accept-charset": "UTF-8", method: "get" });
+      searchInput = createElement(
+        "input",
+        {
+          type: "text",
+          name: "tags",
+          id: "tags",
+          className: "flex-auto ui-autocomplete-input",
+          autocapitalize: "none",
+          autocomplete: "off",
+          title: "Shortcut is q"
+        },
+        {
+          shortcut: "q",
+          autocomplete: "tag-query"
+        }
+      );
+      searchForm.append(searchInput);
+      searchForm.insertAdjacentHTML(
+        "beforeend",
+        `<button id="search-box-submit" type="submit"><svg class="icon svg-icon search-icon" viewBox="0 0 512 512"><use fill="currentColor" href="${BOORU.iconUri}#magnifying-glass"></use></svg></button>`
+      );
+    }
+    let header = document.getElementById("top"),
       div = document.createElement("div");
     div.id = "search-header";
     document.body.insertBefore(div, header);
     div.appendChild(searchForm);
     document.getElementById("app-name").remove();
+    document.getElementById("search-box")?.remove();
     document.querySelector('#post-sections a[href="#search-box"]')?.remove();
-    searchBox.remove();
-    setTimeout(() => $(input).autocomplete("option", "appendTo", "#search-header"), 0);
-    const style = document.createElement("style");
-    document.head.appendChild(style);
-    style.innerHTML = `body{height:unset}#search-header{position:sticky;top:0;z-index:2;background-color:var(--body-background-color)}#search-box-form{min-width:180px;width:50vw;margin:0 30px;padding:.5rem 0}#search-box-form input{height:26px}#app-name-header{display:none}#notice{top:calc(1rem + 26px)}#main-menu a{outline-offset:-1px}header#top,header#top>nav{margin-top:0!important}@media screen and (max-width:660px){header#top{z-index:2;position:sticky;top:calc(26px + 1.5rem)}header#top>div{display:block;margin:0}#app-name-header{display:block;position:fixed;top:.3rem;left:.5rem}header#top>div>a{position:fixed;top:.7rem;right:.5rem}#search-box-form{width:70vw;margin:0 auto;padding:.75rem 0}#search-box-form input#tags{min-width:180px}#search-header .ui-menu{width:70vw!important}#notice{top:calc(1.5rem + 26px)}}`;
+    setTimeout(() => {
+      Danbooru.Autocomplete.initialize_tag_autocomplete();
+      $(searchInput).autocomplete("option", "appendTo", "#search-header");
+    }, 0);
+    GM_addStyle(
+      "body{height:unset;min-height:100%}#search-header{position:sticky;top:0;z-index:11;background-color:var(--body-background-color)}#search-box-form{min-width:180px;width:50vw;margin:0 30px;padding:.5rem 0}#search-box-form input{height:26px}#app-name-header{display:none}#notice{top:calc(1rem + 26px)}#main-menu a{outline-offset:-1px}header#top,header#top>nav{margin-top:0!important}@media screen and (max-width:660px){header#top{z-index:11;position:sticky;top:calc(26px + 1.5rem)}header#top>div{display:block;margin:0}#app-name-header{display:block;position:fixed;top:.3rem;left:.5rem}header#top>div>a{position:fixed;top:.7rem;right:.5rem}#search-box-form{width:70vw;transition:width 0.2s ease;margin:0 auto;padding:.75rem 0}#search-box-form:focus-within{width:90vw}#search-box-form input#tags{min-width:180px}#search-header .ui-menu{width:70vw!important}#notice{top:calc(1.5rem + 26px)}}"
+    );
+    searchForm.addEventListener("focusin", () => {
+      div.style.zIndex = "12";
+    });
+    searchForm.addEventListener("focusout", () => {
+      div.style.zIndex = "11";
+    });
     document.getElementById("app-logo").addEventListener("click", e => {
       e.preventDefault();
       e.currentTarget.blur();
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     !BOORU.isMobile &&
-      input.addEventListener("keydown", function (event) {
+      searchInput.addEventListener("keydown", function (event) {
         if (event.altKey && event.key === "Enter") {
           event.preventDefault();
           const query = encodeURIComponent(this.value.trim());
@@ -1103,7 +1154,7 @@ function enhancePostPage() {
   /* Sidebar */
   const size = document.querySelector("#post-info-size > a:last-child");
   size.previousSibling.data = size.previousSibling.data.replace("x", "×");
-  // Search via MD5 - Deprecated: https://paste.ee/p/QzILE
+  // Search via MD5 - Deprecated: https://pastee.dev/p/QzILE
   const time = document.querySelector("#post-info-date time");
   const node = time.parentNode.previousSibling;
   const span = document.createElement("span");
@@ -1145,41 +1196,63 @@ function enhancePostPage() {
   }
   /* Navibar */
   // Shortcut to remove a post from the favorite group
-  let noticeSearchBar = document.querySelector(".post-notice-search"),
-    favBars = noticeSearchBar?.querySelectorAll(".favgroup-navbar") || [];
-  if (favBars.length) {
-    document.head.insertAdjacentHTML(
-      "beforeend",
-      `<style>.post-notice-search>.favgroup-navbar{display:flex;align-items:center}.favgroup-navbar>.favgroup-name{white-space:normal!important}.favgroup-navbar:hover .fav-remove-link{opacity:1}.favgroup-navbar .fav-remove-link{opacity:0}.fav-remove-link{color:var(--button-danger-background-color)}.fav-remove-link:hover{color:var(--button-danger-hover-background-color)}</style>`
-    );
-    favBars.forEach(fav => {
-      let favName = fav.querySelector(".favgroup-name");
-      let pre = favName.children[0].href;
-      favName.insertAdjacentHTML(
-        "beforeend",
-        `&nbsp;<a class="fav-remove-link text-lg" title="Remove from this group"><svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="${BOORU.iconUri}#xmark"></use></svg></a>`
-      );
-      favName.lastElementChild.addEventListener("click", () => {
-        fetch(`${pre}/remove_post.js?post_id=${BOORU.postId}`, {
-          method: "PUT",
-          headers: {
-            "X-CSRF-Token": unsafeWindow.Danbooru.Utility.meta("csrf-token")
+  const noticeSearchBar = document.querySelector(".post-notice-search"),
+    favgroupBars = noticeSearchBar?.querySelectorAll(".favgroup-navbar"),
+    addToAnchors = document.querySelectorAll(".add-to-favgroup");
+  const handleFavgroupBar = (bar, groupName, pathname) => {
+    const xEl = createElement("a", { classList: "favgroup-removal text-lg", title: "Remove from this group" });
+    xEl.innerHTML = `<svg class="icon svg-icon close-icon" viewBox="0 0 320 512"><use fill="currentColor" href="${BOORU.iconUri}#xmark"></use></svg>`;
+    if (!bar) {
+      bar = createElement("li", { classList: "favgroup-navbar" }, { selected: false });
+      let nameEl = createElement("span", { classList: "favgroup-name" });
+      let a = createElement("a", { href: pathname, textContent: "Favgroup: " + groupName });
+      nameEl.append(a, xEl);
+      bar.appendChild(nameEl);
+      noticeSearchBar.appendChild(bar);
+    } else {
+      const nameEl = bar.querySelector(".favgroup-name");
+      nameEl.appendChild(xEl);
+      pathname = nameEl.children[0].pathname;
+    }
+    xEl.addEventListener("click", () => {
+      fetch(`${pathname}/remove_post.js?post_id=${BOORU.postId}`, {
+        method: "PUT",
+        headers: { "X-CSRF-Token": Danbooru.Utility.meta("csrf-token") }
+      })
+        .then(resp => resp.text())
+        .then(text => {
+          const matched = text.match(/"(Removed post from favorite group )(.+?)"\);/);
+          if (matched) {
+            const url = encodeURI(`/posts?tags=favgroup:"${matched[2]}"`);
+            const text = matched[1] + `<a href="${url}">${matched[2]}</a>`;
+            Danbooru.Notice.info(text);
+            bar.remove();
           }
-        })
-          .then(resp => resp.text())
-          .then(text => {
-            const matched = text.match(/"(Removed post from favorite group )(.+?)"\);/);
-            if (matched) {
-              const url = encodeURI(`/posts?tags=favgroup:"${matched[2]}"`);
-              const text = matched[1] + `<a href="${url}">${matched[2]}</a>`;
-              unsafeWindow.Danbooru.notice(text);
-              fav.remove();
-              if (noticeSearchBar.children.length === 0) noticeSearchBar.remove();
+        });
+    });
+  };
+  if (addToAnchors.length) {
+    GM_addStyle(
+      ".favgroup-name{white-space:normal!important}.favgroup-navbar:hover .favgroup-removal{opacity:1}.favgroup-removal{opacity:0;color:var(--button-danger-background-color);position:absolute;transform:translate(50%,-5%);cursor:pointer}.favgroup-removal:hover{color:var(--button-danger-hover-background-color)}"
+    );
+    const origOpen = window.XMLHttpRequest.prototype.open;
+    window.XMLHttpRequest.prototype.open = function (method, url) {
+      if (method === "PUT") {
+        let groupId = url.match(/\/favorite_groups\/(\d+)\/add_post\.js/)?.[1];
+        if (groupId)
+          this.addEventListener("readystatechange", function () {
+            if (this.readyState !== XMLHttpRequest.DONE) return;
+            const groupName = this.response.match(/"Added post to favorite group (.+?)"/)?.[1];
+            if (groupName) {
+              const isShown = Array.from(favgroupBars).some(bar => bar.querySelector(".favgroup-name>a:first-of-type").pathname.split("/")[2] === groupId);
+              if (!isShown) handleFavgroupBar(null, decodeHtml(groupName), `/favorite_groups/${groupId}`);
             }
           });
-      });
-    });
-  }
+      }
+      return origOpen.apply(this, [].slice.call(arguments));
+    };
+  } else return;
+  if (favgroupBars.length) favgroupBars.forEach(bar => handleFavgroupBar(bar));
 }
 function enhanceUploadPage() {
   // wait(1000).then(() => document.querySelector(".ai-tags-related-tags-column")?.classList?.remove("hidden"));

@@ -1,4 +1,4 @@
-// Legacy Code - https://paste.ee/p/ZMSDCl4p
+// Legacy Code - https://pastee.dev/p/ZMSDCl4p
 (() => {
   if (location.href === 'about:blank') return;
 

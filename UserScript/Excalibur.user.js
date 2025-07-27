@@ -123,7 +123,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
   // Bilibili Video
   else if (hostname.endsWith(".bilibili.com")) {
     disableWebRTC();
-    // Fuck AVIF - Deprecated: https://paste.ee/p/3VnPBsPK
+    // Fuck AVIF - Deprecated: https://pastee.dev/p/3VnPBsPK
     // TODO: https://www.bilibili.com/blackboard/newplayer.html?autoplay=0&&musth5=1aid=...&page=...&cid=...
     if (/(?:\/s)?\/video\/(av|BV|bv)(\w+)/.test(pathname)) {
       // https://github.com/mrhso/IshisashiWebsite/blob/4108b25d9be21ce3925d88259f6b0fddaf594217/BVwhodoneit/index.html#L24C1-L101C3
@@ -529,7 +529,7 @@ const wait = (ms = 1e3) => new Promise(resolve => setTimeout(resolve, ms));
         }
       }
     });
-    // Twitter Video Downloader - Legacy code: https://paste.ee/p/AtvoT
+    // Twitter Video Downloader - Legacy code: https://pastee.dev/p/AtvoT
     // Reference: https://greasyfork.org/scripts/495368/code
     ({
       init() {
